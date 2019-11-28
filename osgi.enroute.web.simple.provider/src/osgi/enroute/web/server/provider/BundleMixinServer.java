@@ -5,6 +5,7 @@ import java.net.URL;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.osgi.annotation.bundle.Capability;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleEvent;
@@ -17,7 +18,6 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.log.LogService;
 import org.osgi.util.tracker.BundleTracker;
 
-import aQute.bnd.annotation.headers.ProvideCapability;
 import osgi.enroute.http.capabilities.RequireHttpImplementation;
 import osgi.enroute.servlet.api.ConditionalServlet;
 import osgi.enroute.web.server.cache.Cache;
@@ -26,8 +26,7 @@ import osgi.enroute.web.server.config.WebServerConfig;
 import osgi.enroute.web.server.exceptions.ExceptionHandler;
 import osgi.enroute.webserver.capabilities.WebServerConstants;
 
-@ProvideCapability(
-		ns = ExtenderNamespace.EXTENDER_NAMESPACE, 
+@Capability(namespace = ExtenderNamespace.EXTENDER_NAMESPACE, 
 		name = WebServerConstants.WEB_SERVER_EXTENDER_NAME, 
 		version = WebServerConstants.WEB_SERVER_EXTENDER_VERSION)
 @RequireHttpImplementation

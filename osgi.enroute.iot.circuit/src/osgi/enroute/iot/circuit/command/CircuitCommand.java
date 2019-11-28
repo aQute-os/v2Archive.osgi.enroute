@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.apache.felix.service.command.annotations.GogoCommand;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
 import org.osgi.framework.InvalidSyntaxException;
@@ -14,7 +15,6 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
-import osgi.enroute.debug.api.Debug;
 import osgi.enroute.dto.api.DTOs;
 import osgi.enroute.iot.admin.api.CircuitAdmin;
 import osgi.enroute.iot.admin.dto.ICDTO;
@@ -30,16 +30,9 @@ import osgi.enroute.scheduler.api.Scheduler;
  * Commands to work with a circuit
  * 
  */
-@Component(service = CircuitCommand.class, property = {
-		Debug.COMMAND_SCOPE + "=circuit", //
-		Debug.COMMAND_FUNCTION + "=circuit", //
-		Debug.COMMAND_FUNCTION + "=wires", //
-		Debug.COMMAND_FUNCTION + "=ics", //
-		Debug.COMMAND_FUNCTION + "=connect", //
-		Debug.COMMAND_FUNCTION + "=gpo", //
-		Debug.COMMAND_FUNCTION + "=clock", //
-		Debug.COMMAND_FUNCTION + "=disconnect", //
-}, name = "osgi.enroute.iot.circuit.command")
+@GogoCommand(scope = "circuit", function = { "=circuit", "wires", "ics",
+		"connect", "gpo", "clock", "disconnect" })
+@Component(service = CircuitCommand.class, name = "osgi.enroute.iot.circuit.command")
 public class CircuitCommand {
 	CircuitAdmin						ca;
 	private BundleContext				context;
@@ -126,7 +119,8 @@ public class CircuitCommand {
 	 * Create an IC that sends any input to System.out. The life cycle of this
 	 * IC is depending on this component, so it is not persistent.
 	 * 
-	 * @param name the name/id of this IC
+	 * @param name
+	 *            the name/id of this IC
 	 */
 	public void gpo(String name) {
 		SysOut gpo = new SysOut(name, board, dtos);
@@ -140,10 +134,10 @@ public class CircuitCommand {
 	}
 
 	/**
-	 * Create an IC that reverses the output every second. 
+	 * Create an IC that reverses the output every second.
 	 */
 	class Clock extends GPI implements CronJob<Object> {
-		boolean	value;
+		boolean value;
 
 		public Clock(String name, CircuitBoard board, DTOs dtos) {
 			super(name, board, dtos);
@@ -154,12 +148,13 @@ public class CircuitCommand {
 			out().set(value = !value);
 		}
 	}
-	
+
 	/**
-	 * Create a clock that reverses its output pin ever second. The life cycle of this
-	 * IC is depending on this component, so it is not persistent.
+	 * Create a clock that reverses its output pin ever second. The life cycle
+	 * of this IC is depending on this component, so it is not persistent.
 	 * 
-	 * @param name The name/id of this IC
+	 * @param name
+	 *            The name/id of this IC
 	 */
 
 	public void clock(String name) {
@@ -167,14 +162,13 @@ public class CircuitCommand {
 		Hashtable<String, Object> properties = new Hashtable<>();
 		properties.put(Constants.SERVICE_PID, name);
 		properties.put(CronJob.CRON, "/1 * * * * ?");
-		ServiceRegistration<?> reg = context.registerService(new String[] {
-				IC.class.getName(), CronJob.class.getName() }, clock,
-				properties);
+		ServiceRegistration<?> reg = context.registerService(
+				new String[] { IC.class.getName(), CronJob.class.getName() },
+				clock, properties);
 		ServiceRegistration<?> old = regs.put(name, reg);
 		if (old != null)
 			old.unregister();
 	}
-
 
 	private String pid(String pid) throws InvalidSyntaxException {
 		try {

@@ -10,6 +10,7 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.Designate;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
@@ -28,7 +29,6 @@ import com.pi4j.io.serial.DataBits;
 import com.pi4j.io.serial.Parity;
 import com.pi4j.io.serial.StopBits;
 
-import aQute.bnd.annotation.metatype.Meta;
 import osgi.enroute.dto.api.DTOs;
 import osgi.enroute.iot.gpio.api.CircuitBoard;
 import osgi.enroute.iot.gpio.api.IC;
@@ -89,149 +89,149 @@ public class Model2B_Rev1Impl {
 		// 02 5 V
 
 		// 03 GPIO 8
-		@Meta.AD(description = "GPIO 8 (or I2C SDA1)")
+		@AttributeDefinition(description = "GPIO 8 (or I2C SDA1)")
 		I2C _03();
 
-		@Meta.AD(description = "GPIO 8 Level")
+		@AttributeDefinition(description = "GPIO 8 Level")
 		Level _03_Level();
 
 		// 04 5 V
 
 		// 05 GPIO 9
-		@Meta.AD(description = "GPIO 9 (or I2C SCL1)")
+		@AttributeDefinition(description = "GPIO 9 (or I2C SCL1)")
 		GPIO _05();
 
-		@Meta.AD(description = "GPIO 5 Level")
+		@AttributeDefinition(description = "GPIO 5 Level")
 		Level _05_Level();
 
 		// 06 Ground
 
 		// 07 GPIO 7
-		@Meta.AD(description = "GPIO 7 (or GPCLK0)")
+		@AttributeDefinition(description = "GPIO 7 (or GPCLK0)")
 		GPCLK _07();
 
-		@Meta.AD(description = "GPIO 7 Level")
+		@AttributeDefinition(description = "GPIO 7 Level")
 		Level _07_Level();
 
 		// 08 GPIO 15 or TX (UART)
-		@Meta.AD(description = "GPIO 15 or TX (UART)")
+		@AttributeDefinition(description = "GPIO 15 or TX (UART)")
 		UART _08();
 
-		@Meta.AD(description = "GPIO 15 Level")
+		@AttributeDefinition(description = "GPIO 15 Level")
 		Level _08_Level();
 
-		@Meta.AD(description = "Baud Rate for UART")
+		@AttributeDefinition(description = "Baud Rate for UART")
 		com.pi4j.io.serial.Baud _08_Baud();
 
-		@Meta.AD(description = "Data bits for UART")
+		@AttributeDefinition(description = "Data bits for UART")
 		com.pi4j.io.serial.DataBits _08_DataBits();
 
-		@Meta.AD(description = "Parity for UART")
+		@AttributeDefinition(description = "Parity for UART")
 		com.pi4j.io.serial.Parity _08_Parity();
 
-		@Meta.AD(description = "Stop Bits for UART")
+		@AttributeDefinition(description = "Stop Bits for UART")
 		com.pi4j.io.serial.StopBits _08_StopBits();
 
 		// 09 Ground
 
 		// 10 GPIO 16 or RX (UART)
 
-		@Meta.AD(description = "GPIO 16 or RX as defined by pin 08")
+		@AttributeDefinition(description = "GPIO 16 or RX as defined by pin 08")
 		GPIO _10();
 
-		@Meta.AD(description = "GPIO 16 Level")
+		@AttributeDefinition(description = "GPIO 16 Level")
 		Level _10_Level();
 
 		// 11 GPIO 0
-		@Meta.AD(description = "GPIO 0")
+		@AttributeDefinition(description = "GPIO 0")
 		GPIO _11();
 
-		@Meta.AD(description = "GPIO 0 Level")
+		@AttributeDefinition(description = "GPIO 0 Level")
 		Level _11_Level();
 
 		// 12 GPIO 1 or PCM_CLK/PWWM0
-		@Meta.AD(description = "GPIO 1 or PCM_CLOCK or PWM0")
+		@AttributeDefinition(description = "GPIO 1 or PCM_CLOCK or PWM0")
 		PWM _12();
 
-		@Meta.AD(description = "GPIO 1 Level")
+		@AttributeDefinition(description = "GPIO 1 Level")
 		Level _12_Level();
 
 		// 13 GPIO 2
-		@Meta.AD(description = "GPIO 2")
+		@AttributeDefinition(description = "GPIO 2")
 		GPIO _13();
 
-		@Meta.AD(description = "GPIO 2 Level")
+		@AttributeDefinition(description = "GPIO 2 Level")
 		Level _13_Level();
 
 		// 14 Ground
 
 		// 15 GPIO 3
-		@Meta.AD(description = "GPIO 3")
+		@AttributeDefinition(description = "GPIO 3")
 		GPIO _15();
 
-		@Meta.AD(description = "GPIO 3 Level")
+		@AttributeDefinition(description = "GPIO 3 Level")
 		Level _15_Level();
 
 		// 16 GPIO 4
-		@Meta.AD(description = "GPIO 4")
+		@AttributeDefinition(description = "GPIO 4")
 		GPIO _16();
 
-		@Meta.AD(description = "GPIO 4 Level")
+		@AttributeDefinition(description = "GPIO 4 Level")
 		Level _16_Level();
 
 		// 17 3.3 V
 
 		// 18 GPIO 5
-		@Meta.AD(description = "GPIO 5")
+		@AttributeDefinition(description = "GPIO 5")
 		GPIO _18();
 
-		@Meta.AD(description = "GPIO 5 Level")
+		@AttributeDefinition(description = "GPIO 5 Level")
 		Level _18_Level();
 
 		// 19 GPIO 12 or MOSI (SPI)
-		@Meta.AD(description = "GPIO 12 or MOSI (SPI)")
+		@AttributeDefinition(description = "GPIO 12 or MOSI (SPI)")
 		SPI _19();
 
-		@Meta.AD(description = "GPIO 12 Level")
+		@AttributeDefinition(description = "GPIO 12 Level")
 		Level _19_Level();
 
 		// 20 Ground
 
 		// 21 GPIO 13 or MOSI (SPI)
-		@Meta.AD(description = "GPIO 13 or MISO (SPI)")
+		@AttributeDefinition(description = "GPIO 13 or MISO (SPI)")
 		GPIO _21();
 
-		@Meta.AD(description = "GPIO 13 Level")
+		@AttributeDefinition(description = "GPIO 13 Level")
 		Level _21_Level();
 
 		// 22 GPIO 6
-		@Meta.AD(description = "GPIO 6")
+		@AttributeDefinition(description = "GPIO 6")
 		GPIO _22();
 
-		@Meta.AD(description = "GPIO 6 Level")
+		@AttributeDefinition(description = "GPIO 6 Level")
 		Level _22_Level();
 
 		// 23 GPIO 14
-		@Meta.AD(description = "GPIO 14 or SCLK (SPI)")
+		@AttributeDefinition(description = "GPIO 14 or SCLK (SPI)")
 		GPIO _23();
 
-		@Meta.AD(description = "GPIO 14 Level")
+		@AttributeDefinition(description = "GPIO 14 Level")
 		Level _23_Level();
 
 		// 24 GPIO 10 or CE0 (SPI)
-		@Meta.AD(description = "GPIO 10 or CE0 (SPI)")
+		@AttributeDefinition(description = "GPIO 10 or CE0 (SPI)")
 		GPIO _24();
 
-		@Meta.AD(description = "GPIO 10 Level")
+		@AttributeDefinition(description = "GPIO 10 Level")
 		Level _24_Level();
 
 		// 25 Ground
 
 		// 26 GPIO 11
-		@Meta.AD(description = "GPIO 11 or CE1 (SPI)")
+		@AttributeDefinition(description = "GPIO 11 or CE1 (SPI)")
 		GPIO _26();
 
-		@Meta.AD(description = "GPIO 11 Level")
+		@AttributeDefinition(description = "GPIO 11 Level")
 		Level _26_Level();
 
 		// 27 SDA0 (I2C ID EEPROM)
@@ -239,72 +239,72 @@ public class Model2B_Rev1Impl {
 		// 28 SCL0 (I2C ID EEPROM)
 
 		// 29 GPIO 21 or GPCLK1
-		@Meta.AD(description = "GPIO 21 or GPCLK1")
+		@AttributeDefinition(description = "GPIO 21 or GPCLK1")
 		GPCLK _29();
 
-		@Meta.AD(description = "GPIO 21 Level")
+		@AttributeDefinition(description = "GPIO 21 Level")
 		Level _29_Level();
 
 		// 30 Ground
 
 		// 31 GPIO 22 or GPCLK2
-		@Meta.AD(description = "GPIO 22 or GPCLK2")
+		@AttributeDefinition(description = "GPIO 22 or GPCLK2")
 		GPCLK _31();
 
-		@Meta.AD(description = "GPIO 22 Level")
+		@AttributeDefinition(description = "GPIO 22 Level")
 		Level _31_Level();
 
 		// 32 GPIO 26 or PWM0
-		@Meta.AD(description = "GPIO 26 or PWM0")
+		@AttributeDefinition(description = "GPIO 26 or PWM0")
 		PWM _32();
 
-		@Meta.AD(description = "GPIO 26 Level")
+		@AttributeDefinition(description = "GPIO 26 Level")
 		Level _32_Level();
 
 		// 33 GPIO 23 or PWM1
-		@Meta.AD(description = "GPIO 23 or PWM1")
+		@AttributeDefinition(description = "GPIO 23 or PWM1")
 		PWM _33();
 
-		@Meta.AD(description = "GPIO 23 Level")
+		@AttributeDefinition(description = "GPIO 23 Level")
 		Level _33_Level();
 
 		// 34 Ground
 
 		// 35 GPIO 24 or PCM_FS/PWM1
-		@Meta.AD(description = "GPIO 24 or PCM_FS/PWM1")
+		@AttributeDefinition(description = "GPIO 24 or PCM_FS/PWM1")
 		PWM _35();
 
-		@Meta.AD(description = "GPIO 24 Level")
+		@AttributeDefinition(description = "GPIO 24 Level")
 		Level _35_Level();
 
 		// 36 GPIO 27
-		@Meta.AD(description = "GPIO 27")
+		@AttributeDefinition(description = "GPIO 27")
 		GPIO _36();
 
-		@Meta.AD(description = "GPIO 27 Level")
+		@AttributeDefinition(description = "GPIO 27 Level")
 		Level _36_Level();
 
 		// 37 GPIO 25
-		@Meta.AD(description = "GPIO 25")
+		@AttributeDefinition(description = "GPIO 25")
 		GPIO _37();
 
-		@Meta.AD(description = "GPIO 25 Level")
+		@AttributeDefinition(description = "GPIO 25 Level")
 		Level _37_Level();
 
 		// 38 GPIO 28 or PCM_DIN
-		@Meta.AD(description = "GPIO 28 or PCM_DIN")
+		@AttributeDefinition(description = "GPIO 28 or PCM_DIN")
 		PCM _38();
 
-		@Meta.AD(description = "GPIO 28 Level")
+		@AttributeDefinition(description = "GPIO 28 Level")
 		Level _38_Level();
 
 		// 39 ground
 
 		// 40 GPIO 29
-		@Meta.AD(description = "GPIO 29 or PCM_DOUT")
+		@AttributeDefinition(description = "GPIO 29 or PCM_DOUT")
 		GPIO _40();
 
-		@Meta.AD(description = "GPIO 29 Level")
+		@AttributeDefinition(description = "GPIO 29 Level")
 		Level _40_Level();
 	}
 

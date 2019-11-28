@@ -1,21 +1,20 @@
 package osgi.enroute.executor.simple.provider;
 
+import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
-
-import aQute.bnd.annotation.metatype.Meta.AD;
 
 @ObjectClassDefinition(description = "Configuration for the enRoute::Executor")
 public @interface Configuration {
 	
-	@AD(description = "The minimum number of threads allocated to this pool", deflt = "20", required=false)
-	int coreSize();
+	@AttributeDefinition(description = "The minimum number of threads allocated to this pool", required=false)
+	int coreSize() default 20;
 
-	@AD(description = "Maximum number of threads allocated to this pool", deflt = "0", required=false)
-	int maximumPoolSize();
+	@AttributeDefinition(description = "Maximum number of threads allocated to this pool", required=false)
+	int maximumPoolSize() default 0;
 
-	@AD(description = "Nr of seconds an idle free thread should survive before being destroyed", deflt = "60", required=false)
-	long keepAliveTime();
+	@AttributeDefinition(description = "Nr of seconds an idle free thread should survive before being destroyed",required=false)
+	long keepAliveTime() default 60;
 	
-	@AD(description= "Ranking", deflt="-1000", required=false)
-	long ranking(); 
+	@AttributeDefinition(description= "Ranking", defaultValue="-1000", required=false)
+	long service_ranking() default -1000L; 
 }

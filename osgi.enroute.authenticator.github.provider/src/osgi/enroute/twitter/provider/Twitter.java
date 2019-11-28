@@ -7,17 +7,18 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.apache.felix.service.command.Parameter;
+import org.apache.felix.service.command.annotations.GogoCommand;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import aQute.lib.io.IO;
-import osgi.enroute.debug.api.Debug;
 import osgi.enroute.dto.api.DTOs;
 import osgi.enroute.oauth2.api.AuthorizationServer;
 import osgi.enroute.oauth2.api.AuthorizationServer.AccessToken;
 import osgi.enroute.twitter.provider.dto.SearchResult;
 
-@Component(service = Twitter.class, property = { Debug.COMMAND_SCOPE + "=twitter", Debug.COMMAND_FUNCTION + "=search" })
+@GogoCommand(function = "search", scope="twitter")
+@Component(service = Twitter.class)
 public class Twitter {
 
 	@Reference(target = "(domain=twitter)")

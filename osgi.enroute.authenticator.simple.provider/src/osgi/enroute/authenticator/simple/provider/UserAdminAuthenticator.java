@@ -10,6 +10,7 @@ import java.util.regex.Pattern;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
 
+import org.apache.felix.service.command.annotations.GogoCommand;
 import org.osgi.annotation.bundle.Capability;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.namespace.implementation.ImplementationNamespace;
@@ -27,13 +28,10 @@ import aQute.lib.hex.Hex;
 import osgi.enroute.authentication.api.AuthenticationConstants;
 import osgi.enroute.authentication.api.Authenticator;
 import osgi.enroute.authenticator.simple.provider.Config.Algorithm;
-import osgi.enroute.debug.api.Debug;
 
 @Capability(namespace=ImplementationNamespace.IMPLEMENTATION_NAMESPACE, name=AuthenticationConstants.AUTHENTICATION_SPECIFICATION_NAME, version=AuthenticationConstants.AUTHENTICATION_SPECIFICATION_VERSION)
-@Component(property = {
-        Debug.COMMAND_SCOPE + "=user", Debug.COMMAND_FUNCTION + "=hash", Debug.COMMAND_FUNCTION + "=passwd", Debug.COMMAND_FUNCTION + "=adduser",
-		Debug.COMMAND_FUNCTION + "=rmrole", Debug.COMMAND_FUNCTION + "=role", Debug.COMMAND_FUNCTION + "=user"
-})
+@GogoCommand(scope="user", function= {"hash", "passwd", "adduser", "rmrole", "role", "user"})
+@Component
 public class UserAdminAuthenticator implements Authenticator {
 	private static final Pattern	AUTHORIZATION_P	= Pattern.compile("Basic\\s+(?<base64>[A-Za-z0-9+/]{3,}={0,2})");
 	private static final Pattern	IDPW_P			= Pattern.compile("(?<id>[^:]+):(?<pw>.*)");

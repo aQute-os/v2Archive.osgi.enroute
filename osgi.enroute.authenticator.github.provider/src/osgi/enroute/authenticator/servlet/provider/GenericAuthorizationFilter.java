@@ -27,12 +27,12 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.http.whiteboard.HttpWhiteboardConstants;
+import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.Designate;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import aQute.bnd.annotation.metatype.Meta;
 import aQute.lib.base64.Base64;
 import aQute.lib.collections.ExtList;
 import osgi.enroute.authentication.api.Authenticator;
@@ -60,7 +60,7 @@ public class GenericAuthorizationFilter implements Filter, REST {
 
 	@ObjectClassDefinition
 	@interface Config {
-		@Meta.AD(deflt = DEFAULT_REALM)
+		@AttributeDefinition(defaultValue = DEFAULT_REALM)
 		String realm();
 
 		int service_ranking();

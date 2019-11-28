@@ -12,10 +12,14 @@ Bundle-Description: enRoute is an OSGi project that creates a runtime \
 Bundle-Icon: 				enroute.png
 
 
-# We export all the base packages
 Export-Package: \
     !osgi.enroute.base.provided, \
-	*
+	org.osgi.*, \
+    org.apache.felix.service.command.*, \
+    org.apache.felix.inventory, \
+	org.slf4j.*, \
+	osgi.enroute.*, \
+	javax.servlet.*
 
 
 Provide-Capability: \
@@ -69,6 +73,8 @@ Provide-Capability: \
     org.osgi.util.promise, \
     org.osgi.util.pushstream, \
     org.apache.felix.http.servlet-api, \
+    org.apache.felix.gogo.runtime, \
+    org.apache.felix.inventory, \
     slf4j.api
 
 -includeresource: {${build}/legal}, icon/${Bundle-Icon}

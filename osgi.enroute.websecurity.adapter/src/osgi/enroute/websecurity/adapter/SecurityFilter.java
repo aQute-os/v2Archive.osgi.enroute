@@ -25,12 +25,12 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.http.whiteboard.HttpWhiteboardConstants;
+import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.Designate;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import aQute.bnd.annotation.metatype.Meta;
 import aQute.lib.base64.Base64;
 import aQute.lib.collections.ExtList;
 import osgi.enroute.authentication.api.Authenticator;
@@ -38,9 +38,9 @@ import osgi.enroute.authorization.api.AuthorityAdmin;
 import osgi.enroute.http.capabilities.RequireHttpImplementation;
 
 @RequireHttpImplementation
-@Designate(ocd=SecurityFilter.Config.class,factory=true)
+@Designate(ocd = SecurityFilter.Config.class, factory = true)
 @Component(property = {
-	HttpWhiteboardConstants.HTTP_WHITEBOARD_FILTER_REGEX+"=.*"
+		HttpWhiteboardConstants.HTTP_WHITEBOARD_FILTER_REGEX + "=.*"
 })
 public class SecurityFilter implements Filter {
 	final static String							DEFAULT_REALM		= "OSGi enRoute Default";
@@ -54,7 +54,7 @@ public class SecurityFilter implements Filter {
 
 	@ObjectClassDefinition
 	@interface Config {
-		@Meta.AD(deflt = DEFAULT_REALM)
+		@AttributeDefinition(defaultValue = DEFAULT_REALM)
 		String realm();
 
 		int service_ranking();
@@ -62,7 +62,7 @@ public class SecurityFilter implements Filter {
 		String filter();
 
 		String pattern();
-		
+
 		String osgi_http_whiteboard_filter_regex();
 	}
 
@@ -137,25 +137,22 @@ public class SecurityFilter implements Filter {
 	private void run(String userId, Callable<Void> runAs) throws ServletException, IOException {
 		try {
 			authorityAdminRef.get().call(userId, runAs);
-		}
-		catch (RuntimeException | ServletException | IOException e) {
+		} catch (RuntimeException | ServletException | IOException e) {
 			throw e;
-		}
-		catch (Exception e) {
+		} catch (Exception e) {
 			throw new ServletException(e);
 		}
 	}
 
 	private String authenticate(HttpServletRequest req) throws ServletException, IOException {
-		Map<String,Object> map = getMap(req);
+		Map<String, Object> map = getMap(req);
 
 		for (Authenticator a : authenticators) {
 			try {
 				String user = a.authenticate(map, Authenticator.BASIC_SOURCE, Authenticator.SERVLET_SOURCE);
 				if (user != null)
 					return user;
-			}
-			catch (Exception e) {
+			} catch (Exception e) {
 				logger.error("Authenticator failed " + a, e);
 			}
 		}
@@ -169,7 +166,8 @@ public class SecurityFilter implements Filter {
 	}
 
 	@Override
-	public void init(FilterConfig arg0) throws ServletException {}
+	public void init(FilterConfig arg0) throws ServletException {
+	}
 
 	/**
 	 * Turn a HttpServletRequest into a map for the authenticator according to
@@ -180,9 +178,9 @@ public class SecurityFilter implements Filter {
 	 * @return a map
 	 * @throws MalformedURLException
 	 */
-	private Map<String,Object> getMap(final HttpServletRequest req) throws MalformedURLException {
+	private Map<String, Object> getMap(final HttpServletRequest req) throws MalformedURLException {
 
-		Map<String,Object> map = new HashMap<String,Object>();
+		Map<String, Object> map = new HashMap<String, Object>();
 		String authHeader = req.getHeader("Authorization");
 		if (authHeader != null) {
 
@@ -233,9 +231,10 @@ public class SecurityFilter implements Filter {
 	}
 
 	@Override
-	public void destroy() {}
+	public void destroy() {
+	}
 
-	@Reference(cardinality=ReferenceCardinality.MULTIPLE, policy=ReferencePolicy.DYNAMIC)
+	@Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
 	void addAuthenticator(Authenticator authenticator) {
 		authenticators.add(authenticator);
 		reported = false;
@@ -245,7 +244,7 @@ public class SecurityFilter implements Filter {
 		authenticators.remove(authenticator);
 	}
 
-	@Reference(cardinality=ReferenceCardinality.MULTIPLE, policy=ReferencePolicy.DYNAMIC)
+	@Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
 	void setAuthorityAdmin(AuthorityAdmin authorityAdmin) {
 		authorityAdminRef.set(authorityAdmin);
 	}
