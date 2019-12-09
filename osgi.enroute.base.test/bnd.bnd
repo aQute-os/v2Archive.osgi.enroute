@@ -12,7 +12,7 @@
     osgi.enroute.web.simple.provider
      
     
-    
+ -nojunit = true   
     
     
 -workingset base,test

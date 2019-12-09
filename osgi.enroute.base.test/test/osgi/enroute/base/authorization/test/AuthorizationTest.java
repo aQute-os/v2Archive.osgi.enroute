@@ -9,6 +9,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Callable;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.osgi.service.useradmin.Authorization;
@@ -27,6 +28,7 @@ import osgi.enroute.authorization.api.SecurityVerifier;
 
 @SuppressWarnings("resource")
 @RunWith(LaunchpadRunner.class)
+@Ignore
 public class AuthorizationTest {
 
 	static LaunchpadBuilder	builder	= new LaunchpadBuilder().bndrun("test.bndrun");
