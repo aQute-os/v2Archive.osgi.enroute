@@ -12,5 +12,5 @@ public interface Launcher {
 	/**
 	 * This property contains a String[] for the command line arguments.
 	 */
-	String	LAUNCHER_MAIN	= "osgi.launcher.main";
+	String LAUNCHER_MAIN = "osgi.launcher.main";
 }

@@ -11,8 +11,12 @@ import osgi.enroute.iot.pi.provider.PiModelDetector;
 @ProviderType
 public interface Pi {
 	String serial_number();
+
 	String cpu_revision();
+
 	String cpu_model();
+
 	String hardware_revision();
+
 	String board_type();
 }

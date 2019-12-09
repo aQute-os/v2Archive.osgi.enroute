@@ -22,11 +22,13 @@ import junit.framework.TestCase;
 import osgi.enroute.scheduler.api.CronJob;
 import osgi.enroute.scheduler.api.Scheduler;
 
-@SuppressWarnings({ "rawtypes", "resource" })
+@SuppressWarnings({
+	"rawtypes", "resource"
+})
 public class SchedulerTest extends TestCase {
 	static LaunchpadBuilder	builder;
-	Launchpad lp;
-	
+	Launchpad				lp;
+
 	static {
 		try {
 			builder = new LaunchpadBuilder().bndrun("bnd.bnd");
@@ -37,14 +39,15 @@ public class SchedulerTest extends TestCase {
 	}
 
 	@Service
-	private Scheduler	scheduler;
+	private Scheduler scheduler;
 
 	public void testBundleCleanup() throws Exception {
 		try (Builder b = new Builder()) {
 			b.setBundleSymbolicName("test.1");
 			b.setProperty("-resourceonly", "true");
 			Jar j = b.build();
-			Bundle btest1 = lp.getBundleContext().installBundle("test.1", new JarResource(j).openInputStream());
+			Bundle btest1 = lp.getBundleContext()
+				.installBundle("test.1", new JarResource(j).openInputStream());
 			btest1.start();
 
 			BundleContext bc = btest1.getBundleContext();
@@ -88,19 +91,15 @@ public class SchedulerTest extends TestCase {
 		Semaphore	semaphore	= new Semaphore(0);
 
 		@Override
-		public Promise<Integer> call(Promise<Instant> resolved)
-				throws Exception {
+		public Promise<Integer> call(Promise<Instant> resolved) throws Exception {
 			semaphore.release();
 			return null;
 		}
 
-		public void assertBetween(int atLeast, int atMost)
-				throws InterruptedException {
-			assertTrue("Expected at most " + atMost + " ms",
-					semaphore.tryAcquire(atMost, TimeUnit.MILLISECONDS));
+		public void assertBetween(int atLeast, int atMost) throws InterruptedException {
+			assertTrue("Expected at most " + atMost + " ms", semaphore.tryAcquire(atMost, TimeUnit.MILLISECONDS));
 
-			assertTrue("Expected at least " + atLeast + " ms",
-					System.currentTimeMillis() - atLeast >= 0);
+			assertTrue("Expected at least " + atLeast + " ms", System.currentTimeMillis() - atLeast >= 0);
 
 		}
 
@@ -108,7 +107,8 @@ public class SchedulerTest extends TestCase {
 
 	public void testTimer() throws Exception {
 		Chk c = new Chk();
-		scheduler.after(100).then(c);
+		scheduler.after(100)
+			.then(c);
 		c.assertBetween(100, 200);
 	}
 
@@ -130,14 +130,14 @@ public class SchedulerTest extends TestCase {
 	public void testReboot() throws Exception {
 		Job job = new Job();
 
-		ServiceRegistration<CronJob> reg = lp.getBundleContext().registerService(
-				CronJob.class, job, new Hashtable<String, Object>() {
-					private static final long serialVersionUID = 1L;
+		ServiceRegistration<CronJob> reg = lp.getBundleContext()
+			.registerService(CronJob.class, job, new Hashtable<String, Object>() {
+				private static final long serialVersionUID = 1L;
 
-					{
-						put(CronJob.CRON, "foo=10\n" + "@reboot");
-					}
-				});
+				{
+					put(CronJob.CRON, "foo=10\n" + "@reboot");
+				}
+			});
 
 		Thread.sleep(100);
 		assertEquals(10, job.foo);
@@ -147,14 +147,14 @@ public class SchedulerTest extends TestCase {
 	public void testEveryOtherSecond() throws Exception {
 		Job job = new Job();
 
-		ServiceRegistration<CronJob> reg = lp.getBundleContext().registerService(
-				CronJob.class, job, new Hashtable<String, Object>() {
-					private static final long serialVersionUID = 1L;
+		ServiceRegistration<CronJob> reg = lp.getBundleContext()
+			.registerService(CronJob.class, job, new Hashtable<String, Object>() {
+				private static final long serialVersionUID = 1L;
 
-					{
-						put(CronJob.CRON, "foo=12\n" + "0/2 * * * * ?");
-					}
-				});
+				{
+					put(CronJob.CRON, "foo=12\n" + "0/2 * * * * ?");
+				}
+			});
 
 		Thread.sleep(11000);
 		assertEquals(12, job.foo);

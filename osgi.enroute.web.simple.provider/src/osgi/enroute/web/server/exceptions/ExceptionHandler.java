@@ -3,14 +3,14 @@ package osgi.enroute.web.server.exceptions;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.osgi.service.log.LogService;
+import org.slf4j.Logger;
 
 public class ExceptionHandler {
 
-	private final boolean			addTrailingSlash;
-	private final LogService 		log;
+	private final boolean		addTrailingSlash;
+	private final Logger	log;
 
-	public ExceptionHandler(boolean addTrailingSlash, LogService log) {
+	public ExceptionHandler(boolean addTrailingSlash, Logger log) {
 		this.addTrailingSlash = addTrailingSlash;
 		this.log = log;
 	}
@@ -19,32 +19,33 @@ public class ExceptionHandler {
 		try {
 			try {
 				throw exception;
-			} catch(FolderException e) {
-				if(addTrailingSlash) {
+			} catch (FolderException e) {
+				if (addTrailingSlash) {
 					String path = e.getPath();
-					if(!path.startsWith("/"))
+					if (!path.startsWith("/"))
 						path = "/" + path;
-					if(!path.endsWith("/"))
+					if (!path.endsWith("/"))
 						path = path + "/";
-					rsp.setHeader("Location", path);					
+					rsp.setHeader("Location", path);
 					rsp.sendRedirect(path);
 				} else {
-					// This is the default we will use if we don't add the trailing slash.
-					// However, it is possible to imagine other types of responses as well.
-					rsp.sendError(HttpServletResponse.SC_NOT_FOUND);					
+					// This is the default we will use if we don't add the
+					// trailing slash.
+					// However, it is possible to imagine other types of
+					// responses as well.
+					rsp.sendError(HttpServletResponse.SC_NOT_FOUND);
 				}
 			} catch (Redirect302Exception e) {
 				rsp.setHeader("Location", e.getPath());
 				rsp.sendRedirect(e.getPath());
-			} catch (NotFound404Exception e ) {
+			} catch (NotFound404Exception e) {
 				rsp.sendError(HttpServletResponse.SC_NOT_FOUND);
 			} catch (InternalServer500Exception e) {
-				log.log(LogService.LOG_ERROR, "Internal webserver error", e);
+				log.error("Internal webserver error", e);
 				rsp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 			}
-		}
-		catch (Exception ee) {
-			log.log(LogService.LOG_ERROR, "Second level or unknown internal webserver error", ee);
+		} catch (Exception ee) {
+			log.error("Second level or unknown internal webserver error", ee);
 		}
 	}
 }

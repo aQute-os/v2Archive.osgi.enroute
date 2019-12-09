@@ -21,6 +21,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.osgi.annotation.bundle.Capability;
 import org.osgi.namespace.implementation.ImplementationNamespace;
+import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
@@ -46,11 +47,15 @@ import osgi.enroute.scheduler.api.TimeoutException;
 @Component(name = "osgi.enroute.scheduler.simple", service = InternalSchedulerImpl.class, immediate = true)
 public class InternalSchedulerImpl implements Scheduler {
 	final List<Cron<?>>			crons	= new ArrayList<>();
-	final Logger				logger	= LoggerFactory
-			.getLogger(InternalSchedulerImpl.class);
+	final Logger				logger	= LoggerFactory.getLogger(InternalSchedulerImpl.class);
 
 	Clock						clock	= Clock.systemDefaultZone();
 	ScheduledExecutorService	executor;
+
+	@Activate
+	void activate() {
+		System.out.println("acivate");
+	}
 
 	@Deactivate
 	synchronized void deactivate() {
@@ -77,6 +82,7 @@ public class InternalSchedulerImpl implements Scheduler {
 		}, ms, TimeUnit.MILLISECONDS);
 
 		return new CancellablePromiseImpl<Instant>(deferred.getPromise()) {
+			@Override
 			public boolean cancel() {
 				try {
 					return schedule.cancel(true);
@@ -100,6 +106,7 @@ public class InternalSchedulerImpl implements Scheduler {
 		}, ms, TimeUnit.MILLISECONDS);
 
 		return new CancellablePromiseImpl<T>(deferred.getPromise()) {
+			@Override
 			public boolean cancel() {
 				try {
 					return schedule.cancel(true);
@@ -125,7 +132,7 @@ public class InternalSchedulerImpl implements Scheduler {
 		AtomicBoolean done = new AtomicBoolean();
 
 		interface RunnableException {
-			public void run() throws Exception;
+			void run() throws Exception;
 		}
 
 		boolean once(RunnableException o) throws Exception {
@@ -142,8 +149,8 @@ public class InternalSchedulerImpl implements Scheduler {
 	 * {@link TimeoutException}
 	 */
 	// @Override
-	public <T> CancellablePromiseImpl<T> before(Promise<T> promise,
-			long timeout) {
+	@Override
+	public <T> CancellablePromiseImpl<T> before(Promise<T> promise, long timeout) {
 		Deferred<T> d = new Deferred<T>();
 		Unique only = new Unique();
 
@@ -159,6 +166,7 @@ public class InternalSchedulerImpl implements Scheduler {
 			only.once(() -> d.fail(p.getFailure()));
 		});
 		return new CancellablePromiseImpl<T>(d.getPromise()) {
+			@Override
 			public boolean cancel() {
 				try {
 					return only.once(() -> d.fail(CancelException.SINGLETON));
@@ -172,8 +180,7 @@ public class InternalSchedulerImpl implements Scheduler {
 	static abstract class Schedule {
 		volatile CancellablePromiseImpl<?>	promise;
 		volatile boolean					canceled;
-		long								start	= System
-				.currentTimeMillis();
+		long								start	= System.currentTimeMillis();
 		Throwable							exception;
 
 		abstract long next();
@@ -187,6 +194,7 @@ public class InternalSchedulerImpl implements Scheduler {
 		long						rover;
 		RunnableWithException		runnable;
 
+		@Override
 		long next() {
 			if (iterator.hasNext())
 				last = iterator.nextLong();
@@ -194,6 +202,7 @@ public class InternalSchedulerImpl implements Scheduler {
 			return rover += last;
 		}
 
+		@Override
 		void doIt() throws Exception {
 			runnable.run();
 		}
@@ -202,7 +211,8 @@ public class InternalSchedulerImpl implements Scheduler {
 	@Override
 	public Closeable schedule(RunnableWithException r, long first, long... ms) {
 		PeriodSchedule s = new PeriodSchedule();
-		s.iterator = Arrays.stream(ms).iterator();
+		s.iterator = Arrays.stream(ms)
+			.iterator();
 		s.runnable = r;
 		s.rover = System.currentTimeMillis() + first;
 		s.last = first;
@@ -240,9 +250,11 @@ public class InternalSchedulerImpl implements Scheduler {
 		long next() {
 			ZonedDateTime now = ZonedDateTime.now(clock);
 			ZonedDateTime next = now.with(cron);
-			return next.toInstant().toEpochMilli();
+			return next.toInstant()
+				.toEpochMilli();
 		}
 
+		@Override
 		void doIt() throws Exception {
 			if (runnable != null)
 				runnable.run();
@@ -252,8 +264,7 @@ public class InternalSchedulerImpl implements Scheduler {
 	}
 
 	@Override
-	public Closeable schedule(RunnableWithException r, String cronExpression)
-			throws Exception {
+	public Closeable schedule(RunnableWithException r, String cronExpression) throws Exception {
 		ScheduleCron<Void> s = new ScheduleCron<>();
 		s.cron = new CronAdjuster(cronExpression);
 		s.runnable = r;
@@ -265,13 +276,11 @@ public class InternalSchedulerImpl implements Scheduler {
 	}
 
 	@Override
-	public <T> Closeable schedule(Class<T> type, CronJob<T> job,
-			String cronExpression) throws Exception {
+	public <T> Closeable schedule(Class<T> type, CronJob<T> job, String cronExpression) throws Exception {
 		ScheduleCron<T> s = new ScheduleCron<>();
 		s.cron = new CronAdjuster(cronExpression);
 		s.job = job;
-		s.env = type != null && type != Object.class
-				? Converter.cnv(type, s.cron.getEnv()) : null;
+		s.env = type != null && type != Object.class ? Converter.cnv(type, s.cron.getEnv()) : null;
 		schedule(s, s.cron.isReboot() ? 1 : s.next());
 		return () -> {
 			s.canceled = true;
@@ -286,8 +295,7 @@ public class InternalSchedulerImpl implements Scheduler {
 	}
 
 	@Override
-	public <T> CancellablePromiseImpl<T> at(Callable<T> callable,
-			long epochTime) {
+	public <T> CancellablePromiseImpl<T> at(Callable<T> callable, long epochTime) {
 		long delay = epochTime - System.currentTimeMillis();
 		return after(callable, delay);
 	}
@@ -297,8 +305,7 @@ public class InternalSchedulerImpl implements Scheduler {
 		CronJob<T>	target;
 		Closeable	schedule;
 
-		Cron(Class<T> type, CronJob<T> target, String cronExpression)
-				throws Exception {
+		Cron(Class<T> type, CronJob<T> target, String cronExpression) throws Exception {
 			this.target = target;
 			schedule = schedule(type, target, cronExpression);
 		}
@@ -309,10 +316,8 @@ public class InternalSchedulerImpl implements Scheduler {
 	}
 
 	@Reference(policy = ReferencePolicy.DYNAMIC, cardinality = ReferenceCardinality.MULTIPLE)
-	<T> void addSchedule(CronJob<T> s, Map<String, Object> map)
-			throws Exception {
-		String[] schedules = Converter.cnv(String[].class,
-				map.get(CronJob.CRON));
+	<T> void addSchedule(CronJob<T> s, Map<String, Object> map) throws Exception {
+		String[] schedules = Converter.cnv(String[].class, map.get(CronJob.CRON));
 		if (schedules == null || schedules.length == 0)
 			return;
 
@@ -324,8 +329,7 @@ public class InternalSchedulerImpl implements Scheduler {
 					Cron<T> cron = new Cron<>(type, s, schedule);
 					crons.add(cron);
 				} catch (Exception e) {
-					logger.error("Invalid  cron expression " + schedule
-							+ " from " + map, e);
+					logger.error("Invalid  cron expression " + schedule + " from " + map, e);
 				}
 			}
 		}
@@ -349,11 +353,11 @@ public class InternalSchedulerImpl implements Scheduler {
 
 	@SuppressWarnings("unchecked")
 	<T> Class<T> getType(CronJob<T> cj) {
-		for (java.lang.reflect.Type c : cj.getClass().getGenericInterfaces()) {
+		for (java.lang.reflect.Type c : cj.getClass()
+			.getGenericInterfaces()) {
 			if (c instanceof ParameterizedType) {
 				if (((ParameterizedType) c).getRawType() == CronJob.class) {
-					return (Class<T>) ((ParameterizedType) c)
-							.getActualTypeArguments()[0];
+					return (Class<T>) ((ParameterizedType) c).getActualTypeArguments()[0];
 				}
 			}
 		}

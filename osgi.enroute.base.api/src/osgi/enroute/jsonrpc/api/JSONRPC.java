@@ -19,7 +19,7 @@ public interface JSONRPC {
 	 * Return information that could be needed by clients of this endpoint or
 	 * null if no such info exists. This information is per connection so it is
 	 * possible to customize for the current user.
-	 * 
+	 *
 	 * @return The custom descriptor. Should contain DTO objects
 	 * @throws Exception
 	 */

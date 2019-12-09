@@ -21,8 +21,8 @@ import osgi.enroute.dto.api.TypeReference;
 @SuppressWarnings("resource")
 public class DTOsTest extends TestCase {
 	static LaunchpadBuilder	builder;
-	Launchpad lp;
-	
+	Launchpad				lp;
+
 	static {
 		try {
 			builder = new LaunchpadBuilder().bndrun("bnd.bnd");
@@ -32,10 +32,11 @@ public class DTOsTest extends TestCase {
 		}
 	}
 
+	@Override
 	public void setUp() throws Exception {
-		lp = builder.create().inject(this);
+		lp = builder.create()
+			.inject(this);
 	}
-
 
 	@Service
 	private DTOs dtos;
@@ -45,27 +46,34 @@ public class DTOsTest extends TestCase {
 	 */
 
 	public void testSimple() throws Exception {
-		
-		assertEquals( 100D, dtos.convert("100").to(double.class));
-		assertEquals( 10D, dtos.convert(10f).to(double.class));
-		assertEquals( 100D, dtos.convert(100L).to(double.class));
-		
-		assertEquals( Arrays.asList(100F), 
-					dtos.convert(100L).to(new TypeReference<List<Float>>(){}));
-	
-		
-		long[] expected = new long[]{0x40L,  0x41L, 0x42L};
+
+		assertEquals(100D, dtos.convert("100")
+			.to(double.class));
+		assertEquals(10D, dtos.convert(10f)
+			.to(double.class));
+		assertEquals(100D, dtos.convert(100L)
+			.to(double.class));
+
+		assertEquals(Arrays.asList(100F), dtos.convert(100L)
+			.to(new TypeReference<List<Float>>() {}));
+
+		long[] expected = new long[] {
+			0x40L, 0x41L, 0x42L
+		};
 		byte[] source = "@AB".getBytes();
-		long[] result = dtos.convert(source).to(long[].class);
-		
-		assertTrue( Arrays.equals(expected,result ));
+		long[] result = dtos.convert(source)
+			.to(long[].class);
+
+		assertTrue(Arrays.equals(expected, result));
 	}
 
 	/*
 	 * Show Map -> Interface
 	 */
 	enum Option {
-		bar, don, zun
+		bar,
+		don,
+		zun
 	};
 
 	interface FooMap {
@@ -83,7 +91,8 @@ public class DTOsTest extends TestCase {
 		map.put("host", "localhost");
 		map.put("options", Arrays.asList("bar", "don", "zun"));
 
-		FooMap foomap = dtos.convert(map).to(FooMap.class);
+		FooMap foomap = dtos.convert(map)
+			.to(FooMap.class);
 
 		assertEquals((short) 10, foomap.port());
 		assertEquals("localhost", foomap.host());
@@ -95,54 +104,59 @@ public class DTOsTest extends TestCase {
 	 */
 
 	public static class MyData extends DTO {
-		public short port;
-		public String host;
-		public Option[] options;
+		public short	port;
+		public String	host;
+		public Option[]	options;
 	}
 
 	public void testDtoAsMap() throws Exception {
 		MyData m = new MyData();
 		m.port = 20;
 		m.host = "example.com";
-		m.options = new Option[] { Option.bar, Option.don, Option.zun };
+		m.options = new Option[] {
+			Option.bar, Option.don, Option.zun
+		};
 
 		Map<String, Object> map = dtos.asMap(m);
 
-		assertEquals(Arrays.asList("host", "options", "port"),
-				new ArrayList<String>(map.keySet()));
+		assertEquals(Arrays.asList("host", "options", "port"), new ArrayList<String>(map.keySet()));
 		assertEquals((short) 20, map.get("port"));
 		assertEquals("example.com", map.get("host"));
 	}
 
-	
 	/*
 	 * Show JSON
 	 */
-	
+
 	public void testJSON() throws Exception {
 		MyData m = new MyData();
 		m.port = 20;
 		m.host = "example.com";
-		m.options = new Option[] { Option.bar, Option.don, Option.zun };
-		
-		String json = dtos.encoder(m).put();
-		assertEquals("{\"host\":\"example.com\",\"options\":[\"bar\",\"don\",\"zun\"],\"port\":20}",json);		
+		m.options = new Option[] {
+			Option.bar, Option.don, Option.zun
+		};
+
+		String json = dtos.encoder(m)
+			.put();
+		assertEquals("{\"host\":\"example.com\",\"options\":[\"bar\",\"don\",\"zun\"],\"port\":20}", json);
 	}
-	
+
 	public void testDiff() throws Exception {
 		MyData source = new MyData();
 		source.port = 20;
 		source.host = "example.com";
-		source.options = new Option[] { Option.bar, Option.don, Option.zun };
+		source.options = new Option[] {
+			Option.bar, Option.don, Option.zun
+		};
 
 		MyData copy = dtos.deepCopy(source);
-		
-		assertFalse( source == copy);
-		assertTrue( dtos.equals(source,copy));
-		
+
+		assertFalse(source == copy);
+		assertTrue(dtos.equals(source, copy));
+
 		List<Difference> diff = dtos.diff(source, copy);
 		assertEquals(0, diff.size());
-		
+
 		copy.port = 10;
 		diff = dtos.diff(source, copy);
 		assertEquals(1, diff.size());

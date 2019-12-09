@@ -20,8 +20,9 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.log.LogService;
 import org.osgi.util.tracker.BundleTracker;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import aQute.lib.io.IO;
 import aQute.lib.json.JSONCodec;
@@ -32,45 +33,42 @@ import osgi.enroute.web.server.cache.CacheFile;
 import osgi.enroute.web.server.config.WebServerConfig;
 import osgi.enroute.web.server.exceptions.ExceptionHandler;
 
-@Component(
-		service = { ConditionalServlet.class }, 
-		immediate = true, 
-		property = {
-				"service.ranking:Integer=1001", 
-				"name=" + EnrouteApplicationIndexServer.NAME,
-				"addTrailingSlash=true"
-		}, 
-		name = EnrouteApplicationIndexServer.NAME, 
-		configurationPid = BundleMixinServer.NAME,
-		configurationPolicy = ConfigurationPolicy.OPTIONAL)
+@Component(service = {
+	ConditionalServlet.class
+}, immediate = true, property = {
+	"service.ranking:Integer=1001", "name=" + EnrouteApplicationIndexServer.NAME, "addTrailingSlash=true"
+}, name = EnrouteApplicationIndexServer.NAME, configurationPid = BundleMixinServer.NAME, configurationPolicy = ConfigurationPolicy.OPTIONAL)
 public class EnrouteApplicationIndexServer implements ConditionalServlet {
 
 	static final String NAME = "osgi.enroute.simple.web.application";
+	private final static Logger	log		= LoggerFactory.getLogger(EnrouteApplicationIndexServer.class);
 
 	public static class IndexDTO extends DTO {
-		public List<ApplicationDTO>	applications = new ArrayList<>();
-		public Map<String,Object> configuration;		
+		public List<ApplicationDTO>	applications	= new ArrayList<>();
+		public Map<String, Object>	configuration;
 	}
 
 	public static class ApplicationDTO extends DTO {
-		public long			bundle;
-		public String		name;
-		public String		bsn;
-		public String		version;
-		public String		link;
-		public String		description;
+		public long		bundle;
+		public String	name;
+		public String	bsn;
+		public String	version;
+		public String	link;
+		public String	description;
 	}
 
-	WebServerConfig								config;
-	private BundleTracker<Bundle>				applicationTracker;
-	private Cache								cache;
-	private ExceptionHandler					exceptionHandler;
-	private LogService							log;
-	IndexDTO									index = new IndexDTO();
-	BundleContext								context;
+	WebServerConfig					config;
+	private BundleTracker<Bundle>	applicationTracker;
+
+	@Reference
+	private Cache					cache;
+
+	private ExceptionHandler		exceptionHandler;
+	IndexDTO						index	= new IndexDTO();
+	BundleContext					context;
 
 	@Activate
-	void activate(WebServerConfig config, Map<String,Object> props, BundleContext context) throws Exception {
+	void activate(WebServerConfig config, Map<String, Object> props, BundleContext context) throws Exception {
 		this.context = context;
 		index.configuration = props;
 		this.config = config;
@@ -79,7 +77,8 @@ public class EnrouteApplicationIndexServer implements ConditionalServlet {
 		applicationTracker = new BundleTracker<Bundle>(context, Bundle.ACTIVE, null) {
 			@Override
 			public Bundle addingBundle(Bundle bundle, BundleEvent event) {
-				String applicationBundle = bundle.getHeaders().get("EnRoute-Application");
+				String applicationBundle = bundle.getHeaders()
+					.get("EnRoute-Application");
 				if (applicationBundle == null)
 					return null;
 
@@ -87,11 +86,14 @@ public class EnrouteApplicationIndexServer implements ConditionalServlet {
 				for (String link : links) {
 					ApplicationDTO dto = new ApplicationDTO();
 					dto.bsn = bundle.getSymbolicName();
-					dto.version = bundle.getHeaders().get(Constants.BUNDLE_VERSION);
+					dto.version = bundle.getHeaders()
+						.get(Constants.BUNDLE_VERSION);
 					dto.bundle = bundle.getBundleId();
-					dto.description = bundle.getHeaders().get(Constants.BUNDLE_DESCRIPTION);
+					dto.description = bundle.getHeaders()
+						.get(Constants.BUNDLE_DESCRIPTION);
 					dto.link = link;
-					dto.name = bundle.getHeaders().get(Constants.BUNDLE_NAME);
+					dto.name = bundle.getHeaders()
+						.get(Constants.BUNDLE_NAME);
 					if (dto.name == null)
 						dto.name = dto.bsn;
 
@@ -131,8 +133,7 @@ public class EnrouteApplicationIndexServer implements ConditionalServlet {
 			} else {
 				return false;
 			}
-		}
-		catch (Exception e) {
+		} catch (Exception e) {
 			exceptionHandler.handle(rq, rsp, e);
 		}
 
@@ -149,10 +150,13 @@ public class EnrouteApplicationIndexServer implements ConditionalServlet {
 		}
 
 		String content = IO.collect(c.file);
-		Map<String,String> map = new HashMap<>();
+		Map<String, String> map = new HashMap<>();
 
 		synchronized (index) {
-			map.put("index", new JSONCodec().enc().put(index).indent(" ").toString());
+			map.put("index", new JSONCodec().enc()
+				.put(index)
+				.indent(" ")
+				.toString());
 		}
 
 		ReplacerAdapter ra = new ReplacerAdapter(map);
@@ -163,15 +167,5 @@ public class EnrouteApplicationIndexServer implements ConditionalServlet {
 	@Deactivate
 	void deactivate() {
 		applicationTracker.close();
-	}
-
-	@Reference
-	void setLog(LogService log) {
-		this.log = log;
-	}
-
-	@Reference
-	void setCache(Cache cache) {
-		this.cache = cache;
 	}
 }

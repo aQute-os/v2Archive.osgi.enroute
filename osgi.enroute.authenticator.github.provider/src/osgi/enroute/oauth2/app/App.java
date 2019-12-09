@@ -1,8 +1,8 @@
 package osgi.enroute.oauth2.app;
 
-import osgi.enroute.configurer.api.RequireConfigurerExtender;
+import org.osgi.service.configurator.annotations.RequireConfigurator;
 
-@RequireConfigurerExtender
+@RequireConfigurator
 public class App {
 
 }

@@ -7,7 +7,7 @@ public interface ExecutorConstants {
 	/**
 	 * Name
 	 */
-	String	EXECUTOR_SPECIFICATION_NAME	= "osgi.enroute.executor";
+	String	EXECUTOR_SPECIFICATION_NAME		= "osgi.enroute.executor";
 	/**
 	 * Name
 	 */

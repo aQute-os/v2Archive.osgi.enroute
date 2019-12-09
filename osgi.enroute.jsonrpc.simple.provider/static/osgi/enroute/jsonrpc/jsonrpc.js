@@ -88,7 +88,7 @@
 				if (this.history.length > 200)
 					this.history.splice(0, 100);
 
-				$http
+				var p = $http
 						.put(url + ep, msg)
 						.success(
 								function(data, status, headers) {

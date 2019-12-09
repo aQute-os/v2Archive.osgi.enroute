@@ -45,18 +45,18 @@ public class WebServerTest extends TestCase {
 		try (Builder b = new Builder();) {
 			b.setProperties(new File("resources/webresources.bnd"));
 			Jar jar = b.build();
-			jar.getManifest().write(System.out);
+			jar.getManifest()
+				.write(System.out);
 			try (JarResource jarResource = new JarResource(jar)) {
-				Bundle bundle = lp.getBundleContext().installBundle("test",
-						jarResource.openInputStream());
+				Bundle bundle = lp.getBundleContext()
+					.installBundle("test", jarResource.openInputStream());
 				try {
 					bundle.start();
 
-					try (WebClient webClient = new WebClient(
-							BrowserVersion.FIREFOX_52);) {
-						webClient.getOptions().setTimeout(0);
-						final HtmlPage page = webClient
-								.getPage("http://localhost:8080/test.html");
+					try (WebClient webClient = new WebClient(BrowserVersion.FIREFOX_60);) {
+						webClient.getOptions()
+							.setTimeout(0);
+						final HtmlPage page = webClient.getPage("http://localhost:8080/test.html");
 
 						//
 						// Test if we downloaded our own script in web/test.js
@@ -74,17 +74,15 @@ public class WebServerTest extends TestCase {
 
 	public void testSimple() throws BundleException, Exception {
 		Jar jar = new Jar("test");
-		jar.putResource("static/test.html", new EmbeddedResource(
-				HTML_BODY_TEST_BODY_HTML.getBytes(), 0));
+		jar.putResource("static/test.html", new EmbeddedResource(HTML_BODY_TEST_BODY_HTML.getBytes(), 0));
 		try (JarResource jarResource = new JarResource(jar)) {
-			Bundle b = lp.getBundleContext().installBundle("test",
-					jarResource.openInputStream());
+			Bundle b = lp.getBundleContext()
+				.installBundle("test", jarResource.openInputStream());
 			try {
 				b.start();
 
 				try (WebClient webClient = new WebClient()) {
-					final HtmlPage page = webClient
-							.getPage("http://localhost:8080/test.html");
+					final HtmlPage page = webClient.getPage("http://localhost:8080/test.html");
 					assertEquals("test", page.asText());
 				}
 			} finally {

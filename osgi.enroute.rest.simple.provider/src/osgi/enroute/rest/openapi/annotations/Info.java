@@ -8,13 +8,21 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 public @interface Info {
-	String	title() ;
-	String	description() default "";
-	String	termsOfService() default "";
-	String	version();
-	String	contactName() default "";
-	String	contactUrl()  default "";
-	String	contactEmail()  default "";
-	String	licenseName()  default "";
-	String	licenseUrl()  default "";
+	String title();
+
+	String description() default "";
+
+	String termsOfService() default "";
+
+	String version();
+
+	String contactName() default "";
+
+	String contactUrl() default "";
+
+	String contactEmail() default "";
+
+	String licenseName() default "";
+
+	String licenseUrl() default "";
 }

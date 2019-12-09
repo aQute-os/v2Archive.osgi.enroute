@@ -6,10 +6,10 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
+import org.apache.felix.service.command.annotations.GogoCommand;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
-import osgi.enroute.debug.api.Debug;
 import osgi.enroute.iot.gpio.api.CircuitBoard;
 import osgi.enroute.iot.gpio.api.IC;
 import osgi.enroute.iot.gpio.util.Analog;
@@ -18,9 +18,10 @@ import osgi.enroute.iot.gpio.util.ICAdapter;
 /**
  * http://www.nishioka.com/train/
  */
-@Component(service = IC.class, property = {
-		Debug.COMMAND_SCOPE + "=lego", Debug.COMMAND_FUNCTION + "=fwd",
-		Debug.COMMAND_FUNCTION + "=brake", Debug.COMMAND_FUNCTION + "=out" })
+@GogoCommand(scope = "lego", function = {
+	"fwd", "brake", "out"
+})
+@Component(service = IC.class)
 public class Command extends ICAdapter<Void, Analog> {
 	final int	PULSE_WIDTH	= 13;
 	int			toggle		= 0;
@@ -110,34 +111,25 @@ public class Command extends ICAdapter<Void, Analog> {
 	}
 
 	int send_brake(ByteBuffer pulses, int toggle, int channel, int output) {
-		return send_word(pulses,
-				insert_channel_output(0x0480, toggle, channel, output));
+		return send_word(pulses, insert_channel_output(0x0480, toggle, channel, output));
 	}
 
-	int send_increment_pwm(ByteBuffer pulses, int toggle, int channel,
-			int output) {
-		return send_word(pulses,
-				insert_channel_output(0x0640, toggle, channel, output));
+	int send_increment_pwm(ByteBuffer pulses, int toggle, int channel, int output) {
+		return send_word(pulses, insert_channel_output(0x0640, toggle, channel, output));
 	}
 
-	int send_decrement_pwm(ByteBuffer pulses, int toggle, int channel,
-			int output) {
-		return send_word(pulses,
-				insert_channel_output(0x0650, toggle, channel, output));
+	int send_decrement_pwm(ByteBuffer pulses, int toggle, int channel, int output) {
+		return send_word(pulses, insert_channel_output(0x0650, toggle, channel, output));
 	}
 
-	int send_forward_pwm(ByteBuffer pulses, int toggle, int channel,
-			int output, int step) {
+	int send_forward_pwm(ByteBuffer pulses, int toggle, int channel, int output, int step) {
 		int command = 0x0400 | ((step & 0x7) << 4);
-		return send_word(pulses,
-				insert_channel_output(command, toggle, channel, output));
+		return send_word(pulses, insert_channel_output(command, toggle, channel, output));
 	}
 
-	int send_reverse_pwm(ByteBuffer pulses, int toggle, int channel,
-			int output, int step) {
+	int send_reverse_pwm(ByteBuffer pulses, int toggle, int channel, int output, int step) {
 		int command = 0x0480 | ((8 - (step & 0x7)) << 4);
-		return send_word(pulses,
-				insert_channel_output(command, toggle, channel, output));
+		return send_word(pulses, insert_channel_output(command, toggle, channel, output));
 	}
 
 	public void fwd() throws IOException, InterruptedException {
@@ -162,8 +154,7 @@ public class Command extends ICAdapter<Void, Analog> {
 		try (FileOutputStream fd = new FileOutputStream(new File("/dev/lirc0"))) {
 
 			byte[] array = pulses.array();
-			System.out.println("L=" + array.length + " /4 = " + array.length / 4
-					+ " count = " + count);
+			System.out.println("L=" + array.length + " /4 = " + array.length / 4 + " count = " + count);
 
 			// When a button is held down and the protocol needs update to
 			// prevent
@@ -188,25 +179,26 @@ public class Command extends ICAdapter<Void, Analog> {
 				long delay;
 
 				switch (i) {
-				default:
-				case 0:
-					delay = 0;
-					break;
+					default :
+					case 0 :
+						delay = 0;
+						break;
 
-				// (4 – Ch)*tm
-				case 1:
-					delay = 5 * tm;
-					break;
+					// (4 – Ch)*tm
+					case 1 :
+						delay = 5 * tm;
+						break;
 
-				case 2:
-					delay = (4 - channel) * tm;
-					break;
+					case 2 :
+						delay = (4 - channel) * tm;
+						break;
 
-				// The time from start to start for the following messages is:
-				// (6 + 2*Ch)*tm
-				case 3:
-				case 4:
-					delay = (6 + 2 * channel) * tm;
+					// The time from start to start for the following messages
+					// is:
+					// (6 + 2*Ch)*tm
+					case 3 :
+					case 4 :
+						delay = (6 + 2 * channel) * tm;
 				}
 
 				long now2 = System.currentTimeMillis();
@@ -227,6 +219,7 @@ public class Command extends ICAdapter<Void, Analog> {
 		out().set(value);
 	}
 
+	@Override
 	@Reference
 	protected void setCircuitBoard(CircuitBoard cb) {
 		super.setCircuitBoard(cb);

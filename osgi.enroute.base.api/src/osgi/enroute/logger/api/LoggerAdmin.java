@@ -47,16 +47,16 @@ public interface LoggerAdmin {
 	class Control extends DTO {
 		/**
 		 * The pattern is a required regex that is matched against:
-		 * 
+		 *
 		 * <pre>
 		 * 		logger-name [ ':' bundle-symbolicname] [':' bundle-version]]
 		 * </pre>
-		 * 
+		 *
 		 * Any logger matching this pattern will get the settings (if this
 		 * control is the first match of course).
 		 */
 
-		public String pattern;
+		public String	pattern;
 
 		/**
 		 * The minimum level for this logger
@@ -91,15 +91,14 @@ public interface LoggerAdmin {
 	 * List current set of loggers.
 	 * <p>
 	 * Filter can match:
-	 * 
+	 *
 	 * <pre>
 	 * 	logger	- logger name
 	 *  bsn     - Bundle symbolic name
 	 *  version - version of the bundle
 	 * </pre>
-	 * 
-	 * @param filter
-	 *            filter expression to find loggers
+	 *
+	 * @param filter filter expression to find loggers
 	 * @return a list of LogerInfo's
 	 * @throws Exception
 	 */
@@ -107,7 +106,7 @@ public interface LoggerAdmin {
 
 	/**
 	 * Get the current log settings. Returned objects are a copy.
-	 * 
+	 *
 	 * @return A copy of the current settings
 	 * @throws Exception
 	 */
@@ -115,9 +114,8 @@ public interface LoggerAdmin {
 
 	/**
 	 * Update the current log settings
-	 * 
-	 * @param settings
-	 *            The settings to update
+	 *
+	 * @param settings The settings to update
 	 * @throws Exception
 	 */
 	void setSettings(Settings settings) throws Exception;

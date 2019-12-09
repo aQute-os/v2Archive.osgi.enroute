@@ -1,8 +1,7 @@
 package osgi.enroute.rest.openapi.api;
+
 /**
  * Lists the headers that can be sent as part of a response.
- *
- * 
  */
 
 public class HeaderObject extends ItemsObject {
@@ -11,4 +10,3 @@ public class HeaderObject extends ItemsObject {
 	 */
 	public String description;
 }
-

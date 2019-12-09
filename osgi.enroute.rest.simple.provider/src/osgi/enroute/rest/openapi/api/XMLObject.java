@@ -3,22 +3,20 @@ package osgi.enroute.rest.openapi.api;
 import org.osgi.dto.DTO;
 
 /**
- * A metadata object that allows for more fine-tuned XML model definitions.
- * 
- * When using arrays, XML element names are not inferred (for
- * singular/plural forms) and the name property should be used to add that
- * information. See examples for expected behavior.
- * 
- * @see https://github.com/OAI/OpenAPI-Specification/blob/master/versions/2.0.md#xml-object
+ * A metadata object that allows for more fine-tuned XML model definitions. When
+ * using arrays, XML element names are not inferred (for singular/plural forms)
+ * and the name property should be used to add that information. See examples
+ * for expected behavior.
+ *
  */
 public class XMLObject extends DTO {
 	/**
-	 * Replaces the name of the element/attribute used for the described
-	 * schema property. When defined within the Items Object (items), it
-	 * will affect the name of the individual XML elements within the list.
-	 * When defined alongside type being array (outside the items), it will
-	 * affect the wrapping element and only if wrapped is true. If wrapped
-	 * is false, it will be ignored.
+	 * Replaces the name of the element/attribute used for the described schema
+	 * property. When defined within the Items Object (items), it will affect
+	 * the name of the individual XML elements within the list. When defined
+	 * alongside type being array (outside the items), it will affect the
+	 * wrapping element and only if wrapped is true. If wrapped is false, it
+	 * will be ignored.
 	 */
 	public String	name;
 	/**
@@ -38,13 +36,11 @@ public class XMLObject extends DTO {
 	public boolean	attribute	= false;
 
 	/**
-	 * MAY be used only for an array definition. Signifies whether the array
-	 * is wrapped (for example, <books><book/><book/></books>) or unwrapped
+	 * MAY be used only for an array definition. Signifies whether the array is
+	 * wrapped (for example, <books><book/><book/></books>) or unwrapped
 	 * (<book/><book/>). Default value is false. The definition takes effect
 	 * only when defined alongside type being array (outside the items).
 	 */
 	public boolean	wrapped;
 
 }
-
-

@@ -118,25 +118,29 @@ public class ICTracker implements InvocationHandler {
 		this.icdto.deviceId = id;
 
 		this.outputs = Stream.of(this.icdto.outputs)
-				.sorted((a, b) -> a.name.compareTo(b.name))//
-				.map((out) -> {
-					OutputPin pin = new OutputPin();
-					pin.pin = out;
-					return pin;
-				}).toArray(n -> new OutputPin[n]);
+			.sorted((a, b) -> a.name.compareTo(b.name))//
+			.map((out) -> {
+				OutputPin pin = new OutputPin();
+				pin.pin = out;
+				return pin;
+			})
+			.toArray(n -> new OutputPin[n]);
 		this.inputs = Stream.of(this.icdto.inputs)
-				.sorted((a, b) -> a.name.compareTo(b.name))//
-				.map((in) -> {
-					InputPin pin = new InputPin();
-					pin.pin = in;
-					return pin;
-				}).toArray(n -> new InputPin[n]);
-		this.inputNames = Stream.of(this.inputs).map(p -> p.pin.name)
-				.toArray(n -> new String[n]);
-		this.outputNames = Stream.of(this.outputs).map(p -> p.pin.name)
-				.toArray(n -> new String[n]);
+			.sorted((a, b) -> a.name.compareTo(b.name))//
+			.map((in) -> {
+				InputPin pin = new InputPin();
+				pin.pin = in;
+				return pin;
+			})
+			.toArray(n -> new InputPin[n]);
+		this.inputNames = Stream.of(this.inputs)
+			.map(p -> p.pin.name)
+			.toArray(n -> new String[n]);
+		this.outputNames = Stream.of(this.outputs)
+			.map(p -> p.pin.name)
+			.toArray(n -> new String[n]);
 	}
-	
+
 	String getName() {
 		return this.icdto.deviceId;
 	}
@@ -149,8 +153,7 @@ public class ICTracker implements InvocationHandler {
 	}
 
 	@Override
-	public Object invoke(Object proxy, Method method, Object[] args)
-			throws Throwable {
+	public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
 		OutputPin output = getOutputPin(method.getName());
 		assert output != null : "These arrays must match up";
 
@@ -163,7 +166,7 @@ public class ICTracker implements InvocationHandler {
 		if (index < 0)
 			return null;
 
-		return (OutputPin) outputs[index];
+		return outputs[index];
 	}
 
 	public InputPin getInputPin(String name) {
@@ -171,7 +174,7 @@ public class ICTracker implements InvocationHandler {
 		if (index < 0)
 			return null;
 
-		return (InputPin) inputs[index];
+		return inputs[index];
 	}
 
 }

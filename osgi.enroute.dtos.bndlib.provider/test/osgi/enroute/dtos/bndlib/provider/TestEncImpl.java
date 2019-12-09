@@ -10,15 +10,12 @@ import org.osgi.framework.dto.BundleDTO;
 import junit.framework.TestCase;
 import osgi.enroute.dto.api.DTOs;
 
-/**
- * Minimal {@link DTOs.Enc} test case.
- */
 public class TestEncImpl extends TestCase {
 
-	private static final String EXPECTED_ENCODED_CONTENT = "{\"id\":999,\"symbolicName\":\"com.example.test\"}";
-	private static final String EXPECTED_PRETTY_ENCODED_CONTENT = "{\n\t\"id\":999,\"symbolicName\":\"com.example.test\"\n}";
+	private static final String		EXPECTED_ENCODED_CONTENT		= "{\"id\":999,\"symbolicName\":\"com.example.test\"}";
+	private static final String		EXPECTED_PRETTY_ENCODED_CONTENT	= "{\n\t\"id\":999,\"symbolicName\":\"com.example.test\"\n}";
 
-	private static final BundleDTO bundleDTO = new BundleDTO();
+	private static final BundleDTO	bundleDTO						= new BundleDTO();
 	static {
 		bundleDTO.id = 999;
 		bundleDTO.symbolicName = "com.example.test";
@@ -26,6 +23,7 @@ public class TestEncImpl extends TestCase {
 
 	private DTOs.Enc cut;
 
+	@Override
 	public void setUp() throws Exception {
 		cut = new DTOsProvider().encoder(bundleDTO);
 	}
@@ -56,11 +54,13 @@ public class TestEncImpl extends TestCase {
 	}
 
 	public void testPretty() throws Exception {
-		assertEquals(EXPECTED_PRETTY_ENCODED_CONTENT, cut.pretty().put());
+		assertEquals(EXPECTED_PRETTY_ENCODED_CONTENT, cut.pretty()
+			.put());
 	}
 
 	public void testIgnoreNull() throws Exception {
-		assertEquals(EXPECTED_ENCODED_CONTENT, cut.ignoreNull().put());
+		assertEquals(EXPECTED_ENCODED_CONTENT, cut.ignoreNull()
+			.put());
 	}
 
 }

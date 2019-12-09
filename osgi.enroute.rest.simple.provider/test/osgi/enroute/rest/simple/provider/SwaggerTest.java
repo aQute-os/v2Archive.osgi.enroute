@@ -24,12 +24,12 @@ public class SwaggerTest extends TestCase {
 	@Description("Foo class")
 	public static class Foo extends DTO {
 
-		@ValidatorString(pattern="abc")
-		public String		a;
+		@ValidatorString(pattern = "abc")
+		public String											a;
 		@Description("=b")
-		public String				b;
-		@ValidatorArray(minItems=10)
-		public List<@ValidatorString(pattern="XXX")String>	c;
+		public String											b;
+		@ValidatorArray(minItems = 10)
+		public List<@ValidatorString(pattern = "XXX") String>	c;
 	}
 
 	interface T1 extends RESTRequest {
@@ -43,33 +43,30 @@ public class SwaggerTest extends TestCase {
 		int n();
 	}
 
-	@Info(title = "EP", description = "info", version = "1.0", contactName="Peter Kriens")
+	@Info(title = "EP", description = "info", version = "1.0", contactName = "Peter Kriens")
 	public static class EP implements REST {
 
 		@Description("operation")
-		public  Foo getExample(@ValidatorNumber(minimum=10) int bar)
-				throws @Description("filenotfound")
-					FileNotFoundException {
+		public Foo getExample(@ValidatorNumber(minimum = 10) int bar)
+			throws @Description("filenotfound") FileNotFoundException {
 			return new Foo();
 		}
 
 		static class MyResponse extends RESTResponse {
 			private static final long serialVersionUID = 1L;
 
-			
 		}
-		
+
 		static class MyErrorResponse extends RESTResponse {
 			private static final long serialVersionUID = 1L;
-			MyErrorResponse(){
+
+			MyErrorResponse() {
 				super(509);
 			}
 		}
 
-		public MyResponse getResponse(int bar)
-				throws 
-					FileNotFoundException, MyErrorResponse {
-			
+		public MyResponse getResponse(int bar) throws FileNotFoundException, MyErrorResponse {
+
 			return null;
 		}
 
@@ -88,14 +85,17 @@ public class SwaggerTest extends TestCase {
 		mapper.addResource(new EP(), 100);
 
 		OpenAPI openAPI = new OpenAPI(mapper, new URI("http://localhost/rest"));
-		
-		assertEquals( "1.0", openAPI.info.version);
-		assertEquals( "EP", openAPI.info.title);
-		assertEquals( "info", openAPI.info.description);
-		
+
+		assertEquals("1.0", openAPI.info.version);
+		assertEquals("EP", openAPI.info.title);
+		assertEquals("info", openAPI.info.description);
+
 		JSONCodec codec = new JSONCodec();
 		codec.setIgnorenull(true);
-		String string = codec.enc().indent("  ").put(openAPI).toString();
+		String string = codec.enc()
+			.indent("  ")
+			.put(openAPI)
+			.toString();
 		System.out.println(string);
 	}
 }

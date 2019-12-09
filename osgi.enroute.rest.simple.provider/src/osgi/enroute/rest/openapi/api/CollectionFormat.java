@@ -1,5 +1,10 @@
 package osgi.enroute.rest.openapi.api;
-public enum CollectionFormat {
-	csv, ss, tsv, pipes, multi, none;
-}
 
+public enum CollectionFormat {
+	csv,
+	ss,
+	tsv,
+	pipes,
+	multi,
+	none;
+}

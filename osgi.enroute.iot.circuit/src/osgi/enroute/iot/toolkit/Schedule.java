@@ -24,8 +24,8 @@ import osgi.enroute.iot.toolkit.Schedule.ScheduleConfig;
 import osgi.enroute.scheduler.api.CancellablePromise;
 import osgi.enroute.scheduler.api.Scheduler;
 
-@Designate(ocd=ScheduleConfig.class,factory=true)
-@Component(service= IC.class,	 name="osgi.enroute.iot.toolkit.schedule")
+@Designate(ocd = ScheduleConfig.class, factory = true)
+@Component(service = IC.class, name = "osgi.enroute.iot.toolkit.schedule")
 public class Schedule extends ICAdapter<Enable, Digital> implements Enable {
 
 	@ObjectClassDefinition
@@ -70,7 +70,7 @@ public class Schedule extends ICAdapter<Enable, Digital> implements Enable {
 		}
 
 		private void tick() throws Exception {
-			if ( active.getAndSet(true))
+			if (active.getAndSet(true))
 				return;
 
 			on(this);
@@ -158,6 +158,7 @@ public class Schedule extends ICAdapter<Enable, Digital> implements Enable {
 		this.scheduler = sch;
 	}
 
+	@Override
 	@Reference
 	protected void setCircuitBoard(CircuitBoard board) {
 		super.setCircuitBoard(board);

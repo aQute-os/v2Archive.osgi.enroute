@@ -21,15 +21,15 @@ import org.osgi.util.tracker.ServiceTracker;
  * forwards any messages on its reader to the available log services.
  */
 
-public class HideEquinoxLog implements BundleActivator, FindHook,
-		EventListenerHook {
-	
-	public boolean IMMEDIATE = true;
+public class HideEquinoxLog implements BundleActivator, FindHook, EventListenerHook {
 
-	private ServiceReference<?> equinoxLogReaderRef;
-	private ServiceReference<?> equinoxLogRef;
-	private ServiceReference<?> equinoxAdminLogRef;
+	public boolean				IMMEDIATE	= true;
 
+	private ServiceReference<?>	equinoxLogReaderRef;
+	private ServiceReference<?>	equinoxLogRef;
+	private ServiceReference<?>	equinoxAdminLogRef;
+
+	@SuppressWarnings("deprecation")
 	@Override
 	public void start(BundleContext context) throws Exception {
 		try {
@@ -40,8 +40,7 @@ public class HideEquinoxLog implements BundleActivator, FindHook,
 			// registered by Equinox
 			//
 
-			equinoxLogReaderRef = context
-					.getServiceReference(LogReaderService.class);
+			equinoxLogReaderRef = context.getServiceReference(LogReaderService.class);
 			equinoxLogRef = context.getServiceReference(LogService.class);
 			equinoxAdminLogRef = context.getServiceReference(LogService.class);
 
@@ -53,14 +52,14 @@ public class HideEquinoxLog implements BundleActivator, FindHook,
 			if (equinoxLogReaderRef == null)
 				return;
 
-			LogReaderService lrs = (LogReaderService) context
-					.getService(equinoxLogReaderRef);
+			LogReaderService lrs = (LogReaderService) context.getService(equinoxLogReaderRef);
 
 			//
 			// Maybe they fixed this bug in the mean time
 			//
 
-			if (lrs.getLog().hasMoreElements())
+			if (lrs.getLog()
+				.hasMoreElements())
 				return;
 
 			//
@@ -70,11 +69,9 @@ public class HideEquinoxLog implements BundleActivator, FindHook,
 			context.registerService(FindHook.class, this, null);
 			context.registerService(EventListenerHook.class, this, null);
 
-			tracker = new ServiceTracker<LogService, LogService>(context,
-					LogService.class, null) {
+			tracker = new ServiceTracker<LogService, LogService>(context, LogService.class, null) {
 				@Override
-				public LogService addingService(
-						ServiceReference<LogService> reference) {
+				public LogService addingService(ServiceReference<LogService> reference) {
 
 					//
 					// We must of course skip the Equinox log to prevent
@@ -91,7 +88,8 @@ public class HideEquinoxLog implements BundleActivator, FindHook,
 			tracker.open();
 
 			lrs.addLogListener((entry) -> {
-				for (LogService normalLog : tracker.getTracked().values()) {
+				for (LogService normalLog : tracker.getTracked()
+					.values()) {
 
 					int n = 0;
 					if (entry.getServiceReference() != null)
@@ -99,23 +97,20 @@ public class HideEquinoxLog implements BundleActivator, FindHook,
 					if (entry.getException() != null)
 						n += 2;
 					switch (n) {
-					case 0:
-						normalLog.log(entry.getLevel(), entry.getMessage());
-						break;
+						case 0 :
+							normalLog.log(entry.getLevel(), entry.getMessage());
+							break;
 
-					case 1:
-						normalLog.log(entry.getServiceReference(),
-								entry.getLevel(), entry.getMessage());
-						break;
-					case 2:
-						normalLog.log(entry.getLevel(), entry.getMessage(),
+						case 1 :
+							normalLog.log(entry.getServiceReference(), entry.getLevel(), entry.getMessage());
+							break;
+						case 2 :
+							normalLog.log(entry.getLevel(), entry.getMessage(), entry.getException());
+							break;
+						case 3 :
+							normalLog.log(entry.getServiceReference(), entry.getLevel(), entry.getMessage(),
 								entry.getException());
-						break;
-					case 3:
-						normalLog.log(entry.getServiceReference(),
-								entry.getLevel(), entry.getMessage(),
-								entry.getException());
-						break;
+							break;
 					}
 				}
 			});
@@ -127,21 +122,18 @@ public class HideEquinoxLog implements BundleActivator, FindHook,
 	}
 
 	@Override
-	public void stop(BundleContext context) throws Exception {
-	}
+	public void stop(BundleContext context) throws Exception {}
 
 	@Override
-	public void event(ServiceEvent event,
-			Map<BundleContext, Collection<ListenerInfo>> listeners) {
-		if (event.getServiceReference() == equinoxLogReaderRef
-				|| event.getServiceReference() == equinoxLogRef
-				|| event.getServiceReference() == equinoxAdminLogRef)
+	public void event(ServiceEvent event, Map<BundleContext, Collection<ListenerInfo>> listeners) {
+		if (event.getServiceReference() == equinoxLogReaderRef || event.getServiceReference() == equinoxLogRef
+			|| event.getServiceReference() == equinoxAdminLogRef)
 			listeners.clear();
 	}
 
 	@Override
-	public void find(BundleContext context, String name, String filter,
-			boolean allServices, Collection<ServiceReference<?>> references) {
+	public void find(BundleContext context, String name, String filter, boolean allServices,
+		Collection<ServiceReference<?>> references) {
 		references.remove(equinoxLogReaderRef);
 		references.remove(equinoxLogRef);
 		references.remove(equinoxAdminLogRef);

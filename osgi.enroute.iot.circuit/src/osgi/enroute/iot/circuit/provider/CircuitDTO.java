@@ -9,5 +9,5 @@ import org.osgi.dto.DTO;
  * want to add other stuff in the future.
  */
 public class CircuitDTO extends DTO {
-	public Collection<WireImpl>	wires;
+	public Collection<WireImpl> wires;
 }

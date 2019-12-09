@@ -1,6 +1,5 @@
 package osgi.enroute.scheduler.api;
 
-
 /**
  * The software utility Cron is a time-based job scheduler in Unix-like computer
  * operating systems. People who set up and maintain software environments use
@@ -15,7 +14,7 @@ package osgi.enroute.scheduler.api;
  * should register a Cron service with the {@link CronJob#CRON} property. The
  * value is according to the {link http://en.wikipedia.org/wiki/Cron}.
  * <p>
- * 
+ *
  * <pre>
  * * * * * * * *
  * | │ │ │ │ │ |
@@ -27,7 +26,7 @@ package osgi.enroute.scheduler.api;
  * | └────────── min (0 - 59)
  * └──────────── sec (0-59)
  * </pre>
- * 
+ *
  * <pre>
  * Field name   mandatory   Values             Special characters
  * Seconds      Yes         0-59               * / , -
@@ -38,7 +37,7 @@ package osgi.enroute.scheduler.api;
  * Day of week	Yes	        1-7 or MON-SUN	   * / , - ? L #
  * Year	        No	       1970–2099	       * / , -
  * </pre>
- * 
+ *
  * <h3>Asterisk ( * )</h3>
  * <p>
  * The asterisk indicates that the cron expression matches for all values of the
@@ -58,7 +57,7 @@ package osgi.enroute.scheduler.api;
  * between 2000 and 2010 AD, inclusive.
  * <p>
  * Additionally, you can use some fixed formats:
- * 
+ *
  * <pre>
  * &#64;yearly (or @annually)	Run once a year at midnight on the morning of January 1	0 0 1 1 *
  * &#64;monthly	Run once a month at midnight on the morning of the first day of the month	0 0 1 * *
@@ -71,22 +70,20 @@ package osgi.enroute.scheduler.api;
  * Please not that for the constants we follow the Java 8 Date & Time constants.
  * Major difference is the day number. In Quartz this is 0-6 for SAT-SUN while
  * here it is 1-7 for MON-SUN.
- * 
- * @param <T>
- *            The parameter for the cron job
+ *
+ * @param <T> The parameter for the cron job
  */
 public interface CronJob<T> {
 	/**
 	 * The service property that specifies the cron schedule. The type is
 	 * String+.
 	 */
-	String	CRON	= "cron";
+	String CRON = "cron";
 
 	/**
 	 * Run a cron job.
-	 * 
-	 * @param data
-	 *            The data for the job
+	 *
+	 * @param data The data for the job
 	 * @throws Exception
 	 */
 	public void run(T data) throws Exception;

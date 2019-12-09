@@ -12,33 +12,34 @@ import osgi.enroute.iot.gpio.util.Digital;
 import osgi.enroute.iot.gpio.util.ICAdapter;
 import osgi.enroute.iot.toolkit.Toggle.FlipConfig;
 
-@Designate(ocd=FlipConfig.class, factory=true)
-@Component(service=IC.class, name="osgi.enroute.iot.toolkit.toggle")
+@Designate(ocd = FlipConfig.class, factory = true)
+@Component(service = IC.class, name = "osgi.enroute.iot.toolkit.toggle")
 public class Toggle extends ICAdapter<Digital, Digital> implements Digital {
 
 	@ObjectClassDefinition
 	@interface FlipConfig {
 		String name();
 	}
+
 	boolean state;
 
 	@Override
 	public synchronized void set(boolean value) throws Exception {
-		if ( value == false ) {
+		if (value == false) {
 			state = !state;
 		}
 		out().set(state);
 	}
 
+	@Override
 	@Reference
 	protected void setDTOs(DTOs dtos) {
 		super.setDTOs(dtos);
 	}
 
-
+	@Override
 	@Reference
-	protected
-	void setCircuitBoard(CircuitBoard board) {
+	protected void setCircuitBoard(CircuitBoard board) {
 		super.setCircuitBoard(board);
 	}
 

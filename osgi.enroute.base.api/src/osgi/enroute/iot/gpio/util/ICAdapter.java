@@ -38,25 +38,23 @@ import osgi.enroute.iot.gpio.api.IC;
  * If the IC has a change in signal (or just feels like it) it can call a proxy
  * with the out() method. This proxy implements the Output interface and thus
  * has all the methods to set the output.
- * 
- * @param <Input>
- *            A type that describes the input pins
- * @param <Output>
- *            A type that describes the output pins
+ *
+ * @param <Input> A type that describes the input pins
+ * @param <Output> A type that describes the output pins
  */
 public abstract class ICAdapter<Input, Output> implements IC {
-	static Pattern LAST_SEGMENT_P = Pattern.compile(".*[$.]([^.$]+)(?:$\\d+)?");
+	static Pattern				LAST_SEGMENT_P	= Pattern.compile(".*[$.]([^.$]+)(?:$\\d+)?");
 
-	private final Class<Output> output;
-	private final Class<Input> input;
-	private Output out = null;
-	private Map<Method, Object> values = new HashMap<Method, Object>();
-	private ICDTO icdto = new ICDTO();
-	CircuitBoard						board;
-	private DTOs dtos;
+	private final Class<Output>	output;
+	private final Class<Input>	input;
+	private Output				out				= null;
+	private Map<Method, Object>	values			= new HashMap<Method, Object>();
+	private ICDTO				icdto			= new ICDTO();
+	CircuitBoard				board;
+	private DTOs				dtos;
 	AtomicReference<Delayed>	delayed			= new AtomicReference<>();
 
-	private Object[] inputNames;
+	private Object[]			inputNames;
 
 	static class InputPin extends PinDTO {
 		Method method;
@@ -64,7 +62,7 @@ public abstract class ICAdapter<Input, Output> implements IC {
 
 	/**
 	 * Create an IC Adapter
-	 * 
+	 *
 	 * @param deviceId
 	 * @param dtos
 	 * @param board
@@ -77,8 +75,8 @@ public abstract class ICAdapter<Input, Output> implements IC {
 	}
 
 	static class Delayed {
-		String name;
-		Object value;
+		String	name;
+		Object	value;
 	}
 
 	/**
@@ -90,16 +88,13 @@ public abstract class ICAdapter<Input, Output> implements IC {
 			rover = rover.getSuperclass();
 		}
 
-		ParameterizedType zuper = (ParameterizedType) rover
-				.getGenericSuperclass();
+		ParameterizedType zuper = (ParameterizedType) rover.getGenericSuperclass();
 		this.input = resolve(zuper.getActualTypeArguments()[0], "Input");
 		this.output = resolve(zuper.getActualTypeArguments()[1], "Output");
 
 		if (this.input != null && !this.input.isInstance(this))
-			throw new IllegalArgumentException(
-					"An IC must implement its Input type parameter. This class "
-							+ this.getClass() + " does not implement "
-							+ this.input);
+			throw new IllegalArgumentException("An IC must implement its Input type parameter. This class "
+				+ this.getClass() + " does not implement " + this.input);
 
 		if (this.input == null)
 			icdto.inputs = new PinDTO[0];
@@ -107,21 +102,22 @@ public abstract class ICAdapter<Input, Output> implements IC {
 			//
 			// Create the input pins
 			//
-			icdto.inputs = Stream
-					.of(this.input.getMethods())
-					.sorted((a, b) -> a.getName().compareTo(b.getName()))
-					.filter((m) -> !(Modifier.isStatic(m.getModifiers()) || m
-							.getParameterTypes().length != 1))
-					.map((method) -> {
-						InputPin in = new InputPin();
-						in.name = method.getName();
-						in.type = method.getParameterTypes()[0].getName();
-						in.method = method;
-						return in;
-					}).toArray((n) -> new PinDTO[n]);
+			icdto.inputs = Stream.of(this.input.getMethods())
+				.sorted((a, b) -> a.getName()
+					.compareTo(b.getName()))
+				.filter((m) -> !(Modifier.isStatic(m.getModifiers()) || m.getParameterTypes().length != 1))
+				.map((method) -> {
+					InputPin in = new InputPin();
+					in.name = method.getName();
+					in.type = method.getParameterTypes()[0].getName();
+					in.method = method;
+					return in;
+				})
+				.toArray((n) -> new PinDTO[n]);
 
-		this.inputNames = Stream.of(icdto.inputs).map(pin -> pin.name)
-				.toArray(n -> new String[n]);
+		this.inputNames = Stream.of(icdto.inputs)
+			.map(pin -> pin.name)
+			.toArray(n -> new String[n]);
 
 		if (this.output == null)
 			icdto.outputs = new PinDTO[0];
@@ -129,18 +125,18 @@ public abstract class ICAdapter<Input, Output> implements IC {
 			//
 			// Create the output pins
 			//
-			icdto.outputs = Stream
-					.of(this.output.getMethods())
-					.sorted((a, b) -> a.getName().compareTo(b.getName()))
-					.filter((m) -> !(Modifier.isStatic(m.getModifiers()) || m
-							.getParameterTypes().length != 1))
-					.map((method) -> {
-						PinDTO out = new PinDTO();
-						out.name = method.getName();
-						out.type = method.getParameterTypes()[0].getName();
+			icdto.outputs = Stream.of(this.output.getMethods())
+				.sorted((a, b) -> a.getName()
+					.compareTo(b.getName()))
+				.filter((m) -> !(Modifier.isStatic(m.getModifiers()) || m.getParameterTypes().length != 1))
+				.map((method) -> {
+					PinDTO out = new PinDTO();
+					out.name = method.getName();
+					out.type = method.getParameterTypes()[0].getName();
 
-						return out;
-					}).toArray((n) -> new PinDTO[n]);
+					return out;
+				})
+				.toArray((n) -> new PinDTO[n]);
 
 		}
 
@@ -151,25 +147,24 @@ public abstract class ICAdapter<Input, Output> implements IC {
 	@SuppressWarnings("unchecked")
 	protected synchronized Output out() {
 		if (out == null) {
-			out = (Output) Proxy.newProxyInstance(output.getClassLoader(),
-					new Class<?>[] { output }, new InvocationHandler() {
+			out = (Output) Proxy.newProxyInstance(output.getClassLoader(), new Class<?>[] {
+				output
+			}, new InvocationHandler() {
 
-						@Override
-						public Object invoke(Object proxy, Method method,
-								Object[] args) throws Throwable {
-							if (board != null && args.length == 1) {
-								board.fire(ICAdapter.this, method.getName(),
-										args[0]);
-							} else {
-								Delayed d = new Delayed();
-								d.name = method.getName();
-								d.value = args[0];
-								delayed.set(d);
-							}
+				@Override
+				public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+					if (board != null && args.length == 1) {
+						board.fire(ICAdapter.this, method.getName(), args[0]);
+					} else {
+						Delayed d = new Delayed();
+						d.name = method.getName();
+						d.value = args[0];
+						delayed.set(d);
+					}
 
-							return null;
-						}
-					});
+					return null;
+				}
+			});
 		}
 		return out;
 	}
@@ -177,7 +172,8 @@ public abstract class ICAdapter<Input, Output> implements IC {
 	protected void flush(Output output) {
 		for (Entry<Method, Object> e : values.entrySet()) {
 			try {
-				e.getKey().invoke(output, e.getValue());
+				e.getKey()
+					.invoke(output, e.getValue());
 			} catch (Exception e1) {
 				// TODO
 				e1.printStackTrace();
@@ -186,7 +182,7 @@ public abstract class ICAdapter<Input, Output> implements IC {
 	}
 
 	/*
-	 * 
+	 *
 	 */
 	@SuppressWarnings("unchecked")
 	private <T> Class<T> resolve(Type type, String msg) {
@@ -197,9 +193,8 @@ public abstract class ICAdapter<Input, Output> implements IC {
 				return null;
 
 			if (!clazz.isInterface())
-				throw new IllegalArgumentException("An IC " + msg
-						+ " type must be an interface, it is a class "
-						+ clazz.getName());
+				throw new IllegalArgumentException(
+					"An IC " + msg + " type must be an interface, it is a class " + clazz.getName());
 
 			for (Method m : clazz.getMethods()) {
 
@@ -207,23 +202,19 @@ public abstract class ICAdapter<Input, Output> implements IC {
 					continue;
 
 				if (m.getParameterTypes().length != 1) {
-					throw new IllegalArgumentException("An IC " + msg
-							+ " method must have 1 argument,  " + m
-							+ " has a different number of args");
+					throw new IllegalArgumentException(
+						"An IC " + msg + " method must have 1 argument,  " + m + " has a different number of args");
 				}
 				if (m.getReturnType() == Void.class) {
-					throw new IllegalArgumentException("An IC " + msg
-							+ " methods must have a void return,  " + m
-							+ " has a " + m.getReturnType().getName()
-							+ " return");
+					throw new IllegalArgumentException(
+						"An IC " + msg + " methods must have a void return,  " + m + " has a " + m.getReturnType()
+							.getName() + " return");
 				}
 			}
 			return clazz;
 		}
-		throw new IllegalArgumentException(
-				"The "
-						+ msg
-						+ " type variable is not a class. You must use a concrete interface or class without wildcards, variables, arrays. or parameterized types");
+		throw new IllegalArgumentException("The " + msg
+			+ " type variable is not a class. You must use a concrete interface or class without wildcards, variables, arrays. or parameterized types");
 	}
 
 	@Override
@@ -231,6 +222,7 @@ public abstract class ICAdapter<Input, Output> implements IC {
 		return icdto;
 	}
 
+	@Override
 	public String getName() {
 		if (icdto != null && icdto.deviceId != null)
 			return icdto.deviceId;
@@ -248,8 +240,7 @@ public abstract class ICAdapter<Input, Output> implements IC {
 			//
 
 			StringBuilder consonants = new StringBuilder(name);
-			for (int i = consonants.length() - 1; i > 0
-					&& consonants.length() > 8; i--) {
+			for (int i = consonants.length() - 1; i > 0 && consonants.length() > 8; i--) {
 				char c = name.charAt(i);
 				if ("aeuio".indexOf(c) >= 0)
 					consonants.delete(i, i + 1);
@@ -319,7 +310,8 @@ public abstract class ICAdapter<Input, Output> implements IC {
 			}
 			if (t != value.getClass()) {
 				if (dtos != null)
-					value = dtos.convert(value).to(t);
+					value = dtos.convert(value)
+						.to(t);
 				else {
 					System.out.println("No DTOs set for " + this);
 				}
@@ -330,9 +322,8 @@ public abstract class ICAdapter<Input, Output> implements IC {
 
 	/**
 	 * Get the Input Pin
-	 * 
-	 * @param name
-	 *            name of the pin
+	 *
+	 * @param name name of the pin
 	 * @return an Input Pin
 	 */
 	public InputPin getInputPin(String name) {

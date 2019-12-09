@@ -32,7 +32,7 @@ public class ResponseWriter {
 		static String	BYTE_RANGE_SET_S	= "(\\d+)?\\s*-\\s*(\\d+)?";
 		static Pattern	BYTE_RANGE_SET		= Pattern.compile(BYTE_RANGE_SET_S);
 		static Pattern	BYTE_RANGE			= Pattern
-				.compile("bytes\\s*=\\s*(\\d+)?\\s*-\\s*(\\d+)?(?:\\s*,\\s*(\\d+)\\s*-\\s*(\\d+)?)*\\s*");
+			.compile("bytes\\s*=\\s*(\\d+)?\\s*-\\s*(\\d+)?(?:\\s*,\\s*(\\d+)\\s*-\\s*(\\d+)?)*\\s*");
 
 		Range			next;
 		long			start;
@@ -47,7 +47,8 @@ public class ResponseWriter {
 
 		Range(String range, long length) {
 			if (range != null) {
-				if (!BYTE_RANGE.matcher(range).matches())
+				if (!BYTE_RANGE.matcher(range)
+					.matches())
 					throw new IllegalArgumentException("Bytes ranges does not match specification " + range);
 
 				Matcher m = BYTE_RANGE_SET.matcher(range);
@@ -150,14 +151,14 @@ public class ResponseWriter {
 			long time = 0;
 			try {
 				synchronized (format) {
-					time = format.parse(ifModifiedSince).getTime();
+					time = format.parse(ifModifiedSince)
+						.getTime();
 				}
 				if (time > c.time) {
 					rsp.setStatus(HttpServletResponse.SC_NOT_MODIFIED);
 					return true;
 				}
-			}
-			catch (Exception e) {
+			} catch (Exception e) {
 				// e.printStackTrace();
 			}
 		}
@@ -170,13 +171,14 @@ public class ResponseWriter {
 			}
 		}
 
-		if (rq.getMethod().equalsIgnoreCase("GET")) {
+		if (rq.getMethod()
+			.equalsIgnoreCase("GET")) {
 
 			try (OutputStream out = rsp.getOutputStream();) {
 
 				Encoding encoding = getEncoding(rq.getHeader("Accept-Encoding"));
-				if (encoding != Encoding.IDENTITY && isCompressableMime(rsp.getContentType()) && range.length() == c.file.length()
-						&& c.file.length() > 300) {
+				if (encoding != Encoding.IDENTITY && isCompressableMime(rsp.getContentType())
+					&& range.length() == c.file.length() && c.file.length() > 300) {
 
 					File source;
 					switch (encoding) {
@@ -214,8 +216,8 @@ public class ResponseWriter {
 		R get(P p) throws Exception;
 	}
 
-	private File setCompressor(CacheFile c, HttpServletResponse rsp, String type, FE<OutputStream,OutputStream> gen)
-			throws Exception {
+	private File setCompressor(CacheFile c, HttpServletResponse rsp, String type, FE<OutputStream, OutputStream> gen)
+		throws Exception {
 		rsp.setHeader("Content-Encoding", type);
 		File f = new File(c.file.getParentFile(), c.file.getName() + "__" + type + "__");
 		if (f.isFile() && f.lastModified() >= c.file.lastModified()) {
@@ -235,12 +237,15 @@ public class ResponseWriter {
 	}
 
 	enum Encoding {
-		GZIP, DEFLATE, IDENTITY;
+		GZIP,
+		DEFLATE,
+		IDENTITY;
 	}
 
 	private Encoding getEncoding(String encoding) {
 		if (encoding != null) {
-			String[] encodings = encoding.trim().split("\\s*,\\s*");
+			String[] encodings = encoding.trim()
+				.split("\\s*,\\s*");
 
 			for (String e : encodings) {
 				e = clean(e);
@@ -260,7 +265,8 @@ public class ResponseWriter {
 		if (n < 0)
 			return e;
 
-		return e.substring(0, n).trim();
+		return e.substring(0, n)
+			.trim();
 	}
 
 	private boolean isCompressableMime(String mime) {

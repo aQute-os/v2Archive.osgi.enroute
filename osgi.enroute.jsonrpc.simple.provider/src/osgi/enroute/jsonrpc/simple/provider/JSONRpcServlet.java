@@ -27,9 +27,10 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.http.whiteboard.HttpWhiteboardConstants;
-import org.osgi.service.log.LogService;
 import org.osgi.service.metatype.annotations.Designate;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import aQute.lib.converter.Converter;
 import aQute.lib.hex.Hex;
@@ -49,11 +50,13 @@ import osgi.enroute.jsonrpc.dto.JSON.Response;
 @RequireHttpImplementation
 @Designate(ocd = JSONRpcServlet.Config.class)
 @Component(//
-		name = "osgi.web.jsonrpc", //
-		service = Servlet.class, //
-		configurationPolicy = ConfigurationPolicy.OPTIONAL, property = {
-				HttpWhiteboardConstants.HTTP_WHITEBOARD_SERVLET_PATTERN + "=" + "/jsonrpc/2.0/*" })
+	name = "osgi.web.jsonrpc", //
+	service = Servlet.class, //
+	configurationPolicy = ConfigurationPolicy.OPTIONAL, property = {
+		HttpWhiteboardConstants.HTTP_WHITEBOARD_SERVLET_PATTERN + "=" + "/jsonrpc/2.0/*"
+	})
 public class JSONRpcServlet extends HttpServlet {
+	private final static Logger	log					= LoggerFactory.getLogger(JSONRpcServlet.class);
 	private static final long	serialVersionUID	= 1L;
 	final static Converter		converter			= new Converter();
 	final static JSONCodec		codec				= new JSONCodec();
@@ -92,8 +95,7 @@ public class JSONRpcServlet extends HttpServlet {
 	Config		config;
 	boolean		angular;
 	boolean		trace	= false;
-	@Reference
-	LogService	log;
+
 
 	@Activate
 	void actvate(Config config) throws Exception {
@@ -104,16 +106,19 @@ public class JSONRpcServlet extends HttpServlet {
 
 	static Random random = new Random();
 
+	@Override
 	public void service(HttpServletRequest rq, HttpServletResponse rsp) throws IOException {
 
-		if (angular && rq.getMethod().equalsIgnoreCase("GET")) {
+		if (angular && rq.getMethod()
+			.equalsIgnoreCase("GET")) {
 			// Angular helps us fight the
 			// http://en.wikipedia.org/wiki/Cross-site_request_forgery
 			// attack. At first get we set a cookie with a nonce (a random
 			// number). For the remaining
 			// session we expect the javascript to copy the cookie's value into
 			// the X-XSRF-TOKEN header.
-			String nonce = (String) rq.getSession().getAttribute("XSRF-TOKEN");
+			String nonce = (String) rq.getSession()
+				.getAttribute("XSRF-TOKEN");
 			if (nonce == null) {
 				nonce = random.nextDouble() + "";
 
@@ -128,7 +133,8 @@ public class JSONRpcServlet extends HttpServlet {
 
 		String pathInfo = rq.getPathInfo();
 		if (pathInfo == null) {
-			rsp.getWriter().println("Missing endpoint name in " + rq.getRequestURI());
+			rsp.getWriter()
+				.println("Missing endpoint name in " + rq.getRequestURI());
 			rsp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 			return;
 		}
@@ -138,7 +144,9 @@ public class JSONRpcServlet extends HttpServlet {
 			pathInfo = pathInfo.substring(0, pathInfo.length() - 1);
 
 		try {
-			Request request = codec.dec().from(rq.getInputStream()).get(Request.class);
+			Request request = codec.dec()
+				.from(rq.getInputStream())
+				.get(Request.class);
 			try {
 
 				if (trace)
@@ -168,7 +176,10 @@ public class JSONRpcServlet extends HttpServlet {
 
 					if (result != null) {
 						rsp.setContentType("application/json;charset=UTF-8");
-						codec.enc().writeDefaults().to(out).put(result);
+						codec.enc()
+							.writeDefaults()
+							.to(out)
+							.put(result);
 					}
 
 				}
@@ -184,8 +195,10 @@ public class JSONRpcServlet extends HttpServlet {
 		Response response = new Response();
 		response.id = request.id;
 		try {
-			for (Method m : target.getClass().getMethods()) {
-				if (m.getName().equals(request.method)) {
+			for (Method m : target.getClass()
+				.getMethods()) {
+				if (m.getName()
+					.equals(request.method)) {
 					Object[] parameters = coerce(m, new ArrayList<Object>(request.params));
 					if (parameters != null) {
 						response.result = m.invoke(target, parameters);
@@ -197,14 +210,16 @@ public class JSONRpcServlet extends HttpServlet {
 			response.error.message = "No such method " + request.method;
 			return response;
 		} catch (InvocationTargetException e) {
-			log.log(LogService.LOG_INFO, "JSONRPC target error on " + request.toString(), e.getTargetException());
+			log.info("JSONRPC target error on {}", request.toString(), e.getTargetException());
 			response.error = new JSONRPCError();
-			response.error.message = e.getTargetException().getMessage();
+			response.error.message = e.getTargetException()
+				.getMessage();
 			if (response.error.message == null)
-				response.error.message = e.getTargetException().toString();
+				response.error.message = e.getTargetException()
+					.toString();
 			return response;
 		} catch (Exception e) {
-			log.log(LogService.LOG_ERROR, "JSONRPC exec error on " + request.toString(), e);
+			log.error("JSONRPC exec error on {}", request.toString(), e);
 			response.error = new JSONRPCError();
 			response.error.message = e.getMessage();
 			return response;
@@ -250,23 +265,18 @@ public class JSONRpcServlet extends HttpServlet {
 
 	/**
 	 * Provide a list of all the methods supported by this endpoint
-	 * 
+	 *
 	 * @param resourceManager
 	 * @param map
 	 */
 
 	/**
 	 * This method is called by the JS code to get a list of endpoints.
-	 * 
-	 * @param endpointName
-	 * @param request
-	 * @param rq
-	 * @param rsp
-	 * @return
+	 *
 	 * @throws Exception
 	 */
 	public Endpoint __hi(String endpointName, Request request, HttpServletRequest rq, HttpServletResponse rsp)
-			throws Exception {
+		throws Exception {
 
 		JSONRPC endpointImpl = endpoints.get(endpointName);
 		if (endpointImpl == null)
@@ -277,7 +287,8 @@ public class JSONRpcServlet extends HttpServlet {
 		endpointDescription.descriptor = endpointImpl.getDescriptor();
 
 		// TODO make 1 time
-		for (Method m : endpointImpl.getClass().getMethods()) {
+		for (Method m : endpointImpl.getClass()
+			.getMethods()) {
 			if (m.getDeclaringClass() != Object.class)
 				endpointDescription.methods.add(m.getName());
 		}
@@ -291,7 +302,7 @@ public class JSONRpcServlet extends HttpServlet {
 	}
 
 	public PingResponse __ping(String endpointName, Request request, HttpServletRequest rq, HttpServletResponse rsp,
-			String nonce) {
+		String nonce) {
 		PingResponse pr = new PingResponse();
 		pr.nonce = nonce;
 		pr.time = System.currentTimeMillis();

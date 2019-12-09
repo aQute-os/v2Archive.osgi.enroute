@@ -10,13 +10,10 @@ import org.osgi.dto.DTO;
 import osgi.enroute.rest.openapi.annotations.Required;
 
 /**
- * Swagger Object
- * 
- * This is the root document object for the API specification.It combines what
- * previously was the Resource Listing and API Declaration(version 1.2 and
- * earlier)together into one document.
- * 
- * @see https://github.com/OAI/OpenAPI-Specification/blob/master/versions/2.0.md#swagger-object
+ * Swagger Object This is the root document object for the API specification.It
+ * combines what previously was the Resource Listing and API Declaration(version
+ * 1.2 and earlier)together into one document.
+ *
  */
 public class OpenAPIObject extends DTO {
 
@@ -26,7 +23,7 @@ public class OpenAPIObject extends DTO {
 	 * The value MUST be "2.0".
 	 */
 	@Required
-	public String							openapi			= "3.0.0";
+	public String							openapi		= "3.0.0";
 
 	/**
 	 * Required. Provides metadata about the API. The metadata can be used by
@@ -39,7 +36,7 @@ public class OpenAPIObject extends DTO {
 	 * An array of Host objects which provide scheme, host, port, and basePath
 	 * in an associative manner.
 	 */
-	public List<HostObject>					hosts			= new ArrayList<>();
+	public List<HostObject>					hosts		= new ArrayList<>();
 
 	/**
 	 * A list of MIME types the APIs can consume. This is global to all APIs but
@@ -59,18 +56,18 @@ public class OpenAPIObject extends DTO {
 	 * An object to hold responses that can be used across operations. This
 	 * property does not define global responses for all operations.
 	 */
-	public Map<String, ResponseObject>		responses		= new HashMap<>();;
+	public Map<String, ResponseObject>		responses	= new HashMap<>();
 
 	/**
 	 * Required. The available paths and operations for the API.
 	 */
 	@Required
-	public Map<String, PathItemObject>		paths			= new HashMap<>();
+	public Map<String, PathItemObject>		paths		= new HashMap<>();
 
 	/**
 	 * An element to hold various schemas for the specification.
 	 */
-	public Map<String, Object>				components		= new HashMap<>();
+	public Map<String, Object>				components	= new HashMap<>();
 
 	/**
 	 * A declaration of which security schemes are applied for the API as a

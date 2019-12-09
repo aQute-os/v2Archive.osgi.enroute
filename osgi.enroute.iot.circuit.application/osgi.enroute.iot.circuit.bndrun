@@ -20,35 +20,37 @@ JPM-Command					circuit
 -runrequires: \
 	osgi.identity;filter:='(osgi.identity=osgi.enroute.iot.circuit.application)',\
 	osgi.identity;filter:='(osgi.identity=osgi.enroute.iot.circuit.provider)',\
-	osgi.identity;filter:='(osgi.identity=osgi.enroute.iot.circuit.command)',\
-	osgi.identity;filter:='(osgi.identity=slf4j.simple)'
+	osgi.identity;filter:='(osgi.identity=osgi.enroute.iot.circuit.command)'
 
--runorder leastdependencieslast
+-runproperties: \
+    org.osgi.framework.startlevel.beginning=100
 
--runfw: org.apache.felix.framework;version='[6.0.2,6.0.2]'
--runee: JavaSE-1.8
-
--runorder: leastdependenciesfirst
+-runbundles+ \
+    osgi.enroute.logger.simple.provider;startlevel=10, \
+    org.apache.felix.log;startlevel=10, \
+    *;startlevel=100
+    
 -runbundles: \
 	org.osgi.util.function;version='[1.1.0,1.1.1)',\
+    osgi.enroute.logger.simple.provider;version=snapshot,\
 	org.osgi.util.promise;version='[1.1.1,1.1.2)',\
-	org.apache.felix.log;version='[1.2.0,1.2.1)',\
 	org.apache.felix.scr;version='[2.1.16,2.1.17)',\
-	slf4j.api;version='[1.7.25,1.7.26)',\
-	osgi.enroute.scheduler.simple.provider;version='[2.2.0,2.2.1)',\
-	org.apache.felix.configadmin;version='[1.9.12,1.9.13)',\
 	org.apache.felix.eventadmin;version='[1.5.0,1.5.1)',\
-	osgi.enroute.dtos.bndlib.provider;version='[2.2.0,2.2.1)',\
-	osgi.enroute.iot.circuit.provider;version='[2.2.0,2.2.1)',\
 	org.apache.felix.http.servlet-api;version='[1.1.2,1.1.3)',\
-	org.apache.felix.http.jetty;version='[4.0.8,4.0.9)',\
-	osgi.enroute.jsonrpc.simple.provider;version='[2.2.0,2.2.1)',\
-	osgi.enroute.google.angular.webresource;version='[1.5.7,1.5.8)',\
-	osgi.enroute.easse.simple.adapter;version='[2.2.0,2.2.1)',\
-	osgi.enroute.web.simple.provider;version='[2.2.0,2.2.1)',\
-	org.apache.felix.coordinator;version='[1.0.2,1.0.3)',\
-	osgi.enroute.configurer.simple.provider;version='[2.2.0,2.2.1)',\
-	osgi.enroute.twitter.bootstrap.webresource;version='[3.3.5,3.3.6)',\
-	osgi.enroute.iot.circuit.application;version='[2.2.0,2.2.1)',\
-	osgi.enroute.iot.circuit.command;version='[2.2.0,2.2.1)',\
-	slf4j.simple;version='[1.7.25,1.7.26)'
+	javax.json-api;version='[1.1.4,1.1.5)',\
+	org.apache.felix.configadmin;version='[1.9.16,1.9.17)',\
+	org.apache.felix.configurator;version='[1.0.10,1.0.11)',\
+	org.apache.felix.converter;version='[1.0.12,1.0.13)',\
+	org.apache.felix.http.jetty;version='[4.0.14,4.0.15)',\
+	org.apache.felix.log;version='[1.2.2,1.2.3)',\
+	osgi.enroute.dtos.bndlib.provider;version=snapshot,\
+	osgi.enroute.easse.simple.adapter;version=snapshot,\
+	osgi.enroute.google.angular.webresource;version=snapshot,\
+	osgi.enroute.iot.circuit.application;version=snapshot,\
+	osgi.enroute.iot.circuit.command;version=snapshot,\
+	osgi.enroute.iot.circuit.provider;version=snapshot,\
+	osgi.enroute.jsonrpc.simple.provider;version=snapshot,\
+	osgi.enroute.scheduler.simple.provider;version=snapshot,\
+	osgi.enroute.twitter.bootstrap.webresource;version=snapshot,\
+	osgi.enroute.web.simple.provider;version=snapshot
+

@@ -23,17 +23,15 @@ import osgi.enroute.executor.capabilities.ExecutorConstants;
 
 /**
  * This bundle provides a java.util.concurrent.Executor service that can be
- * configured and is shared between all bundles. 
+ * configured and is shared between all bundles.
  */
-@Capability(namespace=ImplementationNamespace.IMPLEMENTATION_NAMESPACE, name=ExecutorConstants.EXECUTOR_SPECIFICATION_NAME, version=ExecutorConstants.EXECUTOR_SPECIFICATION_VERSION)
-@Designate(ocd=Configuration.class, factory=true)
-@Component(
-		name = "osgi.executor.provider",
-		configurationPolicy = ConfigurationPolicy.OPTIONAL, scope=ServiceScope.BUNDLE)
+@Capability(namespace = ImplementationNamespace.IMPLEMENTATION_NAMESPACE, name = ExecutorConstants.EXECUTOR_SPECIFICATION_NAME, version = ExecutorConstants.EXECUTOR_SPECIFICATION_VERSION)
+@Designate(ocd = Configuration.class, factory = true)
+@Component(name = "osgi.executor.provider", configurationPolicy = ConfigurationPolicy.OPTIONAL, scope = ServiceScope.BUNDLE)
 public class ExecutorImplementation implements Executor {
 	ExecutorService			es;
 	BlockingQueue<Runnable>	queue	= new LinkedBlockingQueue<Runnable>();
-	static Logger					log = LoggerFactory.getLogger(ExecutorImplementation.class);
+	static Logger			log		= LoggerFactory.getLogger(ExecutorImplementation.class);
 
 	/*
 	 * Creates a new instance of the underlying implementation of the executor
@@ -46,7 +44,8 @@ public class ExecutorImplementation implements Executor {
 		int coreSize = config.coreSize();
 		int maxSize = config.maximumPoolSize();
 		long keepAlive = config.keepAliveTime();
-		int cores = Runtime.getRuntime().availableProcessors();
+		int cores = Runtime.getRuntime()
+			.availableProcessors();
 
 		if (coreSize < 10 * cores)
 			coreSize = 30;
@@ -58,7 +57,7 @@ public class ExecutorImplementation implements Executor {
 			keepAlive = 300;
 
 		es = new ThreadPoolExecutor(coreSize, maxSize, keepAlive, TimeUnit.SECONDS, queue, //
-				new ThreadPoolExecutor.CallerRunsPolicy());
+			new ThreadPoolExecutor.CallerRunsPolicy());
 	}
 
 	/*
@@ -75,6 +74,7 @@ public class ExecutorImplementation implements Executor {
 	/*
 	 * Execute a runnable
 	 */
+	@Override
 	public void execute(Runnable command) {
 		es.submit(command);
 	}

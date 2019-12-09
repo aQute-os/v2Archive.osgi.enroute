@@ -22,12 +22,11 @@ import com.pi4j.wiringpi.GpioInterruptEvent;
  */
 @Component(immediate = true)
 public class PiModelDetector {
-	GpioController gpio;
-	ServiceRegistration<GpioController> registration;
+	GpioController						gpio;
+	ServiceRegistration<GpioController>	registration;
 
 	@Activate
-	void activate(BundleContext context) throws IOException,
-			InterruptedException {
+	void activate(BundleContext context) throws IOException, InterruptedException {
 
 		// For some reason we need to preload this class
 		new GpioInterruptEvent("SS", 0, false);
@@ -38,9 +37,9 @@ public class PiModelDetector {
 		props.put("cpu.revision", SystemInfo.getCpuRevision());
 		props.put("cpu.model", SystemInfo.getModelName());
 		props.put("hardware.revision", SystemInfo.getRevision());
-		props.put("board.type", SystemInfo.getBoardType().name());
-		registration = context.registerService(GpioController.class, gpio,
-				props);
+		props.put("board.type", SystemInfo.getBoardType()
+			.name());
+		registration = context.registerService(GpioController.class, gpio, props);
 	}
 
 	@Deactivate

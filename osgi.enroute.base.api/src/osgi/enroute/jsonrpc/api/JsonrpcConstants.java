@@ -5,7 +5,7 @@ package osgi.enroute.jsonrpc.api;
  */
 public interface JsonrpcConstants {
 	/**
-	 * 
+	 *
 	 */
 	String	JSONRPC_WEB_RESOURCE_PATH		= "/osgi/enroute/jsonrpc";
 	/**

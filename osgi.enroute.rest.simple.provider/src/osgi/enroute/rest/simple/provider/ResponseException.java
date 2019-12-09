@@ -16,26 +16,20 @@ class ResponseException {
 	final private Class<? extends Throwable>	throwable;
 	final private int							statusCode;
 
-	private ResponseException(Class<? extends Throwable> throwable,
-			int statusCode) {
+	private ResponseException(Class<? extends Throwable> throwable, int statusCode) {
 		this.throwable = throwable;
 		this.statusCode = statusCode;
 	}
 
 	static ResponseException[] MATCH = {
-			new ResponseException(FileNotFoundException.class,
-					HttpServletResponse.SC_NOT_FOUND),
-			new ResponseException(SecurityException.class,
-					HttpServletResponse.SC_FORBIDDEN),
-			new ResponseException(UnsupportedOperationException.class,
-					HttpServletResponse.SC_NOT_IMPLEMENTED),
-			new ResponseException(IllegalArgumentException.class,
-					HttpServletResponse.SC_BAD_REQUEST),
-			new ResponseException(LoginException.class,
-					HttpServletResponse.SC_UNAUTHORIZED) };
+		new ResponseException(FileNotFoundException.class, HttpServletResponse.SC_NOT_FOUND),
+		new ResponseException(SecurityException.class, HttpServletResponse.SC_FORBIDDEN),
+		new ResponseException(UnsupportedOperationException.class, HttpServletResponse.SC_NOT_IMPLEMENTED),
+		new ResponseException(IllegalArgumentException.class, HttpServletResponse.SC_BAD_REQUEST),
+		new ResponseException(LoginException.class, HttpServletResponse.SC_UNAUTHORIZED)
+	};
 
-	public static int getStatusCode(Class<? extends Throwable> exception,
-			int defltCode) {
+	public static int getStatusCode(Class<? extends Throwable> exception, int defltCode) {
 		for (ResponseException re : MATCH) {
 			if (re.throwable.isAssignableFrom(exception))
 				return re.statusCode;
@@ -44,7 +38,6 @@ class ResponseException {
 	}
 
 	public static int getStatusCode(Class<? extends Throwable> class1) {
-		return getStatusCode(class1,
-				HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+		return getStatusCode(class1, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 	}
 }

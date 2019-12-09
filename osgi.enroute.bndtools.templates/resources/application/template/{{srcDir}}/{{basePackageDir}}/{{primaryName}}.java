@@ -11,7 +11,7 @@ import osgi.enroute.webserver.capabilities.RequireWebServerExtender;
 @RequireAngularWebResource(resource={"angular.js","angular-resource.js", "angular-route.js"}, priority=1000)
 @RequireBootstrapWebResource(resource="css/bootstrap.css")
 @RequireWebServerExtender
-@RequireConfigurerExtender
+@RequireConfigurator
 @Component(name="{{projectName}}")
 public class {{primaryName}} implements REST {
 

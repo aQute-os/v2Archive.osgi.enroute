@@ -18,21 +18,22 @@ public class LinkObject extends DTO {
 	 * in the OAS.
 	 */
 	public String	operationId;
-	
+
 	/**
-	 * an Object representing parameters to pass to an operation as specified with operationId or identified via href.
+	 * an Object representing parameters to pass to an operation as specified
+	 * with operationId or identified via href.
 	 */
-	
-	//public Map<String,LinkParametersObject> parameters;
-	
+
+	// public Map<String,LinkParametersObject> parameters;
+
 	/**
 	 * an Object representing headers to pass to the linked resource.
 	 */
-	
-	//public Map<String,LinkHeaderObject> headers;
-	
+
+	// public Map<String,LinkHeaderObject> headers;
+
 	/**
 	 * a description of the link, supports GFM.
 	 */
-	public String description;
+	public String	description;
 }

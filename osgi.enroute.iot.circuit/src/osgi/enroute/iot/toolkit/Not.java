@@ -10,24 +10,24 @@ import osgi.enroute.iot.gpio.api.IC;
 import osgi.enroute.iot.gpio.util.Digital;
 import osgi.enroute.iot.gpio.util.ICAdapter;
 
-@Designate(ocd=Not.Config.class, factory=true)
-@Component(service=IC.class, name="osgi.enroute.iot.toolkit.not")
+@Designate(ocd = Not.Config.class, factory = true)
+@Component(service = IC.class, name = "osgi.enroute.iot.toolkit.not")
 public class Not extends ICAdapter<Digital, Digital> implements Digital {
 
 	@ObjectClassDefinition
 	@interface Config {
 		String name();
 	}
+
 	@Override
 	public void set(boolean value) throws Exception {
 		out().set(!value);
 	}
 
+	@Override
 	@Reference
-	protected
-	void setCircuitBoard(CircuitBoard board) {
+	protected void setCircuitBoard(CircuitBoard board) {
 		super.setCircuitBoard(board);
 	}
-
 
 }

@@ -10,9 +10,8 @@ public interface Wave {
 	 * integer specifies the up or active time, the second int specifies the
 	 * wave down or inactive time. The wave description should therefore have an
 	 * odd number of integers.
-	 * 
-	 * @param widthsInµSec
-	 *            the widths of the pulse in µseconds
+	 *
+	 * @param widthsInµSec the widths of the pulse in µseconds
 	 * @throws Exception
 	 */
 	void send(int[] widthsInµSec) throws Exception;

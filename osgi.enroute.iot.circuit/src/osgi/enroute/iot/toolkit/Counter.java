@@ -19,8 +19,8 @@ import osgi.enroute.iot.gpio.util.Octionary;
 import osgi.enroute.iot.toolkit.Counter.CounterConfig;
 import osgi.enroute.scheduler.api.Scheduler;
 
-@Designate(ocd=CounterConfig.class,factory=true)
-@Component(service = IC.class, name="osgi.enroute.iot.toolkit.ctr8")
+@Designate(ocd = CounterConfig.class, factory = true)
+@Component(service = IC.class, name = "osgi.enroute.iot.toolkit.ctr8")
 public class Counter extends ICAdapter<Digital, Octionary> implements Digital {
 
 	@ObjectClassDefinition
@@ -81,37 +81,37 @@ public class Counter extends ICAdapter<Digital, Octionary> implements Digital {
 				boolean value = (counter & mask) != 0;
 
 				switch (i) {
-				case 0:
-					out().d0(value);
-					break;
+					case 0 :
+						out().d0(value);
+						break;
 
-				case 1:
-					out().d1(value);
-					break;
+					case 1 :
+						out().d1(value);
+						break;
 
-				case 2:
-					out().d2(value);
-					break;
+					case 2 :
+						out().d2(value);
+						break;
 
-				case 3:
-					out().d3(value);
-					break;
+					case 3 :
+						out().d3(value);
+						break;
 
-				case 4:
-					out().d4(value);
-					break;
+					case 4 :
+						out().d4(value);
+						break;
 
-				case 5:
-					out().d5(value);
-					break;
+					case 5 :
+						out().d5(value);
+						break;
 
-				case 6:
-					out().d6(value);
-					break;
+					case 6 :
+						out().d6(value);
+						break;
 
-				case 7:
-					out().d7(value);
-					break;
+					case 7 :
+						out().d7(value);
+						break;
 				}
 			}
 			mask <<= 1;
@@ -128,11 +128,10 @@ public class Counter extends ICAdapter<Digital, Octionary> implements Digital {
 		this.scheduler = sch;
 	}
 
+	@Override
 	@Reference
-	protected
-	void setCircuitBoard(CircuitBoard board) {
+	protected void setCircuitBoard(CircuitBoard board) {
 		super.setCircuitBoard(board);
 	}
-
 
 }

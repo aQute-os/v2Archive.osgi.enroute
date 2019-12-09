@@ -51,7 +51,7 @@ Provide-Capability: \
 	osgi.enroute.base.api
 
 -includeresource: \
-	{${path}=${base.version}}, \
-	{${path}/enmarkdown.js=enmarkdown.js.concat}, \
+	${path}=${base.version}, \
+	${path}/enmarkdown.js=enmarkdown.js.concat, \
 	${base.version}/LICENSE.txt, \
 	{readme.md}

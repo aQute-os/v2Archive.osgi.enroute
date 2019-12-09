@@ -37,7 +37,7 @@ import osgi.enroute.authorization.api.Authority;
  * a current set of roles) as the default user for a thread.
  * <p>
  * How to use this service:
- * 
+ *
  * <pre>
  * public void doFilter(ServletRequest rq, ServletResponse rsp, FilterChain
  * downstream) throws IOException { ... String id = null; Map<String,Object> map
@@ -63,12 +63,12 @@ public interface Authenticator {
 	 * parameter, then the parameter overrides the header.
 	 */
 
-	String SERVLET_SOURCE = "servlet.source";
+	String	SERVLET_SOURCE			= "servlet.source";
 
 	/**
 	 * The property name for the request method
 	 */
-	String SERVLET_SOURCE_METHOD = "servlet.source.method";
+	String	SERVLET_SOURCE_METHOD	= "servlet.source.method";
 
 	/**
 	 * If only a user id and password are required. The
@@ -77,17 +77,17 @@ public interface Authenticator {
 	 * should also set these sources but should take into account that basic
 	 * authentication only works with a confidential connection.
 	 */
-	String BASIC_SOURCE = "basic.source";
+	String	BASIC_SOURCE			= "basic.source";
 
 	/**
 	 * The property key for a password with the {@link #BASIC_SOURCE}.
 	 */
-	String BASIC_SOURCE_PASSWORD = "user.source.password";
+	String	BASIC_SOURCE_PASSWORD	= "user.source.password";
 
 	/**
 	 * The property key for a userid with the {@link #BASIC_SOURCE}.
 	 */
-	String BASIC_SOURCE_USERID = "user.source.userid";
+	String	BASIC_SOURCE_USERID		= "user.source.userid";
 
 	/**
 	 * Attempt to authenticate the caller based on he properties in @{code
@@ -98,15 +98,13 @@ public interface Authenticator {
 	 * If a user is authenticated, then the system wide unique id must be
 	 * returned. If the authenticator cannot authenticate, it is must return
 	 * null.
-	 * 
-	 * @param arguments
-	 *            The properties from the request processor
-	 * @param sources
-	 *            Identifying keys for the types of the arguments
+	 *
+	 * @param arguments The properties from the request processor
+	 * @param sources Identifying keys for the types of the arguments
 	 * @return A valid user id if authenticated or {@code null} if not
 	 * @throws Exception
 	 */
-	String authenticate(Map<String,Object> arguments, String... sources) throws Exception;
+	String authenticate(Map<String, Object> arguments, String... sources) throws Exception;
 
 	/**
 	 * Remove any login information cached for the given user id. The next time
@@ -115,9 +113,8 @@ public interface Authenticator {
 	 * by an LDAP server that caches the 'roles' then these roles should be
 	 * removed until it is authenticated again. This call will also remove any
 	 * permissions the given user has.
-	 * 
-	 * @param userid
-	 *            The user id to remove any cached information from
+	 *
+	 * @param userid The user id to remove any cached information from
 	 * @return <code>true</code> if there was cached information,
 	 *         <code>false</code> otherwise
 	 * @throws Exception

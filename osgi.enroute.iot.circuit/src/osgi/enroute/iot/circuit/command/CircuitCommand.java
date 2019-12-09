@@ -28,10 +28,10 @@ import osgi.enroute.scheduler.api.Scheduler;
 
 /**
  * Commands to work with a circuit
- * 
  */
-@GogoCommand(scope = "circuit", function = { "=circuit", "wires", "ics",
-		"connect", "gpo", "clock", "disconnect" })
+@GogoCommand(scope = "circuit", function = {
+	"=circuit", "wires", "ics", "connect", "gpo", "clock", "disconnect"
+})
 @Component(service = CircuitCommand.class, name = "osgi.enroute.iot.circuit.command")
 public class CircuitCommand {
 	CircuitAdmin						ca;
@@ -48,12 +48,11 @@ public class CircuitCommand {
 	public String circuit() {
 		return //
 		"wires                           – Show the existing wires\n"
-				+ "ics                             – Show the current ICs\n"
-				+ "connect <from> <pin> <to> <pin> – Connect two ics\n"
-				+ "gpo <id>                        – Create a test output to the Console\n"
-				+ "clock <id>                      – Create a test clock\n"
-				+ "disconnect id                   – Disconnect a write\n"
-				+ "\n";
+			+ "ics                             – Show the current ICs\n"
+			+ "connect <from> <pin> <to> <pin> – Connect two ics\n"
+			+ "gpo <id>                        – Create a test output to the Console\n"
+			+ "clock <id>                      – Create a test clock\n"
+			+ "disconnect id                   – Disconnect a write\n" + "\n";
 	}
 
 	/**
@@ -72,19 +71,14 @@ public class CircuitCommand {
 
 	/**
 	 * Connect 2 ICs from an input pin to an output pin
-	 * 
-	 * @param fromDevice
-	 *            The IC's id that is the source
-	 * @param fromPin
-	 *            the source's pin
-	 * @param toDevice
-	 *            the IC's id that is the destination
-	 * @param toPin
-	 *            the destination's pin
+	 *
+	 * @param fromDevice The IC's id that is the source
+	 * @param fromPin the source's pin
+	 * @param toDevice the IC's id that is the destination
+	 * @param toPin the destination's pin
 	 * @return A description of the wire
 	 */
-	public WireDTO connect(String fromDevice, String fromPin, String toDevice,
-			String toPin) throws Exception {
+	public WireDTO connect(String fromDevice, String fromPin, String toDevice, String toPin) throws Exception {
 		fromDevice = pid(fromDevice);
 		toDevice = pid(toDevice);
 		return ca.connect(fromDevice, fromPin, toDevice, toPin);
@@ -92,9 +86,8 @@ public class CircuitCommand {
 
 	/**
 	 * Disconnect a wire by its ide
-	 * 
-	 * @param wireId
-	 *            the wire's id
+	 *
+	 * @param wireId the wire's id
 	 * @return if the wire existed
 	 */
 	public boolean disconnect(int wireId) throws Exception {
@@ -118,16 +111,14 @@ public class CircuitCommand {
 	/**
 	 * Create an IC that sends any input to System.out. The life cycle of this
 	 * IC is depending on this component, so it is not persistent.
-	 * 
-	 * @param name
-	 *            the name/id of this IC
+	 *
+	 * @param name the name/id of this IC
 	 */
 	public void gpo(String name) {
 		SysOut gpo = new SysOut(name, board, dtos);
 		Hashtable<String, Object> properties = new Hashtable<>();
 		properties.put(Constants.SERVICE_PID, name);
-		ServiceRegistration<?> reg = context.registerService(IC.class, gpo,
-				properties);
+		ServiceRegistration<?> reg = context.registerService(IC.class, gpo, properties);
 		ServiceRegistration<?> old = regs.put(name, reg);
 		if (old != null)
 			old.unregister();
@@ -152,9 +143,8 @@ public class CircuitCommand {
 	/**
 	 * Create a clock that reverses its output pin ever second. The life cycle
 	 * of this IC is depending on this component, so it is not persistent.
-	 * 
-	 * @param name
-	 *            The name/id of this IC
+	 *
+	 * @param name The name/id of this IC
 	 */
 
 	public void clock(String name) {
@@ -162,9 +152,9 @@ public class CircuitCommand {
 		Hashtable<String, Object> properties = new Hashtable<>();
 		properties.put(Constants.SERVICE_PID, name);
 		properties.put(CronJob.CRON, "/1 * * * * ?");
-		ServiceRegistration<?> reg = context.registerService(
-				new String[] { IC.class.getName(), CronJob.class.getName() },
-				clock, properties);
+		ServiceRegistration<?> reg = context.registerService(new String[] {
+			IC.class.getName(), CronJob.class.getName()
+		}, clock, properties);
 		ServiceRegistration<?> old = regs.put(name, reg);
 		if (old != null)
 			old.unregister();
@@ -173,12 +163,15 @@ public class CircuitCommand {
 	private String pid(String pid) throws InvalidSyntaxException {
 		try {
 			long serviceid = Long.parseLong(pid);
-			ServiceReference<?>[] ref = context.getServiceReferences(
-					(String) null, "(service.id=" + serviceid + ")");
-			if (ref == null || ref.length == 0) {
-				String p2 = (String) ref[0].getProperty(Constants.SERVICE_PID);
-				if (p2 != null)
-					return p2;
+			ServiceReference<?>[] ref = context.getServiceReferences((String) null, "(service.id=" + serviceid + ")");
+			if (ref != null && ref.length != 0) {
+				Object p2 = ref[0].getProperty(Constants.SERVICE_PID);
+				if (p2 instanceof String)
+					return (String) p2;
+
+				if (p2 instanceof String[] && ((String[]) p2).length > 0)
+					return ((String[]) p2)[0];
+
 			}
 		} catch (NumberFormatException e) {
 
@@ -202,6 +195,5 @@ public class CircuitCommand {
 	}
 
 	@Reference
-	void setScheduler(Scheduler scheduler) {
-	}
+	void setScheduler(Scheduler scheduler) {}
 }

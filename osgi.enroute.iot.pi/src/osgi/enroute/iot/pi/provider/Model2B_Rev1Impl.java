@@ -40,50 +40,77 @@ import osgi.enroute.iot.pi.provider.Model2B_Rev1Impl.Model2B_Rev1;
 
 /**
  * This component is initializing the Raspberry Pi. It should work for Model 1
- * B+ and Model 2B
- *
- * TODO Refactor to use base class
+ * B+ and Model 2B TODO Refactor to use base class
  */
-@Designate(ocd=Model2B_Rev1.class,factory=false)
+@Designate(ocd = Model2B_Rev1.class, factory = false)
 @Component
 public class Model2B_Rev1Impl {
 
 	public enum SPI {
-		ignore, none, in, out, spi;
+		ignore,
+		none,
+		in,
+		out,
+		spi;
 	}
 
 	public enum GPIO {
-		ignore, none, in, out
+		ignore,
+		none,
+		in,
+		out
 	};
 
 	public enum I2C {
-		ignore, none, in, out, i2c
+		ignore,
+		none,
+		in,
+		out,
+		i2c
 	};
 
 	public enum PWM {
-		ignore, none, in, out, pwm
+		ignore,
+		none,
+		in,
+		out,
+		pwm
 	};
 
 	public enum UART {
-		ignore, none, in, out, uart
+		ignore,
+		none,
+		in,
+		out,
+		uart
 	};
 
 	public enum Level {
-		off, low, high
+		off,
+		low,
+		high
 	};
 
 	public enum GPCLK {
-		ignore, none, in, out, clock;
+		ignore,
+		none,
+		in,
+		out,
+		clock;
 	}
 
 	public enum PCM {
-		ignore, none, low, high, pcm;
+		ignore,
+		none,
+		low,
+		high,
+		pcm;
 	}
 
 	@ObjectClassDefinition(description = "Raspberry Pi 2 Model B – The Raspberry Pi 2 Model B is the second "
-			+ "generation Raspberry Pi. It replaced the original Raspberry Pi 1 Model B+ in February 2015. "
-			+ "The Raspberry Pi 2 has an identical form factor to the previous (Pi 1) Model B+ and has "
-			+ "complete compatibility with Raspberry Pi 1", id = "Pi_2_B_OCD", name = "Pi 2 Model B")
+		+ "generation Raspberry Pi. It replaced the original Raspberry Pi 1 Model B+ in February 2015. "
+		+ "The Raspberry Pi 2 has an identical form factor to the previous (Pi 1) Model B+ and has "
+		+ "complete compatibility with Raspberry Pi 1", id = "Pi_2_B_OCD", name = "Pi 2 Model B")
 	public @interface Model2B_Rev1 {
 		// 01 3.3 V
 		// 02 5 V
@@ -308,17 +335,18 @@ public class Model2B_Rev1Impl {
 		Level _40_Level();
 	}
 
-	private GpioController gpio;
-	private DTOs dtos;
-	private Map<Pin, Registration<?>> registrations = new HashMap<Pin, Registration<?>>();
-	private BundleContext context;
-	private CircuitBoard board;
+	private GpioController				gpio;
+	private DTOs						dtos;
+	private Map<Pin, Registration<?>>	registrations	= new HashMap<Pin, Registration<?>>();
+	private BundleContext				context;
+	private CircuitBoard				board;
 
 	@Activate
 	void activate(Map<String, Object> config, BundleContext context) throws Exception {
 		this.context = context;
 		try {
-			Model2B_Rev1 c = dtos.convert(config).to(Model2B_Rev1.class);
+			Model2B_Rev1 c = dtos.convert(config)
+				.to(Model2B_Rev1.class);
 
 			if (c._03() == I2C.i2c)
 				i2c();
@@ -468,69 +496,70 @@ public class Model2B_Rev1Impl {
 		unprovision(pin);
 
 		switch (gpio) {
-		case in:
-			GpioPinDigitalInput digitalIn = this.gpio.provisionDigitalInputPin(pin);
-			switch (level) {
-			case high:
-				digitalIn.setPullResistance(PinPullResistance.PULL_UP);
-				break;
+			case in :
+				GpioPinDigitalInput digitalIn = this.gpio.provisionDigitalInputPin(pin);
+				switch (level) {
+					case high :
+						digitalIn.setPullResistance(PinPullResistance.PULL_UP);
+						break;
 
-			case low:
-				digitalIn.setPullResistance(PinPullResistance.PULL_DOWN);
-				break;
+					case low :
+						digitalIn.setPullResistance(PinPullResistance.PULL_DOWN);
+						break;
 
-			default:
-			case off:
-				digitalIn.setPullResistance(PinPullResistance.OFF);
-				break;
-			}
-
-			GPI gpi = new GPI(name, board, dtos);
-			digitalIn.addListener((GpioPinListenerDigital) (GpioPinDigitalStateChangeEvent event) -> {
-				try {
-					boolean high = event.getState().isHigh();
-					board.fire(gpi, "set", high);
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					default :
+					case off :
+						digitalIn.setPullResistance(PinPullResistance.OFF);
+						break;
 				}
-			});
-			register(pin, GPI.class, gpi, digitalIn, name);
-			board.fire(gpi, "set", digitalIn.getState());
-			break;
 
-		case out:
-			unprovision(pin);
-			GpioPinDigitalOutput digitalOut = this.gpio.provisionDigitalOutputPin(pin);
-
-			boolean invert = false;
-			switch (level) {
-			case high:
-				digitalOut.setState(true);
-				invert = true; // assume the off value is high
-				// therefore invert
+				GPI gpi = new GPI(name, board, dtos);
+				digitalIn.addListener((GpioPinListenerDigital) (GpioPinDigitalStateChangeEvent event) -> {
+					try {
+						boolean high = event.getState()
+							.isHigh();
+						board.fire(gpi, "set", high);
+					} catch (Exception e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				});
+				register(pin, GPI.class, gpi, digitalIn, name);
+				board.fire(gpi, "set", digitalIn.getState());
 				break;
 
-			default:
-			case off:
-			case low:
-				digitalOut.setState(false);
-				invert = false; // assume the off value is low
-				break;
-			}
-			boolean inverted = invert;
-			GPO gpo = new GPO(name, board, dtos) {
-				@Override
-				public void set(boolean value) throws Exception {
-					digitalOut.setState(value ^ inverted);
+			case out :
+				unprovision(pin);
+				GpioPinDigitalOutput digitalOut = this.gpio.provisionDigitalOutputPin(pin);
+
+				boolean invert = false;
+				switch (level) {
+					case high :
+						digitalOut.setState(true);
+						invert = true; // assume the off value is high
+						// therefore invert
+						break;
+
+					default :
+					case off :
+					case low :
+						digitalOut.setState(false);
+						invert = false; // assume the off value is low
+						break;
 				}
-			};
-			register(pin, GPO.class, gpo, digitalOut, name);
-			break;
+				boolean inverted = invert;
+				GPO gpo = new GPO(name, board, dtos) {
+					@Override
+					public void set(boolean value) throws Exception {
+						digitalOut.setState(value ^ inverted);
+					}
+				};
+				register(pin, GPO.class, gpo, digitalOut, name);
+				break;
 
-		default:
-		case none:
-			return;
+			default :
+			case none :
+				return;
 		}
 	}
 
@@ -541,7 +570,9 @@ public class Model2B_Rev1Impl {
 		r.type = type;
 		r.service = gp;
 		r.pin = pin;
-		r.reg = context.registerService(new String[] { IC.class.getName(), type.getName() }, gp, props);
+		r.reg = context.registerService(new String[] {
+			IC.class.getName(), type.getName()
+		}, gp, props);
 		r.gpioPin = gpioPin;
 		Registration<?> prev = registrations.put(pin, r);
 		if (prev != null)
@@ -556,7 +587,8 @@ public class Model2B_Rev1Impl {
 			gpio.unprovisionPin(r.gpioPin);
 		} else {
 			for (GpioPin e : gpio.getProvisionedPins()) {
-				if (e.getPin().equals(pin)) {
+				if (e.getPin()
+					.equals(pin)) {
 					gpio.unprovisionPin(e);
 					break;
 				}

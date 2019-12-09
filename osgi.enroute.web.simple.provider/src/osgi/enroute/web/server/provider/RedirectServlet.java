@@ -13,30 +13,26 @@ import org.osgi.service.component.annotations.ConfigurationPolicy;
 import osgi.enroute.servlet.api.ConditionalServlet;
 import osgi.enroute.web.server.exceptions.Redirect302Exception;
 
-@Component(
-		service = { ConditionalServlet.class }, 
-		immediate = true, 
-		property = {
-				"service.ranking:Integer=1000", 
-				"name=" + RedirectServlet.NAME, 
-		}, 
-		name = RedirectServlet.NAME, 
-		configurationPolicy = ConfigurationPolicy.OPTIONAL)
+@Component(service = {
+	ConditionalServlet.class
+}, immediate = true, property = {
+	"service.ranking:Integer=1000", "name=" + RedirectServlet.NAME,
+}, name = RedirectServlet.NAME, configurationPolicy = ConfigurationPolicy.OPTIONAL)
 public class RedirectServlet implements ConditionalServlet {
 
-	static final String NAME = "osgi.enroute.simple.redirect";
+	static final String	NAME		= "osgi.enroute.simple.redirect";
 
 	/**
 	 * Must start with a "/".
 	 */
-	private String						redirect	= "/index.html";
+	private String		redirect	= "/index.html";
 
 	@interface Config {
 		String redirect();
 	}
 
 	@Activate
-	void activate(Config config, Map<String,Object> props, BundleContext context) throws Exception {
+	void activate(Config config, Map<String, Object> props, BundleContext context) throws Exception {
 		if (config.redirect() != null)
 			redirect = config.redirect();
 
@@ -47,7 +43,8 @@ public class RedirectServlet implements ConditionalServlet {
 	@Override
 	public boolean doConditionalService(HttpServletRequest rq, HttpServletResponse rsp) throws Exception {
 		// Redirect is disabled by configuring with an empty string.
-		// Since the value will be prepended with "/", it means that when the value is "/", no action is taken.
+		// Since the value will be prepended with "/", it means that when the
+		// value is "/", no action is taken.
 		if ("/".equals(redirect))
 			return false;
 
@@ -65,8 +62,7 @@ public class RedirectServlet implements ConditionalServlet {
 			}
 
 			return false;
-		}
-		catch (Redirect302Exception e) {
+		} catch (Redirect302Exception e) {
 			rsp.setHeader("Location", e.getPath());
 			rsp.sendRedirect(e.getPath());
 			return true;

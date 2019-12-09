@@ -17,7 +17,7 @@ import osgi.enroute.iot.gpio.util.ICAdapter;
 import osgi.enroute.iot.toolkit.Debounce.DebounceConfig;
 import osgi.enroute.scheduler.api.Scheduler;
 
-@Designate(ocd=DebounceConfig.class, factory=true)
+@Designate(ocd = DebounceConfig.class, factory = true)
 @Component(service = IC.class, name = "osgi.enroute.iot.toolkit.debounce")
 public class Debounce extends ICAdapter<Digital, Digital> implements Digital {
 
@@ -52,6 +52,7 @@ public class Debounce extends ICAdapter<Digital, Digital> implements Digital {
 		}
 	}
 
+	@Override
 	@Reference
 	protected void setCircuitBoard(CircuitBoard board) {
 		super.setCircuitBoard(board);

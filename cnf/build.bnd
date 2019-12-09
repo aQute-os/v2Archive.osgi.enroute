@@ -63,3 +63,7 @@ usr = ${env;REPOSITORY_USERNAME;}
 -augment.async \
     org.osgi.service.async; \
         requirement:='osgi.identity;filter:="(osgi.identity=org.apache.aries.async)"'
+
+
+-resolve.effective: resolve,active
+       

@@ -21,8 +21,8 @@ import osgi.enroute.authorization.api.SecurityVerifier;
 @SuppressWarnings("resource")
 public class AuthorizationTest extends TestCase {
 
-	static LaunchpadBuilder	builder;
-	
+	static LaunchpadBuilder builder;
+
 	static {
 		try {
 			builder = new LaunchpadBuilder().bndrun("bnd.bnd");
@@ -33,16 +33,18 @@ public class AuthorizationTest extends TestCase {
 	}
 
 	@Service
-	Authority						authority;
+	Authority		authority;
 	@Service
-	AuthorityAdmin					admin;
+	AuthorityAdmin	admin;
 	@Service
-	UserAdmin						userAdmin;
+	UserAdmin		userAdmin;
 
-	Launchpad lp;
-	
+	Launchpad		lp;
+
+	@Override
 	public void setUp() throws Exception {
-		lp = builder.create().inject(this);
+		lp = builder.create()
+			.inject(this);
 	}
 
 	/**
@@ -64,8 +66,7 @@ public class AuthorizationTest extends TestCase {
 
 		User peter = (User) userAdmin.createRole("peter", Role.USER);
 		Group admin = (Group) userAdmin.createRole("admin", Role.GROUP);
-		Group adminDomain = (Group) userAdmin
-				.createRole("admin;x*", Role.GROUP);
+		Group adminDomain = (Group) userAdmin.createRole("admin;x*", Role.GROUP);
 
 		admin.addMember(peter);
 		adminDomain.addMember(peter);
@@ -95,8 +96,7 @@ public class AuthorizationTest extends TestCase {
 
 				// Security verifier
 
-				SomeDomain security = SecurityVerifier.createVerifier(
-						SomeDomain.class, authority);
+				SomeDomain security = SecurityVerifier.createVerifier(SomeDomain.class, authority);
 
 				assertTrue(security.admin());
 				assertTrue(security.admin("xyz"));

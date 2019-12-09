@@ -10,8 +10,7 @@ import org.osgi.dto.DTO;
  * empty, due to ACL constraints. The path itself is still exposed to the
  * documentation viewer but they will not know which operations and parameters
  * are available.
- * 
- * 
+ *
  * <pre>
  * {
 "get": {
@@ -55,8 +54,6 @@ import org.osgi.dto.DTO;
 ]
 }
  * </pre>
- * 
- * @see https://github.com/OAI/OpenAPI-Specification/blob/master/versions/2.0.md#path-item-object
  *
  */
 public class PathItemObject extends DTO {
@@ -65,13 +62,13 @@ public class PathItemObject extends DTO {
 	 * An optional, string summary, intended to apply to all operations in this
 	 * path.
 	 */
-	public String			summary;
+	public String					summary;
 
 	/**
 	 * An optional, string description, intended to apply to all operations in
 	 * this path.
 	 */
-	public String			description;
+	public String					description;
 
 	/**
 	 * Allows for an external definition of this path item. The referenced
@@ -79,35 +76,35 @@ public class PathItemObject extends DTO {
 	 * conflicts between the referenced definition and this Path Item's
 	 * definition, the behavior is undefined.
 	 */
-	public String			$ref;
+	public String					$ref;
 	/**
 	 * A definition of a GET operation on this path.
 	 */
-	public OperationObject	get;
+	public OperationObject			get;
 	/**
 	 * A definition of a PUT operation on this path.
 	 */
-	public OperationObject	put;
+	public OperationObject			put;
 	/**
 	 * A definition of a POST operation on this path.
 	 */
-	public OperationObject	post;
+	public OperationObject			post;
 	/**
 	 * A definition of a DELETE operation on this path.
 	 */
-	public OperationObject	delete;
+	public OperationObject			delete;
 	/**
 	 * A definition of a OPTIONS operation on this path.
 	 */
-	public OperationObject	options;
+	public OperationObject			options;
 	/**
 	 * A definition of a HEAD operation on this path.
 	 */
-	public OperationObject	head;
+	public OperationObject			head;
 	/**
 	 * A definition of a PATCH operation on this path.
 	 */
-	public OperationObject	patch;
+	public OperationObject			patch;
 
 	/**
 	 * A list of parameters that are applicable for all the operations described
@@ -118,11 +115,12 @@ public class PathItemObject extends DTO {
 	 * that are defined at the Swagger Object's parameters. There can be one
 	 * "body" parameter at most.
 	 */
-	public List<ParameterObject>		parameters	= new ArrayList<>();
-	
+	public List<ParameterObject>	parameters	= new ArrayList<>();
+
 	/**
-	 * The host serving the path. This optional value will override the top-level host if present. 
+	 * The host serving the path. This optional value will override the
+	 * top-level host if present.
 	 */
-	public HostObject host;
+	public HostObject				host;
 
 }

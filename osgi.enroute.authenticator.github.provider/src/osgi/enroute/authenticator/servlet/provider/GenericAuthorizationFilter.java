@@ -42,16 +42,17 @@ import osgi.enroute.rest.api.REST;
 import osgi.enroute.rest.api.RESTRequest;
 
 @RequireHttpImplementation
-@Designate(ocd=GenericAuthorizationFilter.Config.class,factory=true)
+@Designate(ocd = GenericAuthorizationFilter.Config.class, factory = true)
 @Component(property = {
-	HttpWhiteboardConstants.HTTP_WHITEBOARD_FILTER_REGEX+"=.*"
+	HttpWhiteboardConstants.HTTP_WHITEBOARD_FILTER_REGEX + "=.*"
 })
 public class GenericAuthorizationFilter implements Filter, REST {
 
 	final static String							DEFAULT_REALM		= "OSGi enRoute Default";
 	private static final String					AUTH_PREFIX_BASIC	= "Basic ";
 
-	static Logger								logger				= LoggerFactory.getLogger(GenericAuthorizationFilter.class);
+	static Logger								logger				= LoggerFactory
+		.getLogger(GenericAuthorizationFilter.class);
 	private CopyOnWriteArrayList<Authenticator>	authenticators		= new CopyOnWriteArrayList<Authenticator>();
 	private AtomicReference<AuthorityAdmin>		authorityAdminRef	= new AtomicReference<AuthorityAdmin>();
 	private volatile boolean					reported;
@@ -68,7 +69,7 @@ public class GenericAuthorizationFilter implements Filter, REST {
 		String filter();
 
 		String pattern();
-		
+
 		String osgi_http_whiteboard_filter_regex();
 	}
 
@@ -82,7 +83,7 @@ public class GenericAuthorizationFilter implements Filter, REST {
 
 	@Override
 	public void doFilter(final ServletRequest req, final ServletResponse resp, final FilterChain chain)
-			throws IOException, ServletException {
+		throws IOException, ServletException {
 
 		//
 		// Create a lambda for our task to do
@@ -114,7 +115,8 @@ public class GenericAuthorizationFilter implements Filter, REST {
 			//
 			String userId = null;
 			if (hreq.getSession() != null) {
-				userId = (String) hreq.getSession().getAttribute("userid");
+				userId = (String) hreq.getSession()
+					.getAttribute("userid");
 			}
 
 			run(userId, runAs);
@@ -123,26 +125,24 @@ public class GenericAuthorizationFilter implements Filter, REST {
 
 	private void run(String userId, Callable<Void> runAs) throws ServletException, IOException {
 		try {
-			authorityAdminRef.get().call(userId, runAs);
-		}
-		catch (RuntimeException | ServletException | IOException e) {
+			authorityAdminRef.get()
+				.call(userId, runAs);
+		} catch (RuntimeException | ServletException | IOException e) {
 			throw e;
-		}
-		catch (Exception e) {
+		} catch (Exception e) {
 			throw new ServletException(e);
 		}
 	}
 
 	private String authenticate(HttpServletRequest req) throws ServletException, IOException {
-		Map<String,Object> map = makeMap(req);
+		Map<String, Object> map = makeMap(req);
 
 		for (Authenticator a : authenticators) {
 			try {
 				String user = a.authenticate(map, Authenticator.BASIC_SOURCE, Authenticator.SERVLET_SOURCE);
 				if (user != null)
 					return user;
-			}
-			catch (Exception e) {
+			} catch (Exception e) {
 				logger.error("Authenticator failed " + a, e);
 			}
 		}
@@ -158,48 +158,46 @@ public class GenericAuthorizationFilter implements Filter, REST {
 	@Override
 	public void init(FilterConfig arg0) throws ServletException {}
 
-	
-	
 	interface LoginRequest extends RESTRequest {
 		URI success();
+
 		URI fail();
 	}
-	
+
 	public String getEnRouteLogin(LoginRequest rq) throws ServletException, IOException {
 		HttpServletRequest req = rq._request();
 		String a = authenticate(req);
-		
+
 		URI redirect = rq.fail();
-		if ( a != null) {
+		if (a != null) {
 			HttpSession session = req.getSession();
-			if ( session != null) {
+			if (session != null) {
 				session.setAttribute("user_id", a);
-				
-				if ( rq.success()==null)
+
+				if (rq.success() == null)
 					return a;
-				
+
 				redirect = rq.success();
 			}
 		}
-		if ( redirect != null) {
+		if (redirect != null) {
 			HttpServletResponse rsp = rq._response();
 			rsp.setHeader("Location", rsp.toString());
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Turn a HttpServletRequest into a map for the authenticator according to
 	 * the {@link Authenticator} service.
-	 * 
-	 * @param req
-	 *            The (Http)ServletRequest
+	 *
+	 * @param req The (Http)ServletRequest
 	 * @return a map
 	 * @throws MalformedURLException
 	 */
-	private Map<String,Object> makeMap(final HttpServletRequest req) throws MalformedURLException {
+	private Map<String, Object> makeMap(final HttpServletRequest req) throws MalformedURLException {
 
-		Map<String,Object> map = new HashMap<String,Object>();
+		Map<String, Object> map = new HashMap<String, Object>();
 		String authHeader = req.getHeader("Authorization");
 		if (authHeader != null) {
 
@@ -226,18 +224,20 @@ public class GenericAuthorizationFilter implements Filter, REST {
 		 */
 
 		if (req instanceof HttpServletRequest) {
-			HttpServletRequest hreq = (HttpServletRequest) req;
+			HttpServletRequest hreq = req;
 			for (Enumeration<String> e = hreq.getHeaderNames(); e.hasMoreElements();) {
 				String key = e.nextElement();
 				String header = hreq.getHeader(key);
 				map.put(key, header);
 			}
-			map.put("servlet.source", new URL(hreq.getRequestURL().toString()));
+			map.put("servlet.source", new URL(hreq.getRequestURL()
+				.toString()));
 			map.put("servlet.source.method", hreq.getMethod());
 			map.put("servlet.secure", hreq.isSecure());
 		}
-		for (String key : req.getParameterMap().keySet()) {
-			String[] parameterValues = req.getParameterValues((String) key);
+		for (String key : req.getParameterMap()
+			.keySet()) {
+			String[] parameterValues = req.getParameterValues(key);
 			if (parameterValues != null) {
 				if (parameterValues.length > 1)
 					map.put(key, new ExtList<String>(parameterValues));
@@ -252,7 +252,7 @@ public class GenericAuthorizationFilter implements Filter, REST {
 	@Override
 	public void destroy() {}
 
-	@Reference(cardinality=ReferenceCardinality.MULTIPLE, policy=ReferencePolicy.DYNAMIC)
+	@Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
 	void addAuthenticator(Authenticator authenticator) {
 		authenticators.add(authenticator);
 		reported = false;
@@ -262,7 +262,7 @@ public class GenericAuthorizationFilter implements Filter, REST {
 		authenticators.remove(authenticator);
 	}
 
-	@Reference(cardinality=ReferenceCardinality.MULTIPLE, policy=ReferencePolicy.DYNAMIC)
+	@Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
 	void setAuthorityAdmin(AuthorityAdmin authorityAdmin) {
 		authorityAdminRef.set(authorityAdmin);
 	}

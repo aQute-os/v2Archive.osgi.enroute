@@ -18,8 +18,7 @@ import osgi.enroute.rest.api.REST;
 
 @Component
 public class GithubAuthenticator implements REST, Authenticator {
-	private static TypeReference<List<GithubEmail>> EMAIL_RESULT = new TypeReference<List<GithubEmail>>() {
-	};
+	private static TypeReference<List<GithubEmail>> EMAIL_RESULT = new TypeReference<List<GithubEmail>>() {};
 
 	public static class GithubEmail {
 		public String email;
@@ -32,19 +31,21 @@ public class GithubAuthenticator implements REST, Authenticator {
 	DTOs						dtos;
 
 	public URI getAuthorizationuri() throws Exception {
-		return oauth2.getAuthorizationEndpoint(GITHUB_LOGIN, new URI("/welcome.html"), new URI("/fail.html"), "user:mail");
+		return oauth2.getAuthorizationEndpoint(GITHUB_LOGIN, new URI("/welcome.html"), new URI("/fail.html"),
+			"user:mail");
 	}
 
 	@Override
 	public String authenticate(Map<String, Object> arguments, String... sources) throws Exception {
 		Promise<AccessToken> accessToken = oauth2.getAccessToken(GITHUB_LOGIN);
-		if ( accessToken.isDone() && accessToken.getFailure() == null) {
+		if (accessToken.isDone() && accessToken.getFailure() == null) {
 			AccessToken token = accessToken.getValue();
-			HttpURLConnection con = token.authorize( new URI("https://api.github.com/user/emails"));
-			List<GithubEmail> list = dtos.decoder(EMAIL_RESULT).get(con.getInputStream());
-			if ( list.isEmpty())
+			HttpURLConnection con = token.authorize(new URI("https://api.github.com/user/emails"));
+			List<GithubEmail> list = dtos.decoder(EMAIL_RESULT)
+				.get(con.getInputStream());
+			if (list.isEmpty())
 				return null;
-			
+
 			return list.get(0).email;
 		}
 		return null;
@@ -55,7 +56,5 @@ public class GithubAuthenticator implements REST, Authenticator {
 		// TODO Auto-generated method stub
 		return false;
 	}
-	
-	
 
 }

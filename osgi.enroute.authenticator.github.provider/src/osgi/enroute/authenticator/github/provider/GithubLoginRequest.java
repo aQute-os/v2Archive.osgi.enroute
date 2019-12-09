@@ -27,10 +27,10 @@ public class GithubLoginRequest implements REST {
 	static String	clientSecret	= "";
 
 	@Reference
-	DTOs dtos;
+	DTOs			dtos;
 
 	@Reference
-	Authority authority;
+	Authority		authority;
 
 	interface LoginParameters extends RESTRequest {
 		String code();
@@ -39,8 +39,8 @@ public class GithubLoginRequest implements REST {
 	};
 
 	public static class AccessToken extends DTO implements Serializable {
-		private static final long serialVersionUID = 1L;
-		
+		private static final long	serialVersionUID	= 1L;
+
 		public String				access_token;
 		public String				token_type;
 		public long					expires_in;
@@ -50,34 +50,37 @@ public class GithubLoginRequest implements REST {
 	}
 
 	public AccessToken getLogin(LoginParameters parms) throws IOException, Exception {
-		HttpSession session = parms._request().getSession();
+		HttpSession session = parms._request()
+			.getSession();
 
-		String u = "code="+encode(parms.code());
-		
+		String u = "code=" + encode(parms.code());
+
 		URL uri = new URL("https://github.com/login/oauth/access_token");
 		HttpsURLConnection con = (HttpsURLConnection) uri.openConnection();
-		String authorization = encode(clientId) +":"+ encode(clientSecret);
-		
+		String authorization = encode(clientId) + ":" + encode(clientSecret);
+
 		con.setRequestProperty("Authorization", "Basic " + Base64.encodeBase64(authorization.getBytes()));
-		
+
 		con.setRequestMethod("POST");
 		con.setRequestProperty("Accept", "application/json");
-		con.setRequestProperty("Content-Type","application/x-www-form-urlencoded");
+		con.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
 		con.setDoOutput(true);
-		con.getOutputStream().write(u.getBytes(StandardCharsets.UTF_8));
-		
+		con.getOutputStream()
+			.write(u.getBytes(StandardCharsets.UTF_8));
+
 		if (con.getResponseCode() == 200) {
 			String s = IO.collect(con.getInputStream());
 			System.out.println(con.getContent());
 			System.out.println(con.getContentType());
-			AccessToken accessToken = dtos.decoder(AccessToken.class).get(s);
+			AccessToken accessToken = dtos.decoder(AccessToken.class)
+				.get(s);
 
-			session.setAttribute("_oauth2_"+parms.state(), accessToken);
-			
+			session.setAttribute("_oauth2_" + parms.state(), accessToken);
+
 			System.out.println("Code is " + parms.code());
 			System.out.println("State is " + parms.state());
 			System.out.println("AT is " + accessToken);
-			
+
 			URL url = new URL("https://api.github.com/user/emails");
 			con = (HttpsURLConnection) url.openConnection();
 			con.setRequestProperty("Authorization", "Bearer " + accessToken.access_token);
@@ -93,7 +96,7 @@ public class GithubLoginRequest implements REST {
 	public String getUserid() throws Exception {
 		return authority.getUserId();
 	}
-	
+
 	private String encode(String in) {
 		return in;
 	}

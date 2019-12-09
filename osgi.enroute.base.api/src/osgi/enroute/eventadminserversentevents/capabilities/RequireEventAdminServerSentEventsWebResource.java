@@ -10,25 +10,25 @@ import osgi.enroute.namespace.WebResourceNamespace;
 /**
  * A Web Resource that provides Easse javascript files.
  */
-@Requirement(namespace = WebResourceNamespace.NS, filter = "(&(" + WebResourceNamespace.NS
- + "="
-		+ EventAdminServerSentEventsConstants.EVENT_ADMIN_SERVER_SENT_EVENTS_WEB_RESOURCE_PATH
-		+ ")(version>=" + EventAdminServerSentEventsConstants.EVENT_ADMIN_SERVER_SENT_EVENTS_WEB_RESOURCE_VERSION
-		+ "))")
+@Requirement(namespace = WebResourceNamespace.NS, filter = "(&(" + WebResourceNamespace.NS + "="
+	+ EventAdminServerSentEventsConstants.EVENT_ADMIN_SERVER_SENT_EVENTS_WEB_RESOURCE_PATH + ")(version>="
+	+ EventAdminServerSentEventsConstants.EVENT_ADMIN_SERVER_SENT_EVENTS_WEB_RESOURCE_VERSION + "))")
 @Retention(RetentionPolicy.CLASS)
 public @interface RequireEventAdminServerSentEventsWebResource {
 
 	/**
 	 * Define the default resource to return
-	 * 
+	 *
 	 * @return the list of resources to include
 	 */
-	String[] resource() default {"easse.js","polyfill/eventsource.js"};
+	String[] resource() default {
+		"easse.js", "polyfill/eventsource.js"
+	};
 
 	/**
 	 * Define the priority of this web resources. The higher the priority, the
 	 * earlier it is loaded when all web resources are combined.
-	 * 
+	 *
 	 * @return the priority
 	 */
 	int priority() default 100;

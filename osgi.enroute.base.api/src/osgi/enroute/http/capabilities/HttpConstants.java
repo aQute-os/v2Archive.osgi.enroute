@@ -7,7 +7,7 @@ public interface HttpConstants {
 	/**
 	 * Name
 	 */
-	String	HTTP_SPECIFICATION_NAME			= "osgi.http";
+	String	HTTP_SPECIFICATION_NAME		= "osgi.http";
 	/**
 	 * Name
 	 */

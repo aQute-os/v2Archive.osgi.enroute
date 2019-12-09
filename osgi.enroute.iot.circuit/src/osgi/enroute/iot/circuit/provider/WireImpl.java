@@ -9,15 +9,13 @@ import osgi.enroute.iot.circuit.provider.ICTracker.OutputPin;
 /**
  * Represents the wire for us. Note that this is a DTO and is read from disk. So
  * this class must remain public and have a no-arg constructor.
- * 
  */
 public class WireImpl extends WireDTO {
-	OutputPin			output;
-	InputPin			input;
-	CircuitAdminImpl	circuit;
-	public Map<String,Object> __extra;
-	public String factoryPid;
-	
+	OutputPin					output;
+	InputPin					input;
+	CircuitAdminImpl			circuit;
+	public Map<String, Object>	__extra;
+	public String				factoryPid;
 
 	boolean connect() {
 		ICTracker from = circuit.getIC(fromDevice);

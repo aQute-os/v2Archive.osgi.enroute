@@ -21,12 +21,11 @@ public interface AuthorityAdmin {
 	/**
 	 * Associate the current thread with the given user and call the
 	 * protectedTask.
-	 * 
-	 * @param userId
-	 *            Either an authenticated user or null. In the case of null, an
-	 *            anonymous user is used.
-	 * @param protectedTask
-	 *            The task executed with the give userid as the current user
+	 *
+	 * @param userId Either an authenticated user or null. In the case of null,
+	 *            an anonymous user is used.
+	 * @param protectedTask The task executed with the give userid as the
+	 *            current user
 	 * @return The result of the protectedTask
 	 * @throws Exception
 	 */

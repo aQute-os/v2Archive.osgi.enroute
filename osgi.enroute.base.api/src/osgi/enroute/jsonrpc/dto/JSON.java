@@ -29,7 +29,7 @@ public interface JSON {
 		/**
 		 * The transaction id
 		 */
-		public long id;
+		public long			id;
 	}
 
 	/**

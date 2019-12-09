@@ -6,20 +6,17 @@ package osgi.enroute.iot.gpio.util;
 public interface Binary {
 	/**
 	 * The primary pin
-	 * 
-	 * @param value
-	 *            the value
+	 *
+	 * @param value the value
 	 * @throws Exception
 	 */
 	void a(boolean value) throws Exception;
 
 	/**
 	 * The secondary pin
-	 * 
-	 * @param value
-	 *            the value
+	 *
+	 * @param value the value
 	 * @throws Exception
 	 */
 	void b(boolean value) throws Exception;
 }
-

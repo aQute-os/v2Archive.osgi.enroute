@@ -37,37 +37,30 @@ import osgi.enroute.web.server.exceptions.InternalServer500Exception;
 import osgi.enroute.web.server.exceptions.NotFound404Exception;
 import osgi.enroute.web.server.provider.BundleMixinServer;
 
-@Component( 
-		service = Cache.class,
-		name = Cache.NAME, 
-		configurationPid = BundleMixinServer.NAME,
-		configurationPolicy = ConfigurationPolicy.OPTIONAL)
+@Component(service = Cache.class, name = Cache.NAME, configurationPid = BundleMixinServer.NAME, configurationPolicy = ConfigurationPolicy.OPTIONAL)
 public class Cache {
-	static final String NAME = "osgi.enroute.simple.server.cache";
+	static final String						NAME							= "osgi.enroute.simple.server.cache";
 
-	static final long				DEFAULT_NOT_FOUND_EXPIRATION = TimeUnit.MINUTES.toMillis(20);
+	static final long						DEFAULT_NOT_FOUND_EXPIRATION	= TimeUnit.MINUTES.toMillis(20);
 
-	private long					expiration = DEFAULT_NOT_FOUND_EXPIRATION;
+	private long							expiration						= DEFAULT_NOT_FOUND_EXPIRATION;
 
-	File							cacheFile;
-	private Executor				executor;
-	LogService						log;
-	WebServerConfig					config;
+	File									cacheFile;
+	private Executor						executor;
+	LogService								log;
+	WebServerConfig							config;
 
-	private final Map<String,CacheFile>	cached = new HashMap<String,CacheFile>();
-	private Lock 					lock = new ReentrantLock();
+	private final Map<String, CacheFile>	cached							= new HashMap<String, CacheFile>();
+	private Lock							lock							= new ReentrantLock();
 
 	@Activate
-	void activate(WebServerConfig config, BundleContext context)
-		throws Exception
-	{
+	void activate(WebServerConfig config, BundleContext context) throws Exception {
 		this.config = config;
 		InputStream in = Cache.class.getResourceAsStream("mimetypes");
 		if (in != null)
 			try {
 				Mimes.mimes.load(in);
-			}
-			finally {
+			} finally {
 				in.close();
 			}
 
@@ -77,10 +70,10 @@ public class Cache {
 
 	private File getRawFile(String path) throws InternalServer500Exception {
 		try {
-			String name = SHA1.digest(path.getBytes("UTF-8")).asHex();
+			String name = SHA1.digest(path.getBytes("UTF-8"))
+				.asHex();
 			return new File(cacheFile, name);
-		}
-		catch (Exception e) {
+		} catch (Exception e) {
 			throw new InternalServer500Exception(e);
 		}
 	}
@@ -97,7 +90,9 @@ public class Cache {
 		if (cached.isFile())
 			return CacheFileFactory.newCacheFile(cached, expiration);
 
-		cached.getAbsoluteFile().getParentFile().mkdirs();
+		cached.getAbsoluteFile()
+			.getParentFile()
+			.mkdirs();
 
 		FutureTask<File> task = new FutureTask<File>(new Callable<File>() {
 
@@ -123,8 +118,7 @@ public class Cache {
 					IO.rename(tmp, cached);
 					cached.setLastModified(con.getLastModified() + 1000);
 					return cached;
-				}
-				catch (Exception e) {
+				} catch (Exception e) {
 					throw new RuntimeException(new InternalServer500Exception(e));
 				}
 			}
@@ -135,9 +129,9 @@ public class Cache {
 	}
 
 	/**
-	 * Returns an "internal" URL of the existing file in the bundle or null if there is no
-	 * file corresponding to the path. This URL is only used for accessing the file content; it
-	 * is NOT and must not be exposed externally.
+	 * Returns an "internal" URL of the existing file in the bundle or null if
+	 * there is no file corresponding to the path. This URL is only used for
+	 * accessing the file content; it is NOT and must not be exposed externally.
 	 */
 	public URL internalUrlOf(Bundle b, String path) throws FolderException {
 		String internalPath;
@@ -151,7 +145,7 @@ public class Cache {
 		// We have hit a folder
 		if (urls != null && urls.hasMoreElements()) {
 			throw new FolderException(path);
-//			return null;
+			// return null;
 		}
 
 		return b.getResource(internalPath);
@@ -159,30 +153,31 @@ public class Cache {
 
 	public CacheFile getFromBundle(Bundle b, URL url, String path) throws InternalServer500Exception {
 		try {
-			if (url == null )
+			if (url == null)
 				return null;
 
 			File cached = getRawFile(path);
 			if (!cached.exists() || cached.lastModified() <= b.getLastModified()) {
 				cached.delete();
-				cached.getAbsoluteFile().getParentFile().mkdirs();
+				cached.getAbsoluteFile()
+					.getParentFile()
+					.mkdirs();
 				FileOutputStream out = new FileOutputStream(cached);
 				Digester<MD5> digester = MD5.getDigester(out);
 				IO.copy(url.openStream(), digester);
 				digester.close();
 				cached.setLastModified(b.getLastModified() + 1000);
-				return CacheFileFactory.newCacheFile(cached, b, digester.digest().digest(), expiration, path);
+				return CacheFileFactory.newCacheFile(cached, b, digester.digest()
+					.digest(), expiration, path);
 			}
 
 			return CacheFileFactory.newCacheFile(cached, b, expiration, path);
-		}
-		catch (Exception e) {
+		} catch (Exception e) {
 			throw new InternalServer500Exception(e);
 		}
 	}
 
-	public CacheFile get(String path)
-	{
+	public CacheFile get(String path) {
 		lock.lock();
 		try {
 			return cached.get(path);
@@ -191,8 +186,7 @@ public class Cache {
 		}
 	}
 
-	public void put(String path, CacheFile c)
-	{
+	public void put(String path, CacheFile c) {
 		lock.lock();
 		try {
 			cached.put(path, c);
@@ -201,13 +195,11 @@ public class Cache {
 		}
 	}
 
-	public void lock()
-	{
+	public void lock() {
 		lock.lock();
 	}
 
-	public void unlock()
-	{
+	public void unlock() {
 		lock.unlock();
 	}
 

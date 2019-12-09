@@ -35,15 +35,15 @@ import osgi.enroute.dto.api.TypeReference;
 /**
  * This class provides utility functions for DTOs
  */
-@Capability(namespace=ImplementationNamespace.IMPLEMENTATION_NAMESPACE, name=DTOsConstants.DTOS_SPECIFICATION_NAME, version=DTOsConstants.DTOS_SPECIFICATION_VERSION)
+@Capability(namespace = ImplementationNamespace.IMPLEMENTATION_NAMESPACE, name = DTOsConstants.DTOS_SPECIFICATION_NAME, version = DTOsConstants.DTOS_SPECIFICATION_VERSION)
 @Component
 public class DTOsProvider implements DTOs {
-	private final static Field[]					EMPTY_FIELDS	= new Field[0];
-	private final static JSONCodec					codec			= new JSONCodec();
-	private final static Map<Class< ? >,Field[]>	cache			= Collections
-																			.synchronizedMap(new WeakHashMap<Class< ? >,Field[]>());
+	private final static Field[]				EMPTY_FIELDS	= new Field[0];
+	private final static JSONCodec				codec			= new JSONCodec();
+	private final static Map<Class<?>, Field[]>	cache			= Collections
+		.synchronizedMap(new WeakHashMap<Class<?>, Field[]>());
 
-	private final Link								root			= new Link(null, null, null);
+	private final Link							root			= new Link(null, null, null);
 
 	//
 	// The link class is to keep track of cycles traversing and to
@@ -113,6 +113,7 @@ public class DTOsProvider implements DTOs {
 			this.failure = failure;
 		}
 
+		@Override
 		public String toString() {
 			if (failure != null)
 				return "Fail: " + failure;
@@ -129,15 +130,18 @@ public class DTOsProvider implements DTOs {
 	@Override
 	public DTOs.Converter convert(final Object source) {
 		return new DTOs.Converter() {
+			@Override
 			public <T> T to(Class<T> dest) throws Exception {
 				return aQute.lib.converter.Converter.cnv(dest, source);
 			}
 
+			@Override
 			@SuppressWarnings("unchecked")
 			public <T> T to(TypeReference<T> dest) throws Exception {
 				return (T) aQute.lib.converter.Converter.cnv(dest.getType(), source);
 			}
 
+			@Override
 			public Object to(Type dest) throws Exception {
 				return aQute.lib.converter.Converter.cnv(dest, source);
 			}
@@ -145,7 +149,7 @@ public class DTOsProvider implements DTOs {
 	}
 
 	@Override
-	public Map<String,Object> asMap(Object dto) throws Exception {
+	public Map<String, Object> asMap(Object dto) throws Exception {
 		return new DTOMap(this, dto);
 	}
 
@@ -165,8 +169,7 @@ public class DTOsProvider implements DTOs {
 				}
 				return format.toString();
 			}
-		}
-		catch (IllegalArgumentException | IllegalAccessException e) {
+		} catch (IllegalArgumentException | IllegalAccessException e) {
 			throw new RuntimeException(e);
 		}
 	}
@@ -174,7 +177,7 @@ public class DTOsProvider implements DTOs {
 	@Override
 	public boolean equals(Object a, Object b) {
 		try {
-			return diff(a,b).isEmpty();
+			return diff(a, b).isEmpty();
 		} catch (Exception e) {
 			return false;
 		}
@@ -199,8 +202,7 @@ public class DTOsProvider implements DTOs {
 			}
 
 			return result;
-		}
-		catch (Exception e) {
+		} catch (Exception e) {
 			return result;
 		}
 	}
@@ -227,25 +229,26 @@ public class DTOsProvider implements DTOs {
 
 		String name = path[i];
 
-		if (dto.getClass().isArray()) {
+		if (dto.getClass()
+			.isArray()) {
 			int index = Integer.parseInt(name);
 			if (index >= Array.getLength(dto))
 				return new Answer(null, "path access contains an array but the corresponding index is not an integer: "
-						+ Arrays.toString(path) + "[" + i + "]");
+					+ Arrays.toString(path) + "[" + i + "]");
 
 			return get(Array.get(dto, index), path, i + 1, max);
 		}
 
 		if (dto instanceof Collection) {
-			Collection< ? > coll = (Collection< ? >) dto;
+			Collection<?> coll = (Collection<?>) dto;
 			int index = Integer.parseInt(name);
 			if (index >= coll.size())
 				return new Answer(null,
-						"path access contains a collection but the corresponding index is not an integer: "
-								+ Arrays.toString(path) + "[" + i + "]");
+					"path access contains a collection but the corresponding index is not an integer: "
+						+ Arrays.toString(path) + "[" + i + "]");
 
 			if (coll instanceof List) {
-				return get(((List< ? >) coll).get(index), path, i + 1, max);
+				return get(((List<?>) coll).get(index), path, i + 1, max);
 			}
 			for (Object o : coll) {
 				if (index-- == 0)
@@ -256,14 +259,15 @@ public class DTOsProvider implements DTOs {
 		}
 
 		if (dto instanceof Map) {
-			Object value = ((Map< ? , ? >) dto).get(name);
+			Object value = ((Map<?, ?>) dto).get(name);
 			return get(value, path, i + 1, max);
 		}
 
 		Field fields[] = getFields(dto);
 		if (fields.length > 0) {
 			for (Field field : fields) {
-				if (field.getName().equals(name)) {
+				if (field.getName()
+					.equals(name)) {
 					return get(field.get(dto), path, i + 1, max);
 				}
 			}
@@ -277,12 +281,13 @@ public class DTOsProvider implements DTOs {
 		return set(dto, value, fromPathToSegments(path));
 	}
 
+	@Override
 	@SuppressWarnings("unchecked")
 	public Answer set(Object dto, Object value, String... path) throws Exception {
 		try {
 			if (path.length == 0)
 				throw new IllegalArgumentException(
-						"To set a value, you need at least one path segment, this one is empty ");
+					"To set a value, you need at least one path segment, this one is empty ");
 
 			Answer target = get(dto, path, 0, path.length - 1);
 			if (target.isFailure())
@@ -314,19 +319,20 @@ public class DTOsProvider implements DTOs {
 				return new Answer(null, "Only List can be indexed, is " + coll.getClass());
 			}
 
-			if (dto.getClass().isArray()) {
+			if (dto.getClass()
+				.isArray()) {
 				int index = Integer.parseInt(name);
 				if (index >= Array.getLength(dto))
 					return new Answer(null,
-							"path access contains an array but the corresponding index is not an integer: "
-									+ Arrays.toString(path) + "[" + index + "]");
+						"path access contains an array but the corresponding index is not an integer: "
+							+ Arrays.toString(path) + "[" + index + "]");
 
 				Array.set(dto, index, value);
 				return new Answer(dto, null);
 			}
 
 			if (dto instanceof Map) {
-				Map<Object,Object> map = (Map<Object,Object>) dto;
+				Map<Object, Object> map = (Map<Object, Object>) dto;
 				map.put(name, value);
 				return new Answer(dto, null);
 			}
@@ -334,15 +340,15 @@ public class DTOsProvider implements DTOs {
 			Field fields[] = getFields(dto);
 			if (fields.length > 0) {
 				for (Field field : fields) {
-					if (field.getName().equals(name)) {
+					if (field.getName()
+						.equals(name)) {
 						field.set(dto, value);
 						return new Answer(dto, null);
 					}
 				}
 			}
 			return new Answer(null, "Unknown type to set value for " + dto.getClass());
-		}
-		catch (final Exception e) {
+		} catch (final Exception e) {
 			return new Answer(null, e.getMessage());
 		}
 	}
@@ -368,8 +374,8 @@ public class DTOsProvider implements DTOs {
 			return true;
 		}
 
-		Class< ? > oc = older.getClass();
-		Class< ? > nc = newer.getClass();
+		Class<?> oc = older.getClass();
+		Class<?> nc = newer.getClass();
 		if (oc != nc) {
 			diffs.add(new Diff(Reason.DIFFERENT_TYPES, link));
 			return true;
@@ -378,9 +384,9 @@ public class DTOsProvider implements DTOs {
 		if (older.equals(newer))
 			return false;
 
-		if (older instanceof Collection< ? >) {
-			Collection< ? > co = (Collection< ? >) older;
-			Collection< ? > cn = (Collection< ? >) newer;
+		if (older instanceof Collection<?>) {
+			Collection<?> co = (Collection<?>) older;
+			Collection<?> cn = (Collection<?>) newer;
 
 			if (co.size() != cn.size()) {
 				diffs.add(new Diff(Reason.SIZE, link));
@@ -394,9 +400,9 @@ public class DTOsProvider implements DTOs {
 			// They're different, if it is a list we can find out which
 			//
 
-			if (older instanceof List< ? >) {
-				List< ? > clo = (List< ? >) older;
-				List< ? > cln = (List< ? >) newer;
+			if (older instanceof List<?>) {
+				List<?> clo = (List<?>) older;
+				List<?> cln = (List<?>) newer;
 
 				for (int i = 0; i < co.size(); i++) {
 					Object lo = clo.get(i);
@@ -438,9 +444,9 @@ public class DTOsProvider implements DTOs {
 			return true;
 		}
 
-		if (older instanceof Map< ? , ? >) {
-			Map< ? , ? > co = (Map< ? , ? >) older;
-			Map< ? , ? > cn = (Map< ? , ? >) newer;
+		if (older instanceof Map<?, ?>) {
+			Map<?, ?> co = (Map<?, ?>) older;
+			Map<?, ?> cn = (Map<?, ?>) newer;
 
 			if (co.size() != cn.size()) {
 				diffs.add(new Diff(Reason.SIZE, link));
@@ -450,12 +456,13 @@ public class DTOsProvider implements DTOs {
 			if (co.equals(cn))
 				return false;
 
-			if (!co.keySet().equals(cn.keySet())) {
+			if (!co.keySet()
+				.equals(cn.keySet())) {
 				diffs.add(new Diff(Reason.KEYS, link));
 				return true;
 			}
 
-			for (Map.Entry< ? , ? > e : co.entrySet()) {
+			for (Map.Entry<?, ?> e : co.entrySet()) {
 				Object key = e.getKey();
 				if (!(key instanceof String)) {
 					diffs.add(new Diff(Reason.NO_STRING_MAP, link));
@@ -489,19 +496,25 @@ public class DTOsProvider implements DTOs {
 	static Pattern	ESCAPE_P	= Pattern.compile("(\\.|\\\\)");
 	static Pattern	UNESCAPE_P	= Pattern.compile("\\\\(\\.|\\\\)");
 
+	@Override
 	public String escape(String unescaped) {
-		return ESCAPE_P.matcher(unescaped).replaceAll("\\\\$1");
+		return ESCAPE_P.matcher(unescaped)
+			.replaceAll("\\\\$1");
 	}
 
+	@Override
 	public String unescape(String unescaped) {
-		return UNESCAPE_P.matcher(unescaped).replaceAll("$1");
+		return UNESCAPE_P.matcher(unescaped)
+			.replaceAll("$1");
 	}
 
+	@Override
 	public boolean isComplex(Object a) {
-		return a != null
-				&& (a instanceof Map || a instanceof Collection || a instanceof DTO || a.getClass().isArray() || getFields(a).length > 0);
+		return a != null && (a instanceof Map || a instanceof Collection || a instanceof DTO || a.getClass()
+			.isArray() || getFields(a).length > 0);
 	}
 
+	@Override
 	public boolean isDTO(Object o) {
 		return getFields(o).length != 0;
 	}
@@ -521,17 +534,22 @@ public class DTOsProvider implements DTOs {
 
 		@Override
 		public void put(OutputStream out, String charset) throws Exception {
-			enc.charset(charset).to(out).put(source);
+			enc.charset(charset)
+				.to(out)
+				.put(source);
 		}
 
 		@Override
 		public void put(Appendable out) throws Exception {
-			enc.to(out).put(source);
+			enc.to(out)
+				.put(source);
 		}
 
 		@Override
 		public String put() throws Exception {
-			return enc.to().put(source).toString();
+			return enc.to()
+				.put(source)
+				.toString();
 		}
 
 		@Override
@@ -558,22 +576,29 @@ public class DTOsProvider implements DTOs {
 
 		@Override
 		public T get(InputStream in) throws Exception {
-			return (T) dec.charset("UTF-8").from(in).get(type);
+			return (T) dec.charset("UTF-8")
+				.from(in)
+				.get(type);
 		}
 
 		@Override
 		public T get(InputStream in, String charset) throws Exception {
-			return (T) dec.charset(charset).from(in).get(type);
+			return (T) dec.charset(charset)
+				.from(in)
+				.get(type);
 		}
 
 		@Override
 		public T get(Reader in) throws Exception {
-			return (T) dec.from(in).get(type);
+			return (T) dec.from(in)
+				.get(type);
 		}
 
 		@Override
 		public T get(CharSequence in) throws Exception {
-			return (T) dec.charset("UTF-8").from(in.toString()).get(type);
+			return (T) dec.charset("UTF-8")
+				.from(in.toString())
+				.get(type);
 		}
 
 	}
@@ -594,7 +619,7 @@ public class DTOsProvider implements DTOs {
 	}
 
 	@Override
-	public Dec< ? > decoder(Type type, InputStream source) throws Exception {
+	public Dec<?> decoder(Type type, InputStream source) throws Exception {
 		return new DecImpl<Object>(type);
 	}
 
@@ -604,7 +629,7 @@ public class DTOsProvider implements DTOs {
 		return getFields(o.getClass());
 	}
 
-	Field[] getFields(Class< ? > c) {
+	Field[] getFields(Class<?> c) {
 		Field fields[] = cache.get(c);
 		if (fields == null) {
 			List<Field> publicFields = new ArrayList<>();
@@ -618,7 +643,8 @@ public class DTOsProvider implements DTOs {
 
 				@Override
 				public int compare(Field o1, Field o2) {
-					return o1.getName().compareTo(o2.getName());
+					return o1.getName()
+						.compareTo(o2.getName());
 				}
 			});
 
@@ -645,8 +671,7 @@ public class DTOsProvider implements DTOs {
 							Comparable<Object> oo1 = (Comparable<Object>) f.get(o1);
 							Comparable<Object> oo2 = (Comparable<Object>) f.get(o2);
 							return oo1.compareTo(oo2);
-						}
-						catch (Exception e) {
+						} catch (Exception e) {
 							// cannot happen since we only look at public fields
 							return 0;
 						}
@@ -663,8 +688,7 @@ public class DTOsProvider implements DTOs {
 								Object oo1 = f.get(o1);
 								Object oo2 = f.get(o2);
 								return comparator.compare(oo1, oo2);
-							}
-							catch (Exception e) {
+							} catch (Exception e) {
 								// cannot happen since we only look at public
 								// fields
 								return 0;
@@ -694,8 +718,7 @@ public class DTOsProvider implements DTOs {
 							return result;
 					}
 					return 0;
-				}
-				catch (Exception e) {
+				} catch (Exception e) {
 					throw new RuntimeException(e);
 				}
 			}
@@ -717,7 +740,8 @@ public class DTOsProvider implements DTOs {
 		while (low <= high) {
 			int mid = (low + high) >>> 1;
 			Field midVal = a[mid];
-			int cmp = midVal.getName().compareTo(key);
+			int cmp = midVal.getName()
+				.compareTo(key);
 			if (cmp < 0)
 				low = mid + 1;
 			else if (cmp > 0)
@@ -733,7 +757,7 @@ public class DTOsProvider implements DTOs {
 	 */
 
 	@SuppressWarnings({
-			"unchecked", "rawtypes"
+		"unchecked", "rawtypes"
 	})
 	@Override
 	public <T> T shallowCopy(T source) throws Exception {
@@ -771,12 +795,13 @@ public class DTOsProvider implements DTOs {
 	 * Deep copy
 	 */
 
+	@Override
 	public <T> T deepCopy(T source) throws Exception {
 		return deepCopy(source, root);
 	}
 
 	@SuppressWarnings({
-			"unchecked", "rawtypes"
+		"unchecked", "rawtypes"
 	})
 	<T> T deepCopy(T source, Link link) throws Exception {
 		if (!isComplex(source))
@@ -800,9 +825,9 @@ public class DTOsProvider implements DTOs {
 		T dest = c.newInstance();
 
 		if (source instanceof Map) {
-			Map<Object,Object> d = (Map<Object,Object>) dest;
-			Map<Object,Object> s = (Map<Object,Object>) source;
-			for (Entry< ? , ? > entry : s.entrySet()) {
+			Map<Object, Object> d = (Map<Object, Object>) dest;
+			Map<Object, Object> s = (Map<Object, Object>) source;
+			for (Entry<?, ?> entry : s.entrySet()) {
 				Link next = new Link(link, entry.getKey(), source);
 				d.put(deepCopy(entry.getKey(), next), deepCopy(entry.getValue(), next));
 			}
@@ -827,6 +852,7 @@ public class DTOsProvider implements DTOs {
 		return dest;
 	}
 
+	@Override
 	public String[] fromPathToSegments(String path) {
 		return fromPathToSegments(path, 0, 0);
 	}
@@ -873,7 +899,7 @@ public class DTOsProvider implements DTOs {
 						sb.append('\\');
 
 						// FALL THROUGH
-						
+
 					default :
 						sb.append(c);
 						break;
@@ -887,9 +913,8 @@ public class DTOsProvider implements DTOs {
 	@Override
 	public boolean deepEquals(Object a, Object b) {
 		try {
-			return diff(a,b).isEmpty();
-		}
-		catch (Exception e) {
+			return diff(a, b).isEmpty();
+		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
 	}

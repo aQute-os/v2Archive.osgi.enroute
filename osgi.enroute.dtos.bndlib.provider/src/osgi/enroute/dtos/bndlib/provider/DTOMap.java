@@ -9,7 +9,7 @@ import java.util.Set;
 
 import org.osgi.dto.DTO;
 
-public class DTOMap extends AbstractMap<String,Object> {
+public class DTOMap extends AbstractMap<String, Object> {
 
 	private final DTOsProvider	dtos;
 	private final Object		dto;
@@ -52,8 +52,7 @@ public class DTOMap extends AbstractMap<String,Object> {
 					return false;
 
 				return o.equals(value);
-			}
-			catch (IllegalArgumentException | IllegalAccessException e) {
+			} catch (IllegalArgumentException | IllegalAccessException e) {
 				// Ignore since we only have public fields
 			}
 		}
@@ -75,21 +74,20 @@ public class DTOMap extends AbstractMap<String,Object> {
 				return new DTOMap(dtos, o);
 			} else
 				return o;
-		}
-		catch (IllegalArgumentException | IllegalAccessException e) {
+		} catch (IllegalArgumentException | IllegalAccessException e) {
 			// cannot happen
 			return null;
 		}
 	}
 
 	@Override
-	public Set<java.util.Map.Entry<String,Object>> entrySet() {
-		return new AbstractSet<Map.Entry<String,Object>>() {
+	public Set<java.util.Map.Entry<String, Object>> entrySet() {
+		return new AbstractSet<Map.Entry<String, Object>>() {
 
 			@Override
-			public Iterator<java.util.Map.Entry<String,Object>> iterator() {
-				return new Iterator<Map.Entry<String,Object>>() {
-					int	n	= 0;
+			public Iterator<java.util.Map.Entry<String, Object>> iterator() {
+				return new Iterator<Map.Entry<String, Object>>() {
+					int n = 0;
 
 					@Override
 					public boolean hasNext() {
@@ -97,10 +95,10 @@ public class DTOMap extends AbstractMap<String,Object> {
 					}
 
 					@Override
-					public java.util.Map.Entry<String,Object> next() {
+					public java.util.Map.Entry<String, Object> next() {
 						final Field field = fields[n];
 						n++;
-						return new Map.Entry<String,Object>() {
+						return new Map.Entry<String, Object>() {
 
 							@Override
 							public String getKey() {
@@ -111,8 +109,7 @@ public class DTOMap extends AbstractMap<String,Object> {
 							public Object getValue() {
 								try {
 									return field.get(dto);
-								}
-								catch (IllegalArgumentException | IllegalAccessException e) {
+								} catch (IllegalArgumentException | IllegalAccessException e) {
 									throw new RuntimeException(e);
 								}
 							}
@@ -121,10 +118,9 @@ public class DTOMap extends AbstractMap<String,Object> {
 							public Object setValue(Object value) {
 								try {
 									Object old = field.get(dto);
-									field.set(dto,value);
+									field.set(dto, value);
 									return old;
-								}
-								catch (IllegalArgumentException | IllegalAccessException e) {
+								} catch (IllegalArgumentException | IllegalAccessException e) {
 									throw new RuntimeException(e);
 								}
 							}

@@ -9,16 +9,16 @@ public class PinDTO extends DTO {
 	/**
 	 * The name of the pin on the device
 	 */
-	public String name;
-	
+	public String	name;
+
 	/**
 	 * The data type of the connector
 	 */
-	public String type;
-	
+	public String	type;
+
 	/**
 	 * The current value
 	 */
-	
-	public boolean value;
+
+	public boolean	value;
 }

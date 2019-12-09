@@ -45,13 +45,13 @@ public class EnRouteCommands implements LogListener, BundleActivator {
 
 	volatile boolean											watchlog	= Boolean.getBoolean("enRoute.watchlog");
 	final AtomicReference<LogReaderService>						logreader	= new AtomicReference<>();
-	private ServiceTracker<LogReaderService,LogReaderService>	lrs;
+	private ServiceTracker<LogReaderService, LogReaderService>	lrs;
 	private BundleContext										context;
 	final List<LogEntry>										log			= new ArrayList<>();
 
 	/**
 	 * Show the services
-	 * 
+	 *
 	 * @throws InvalidSyntaxException
 	 */
 
@@ -61,8 +61,6 @@ public class EnRouteCommands implements LogListener, BundleActivator {
 
 	/**
 	 * Command to toggle log
-	 * 
-	 * @return
 	 */
 	public String watchlog() {
 		return watchlog(!watchlog);
@@ -70,8 +68,6 @@ public class EnRouteCommands implements LogListener, BundleActivator {
 
 	/**
 	 * Command set log on/off
-	 * 
-	 * @return
 	 */
 	public String watchlog(boolean on) {
 		if (watchlog != on) {
@@ -93,12 +89,13 @@ public class EnRouteCommands implements LogListener, BundleActivator {
 			try (Formatter f = new Formatter()) {
 				for (LogEntry e : entries) {
 					if (e.getLevel() <= level) {
-						f.format("%2$tH:%2$tM:%2$tS [%1$s] %3$04d %4$s", label(e.getLevel()), e.getTime(), e
-								.getBundle().getBundleId(), e.getMessage());
+						f.format("%2$tH:%2$tM:%2$tS [%1$s] %3$04d %4$s", label(e.getLevel()), e.getTime(), e.getBundle()
+							.getBundleId(), e.getMessage());
 						if (e.getException() != null) {
 							StringWriter sw = new StringWriter();
 							PrintWriter pw = new PrintWriter(sw);
-							e.getException().printStackTrace(pw);
+							e.getException()
+								.printStackTrace(pw);
 							pw.flush();
 							f.format("%n%s%n", sw.toString());
 						}
@@ -146,7 +143,7 @@ public class EnRouteCommands implements LogListener, BundleActivator {
 	/**
 	 * Command to say a text
 	 */
-	volatile int	nsays;
+	volatile int nsays;
 
 	public void say(final Object message) throws Exception {
 		nsays++;
@@ -154,15 +151,14 @@ public class EnRouteCommands implements LogListener, BundleActivator {
 			return;
 
 		Thread t = new Thread("speak") {
+			@Override
 			public void run() {
 				try {
 					ScriptEngine engine = new ScriptEngineManager().getEngineByName("AppleScript");
 					engine.eval("say \"" + message + "\"");
-				}
-				catch (Exception e) {
+				} catch (Exception e) {
 					// ignore
-				}
-				finally {
+				} finally {
 					nsays--;
 				}
 			}
@@ -176,7 +172,7 @@ public class EnRouteCommands implements LogListener, BundleActivator {
 	public static class Export extends DTO {
 		public String					name;
 		public Version					version;
-		public Map<Double,Set<Double>>	wires	= new HashMap<>();
+		public Map<Double, Set<Double>>	wires	= new HashMap<>();
 	}
 
 	public Object exports() {
@@ -184,26 +180,30 @@ public class EnRouteCommands implements LogListener, BundleActivator {
 	}
 
 	public Object exports(String prefix) {
-		Map<String,Export> index = new TreeMap<>();
+		Map<String, Export> index = new TreeMap<>();
 		boolean needRefresh = false;
 
 		for (Bundle b : context.getBundles()) {
 			int r = 0;
-			for (BundleRevision br : b.adapt(BundleRevisions.class).getRevisions()) {
+			for (BundleRevision br : b.adapt(BundleRevisions.class)
+				.getRevisions()) {
 				BundleWiring wiring = br.getWiring();
 
 				List<BundleWire> exports = wiring.getProvidedWires(PackageNamespace.PACKAGE_NAMESPACE);
 				List<BundleCapability> capabilities = wiring.getCapabilities(PackageNamespace.PACKAGE_NAMESPACE);
 
-				Double exportRevision = (double) br.getBundle().getBundleId();
+				Double exportRevision = (double) br.getBundle()
+					.getBundleId();
 				if (r > 0) {
 					needRefresh = true;
 					exportRevision += r / 10D;
 				}
 
 				for (BundleCapability bc : capabilities) {
-					String packageName = (String) bc.getAttributes().get(PackageNamespace.PACKAGE_NAMESPACE);
-					Version version = (Version) bc.getAttributes().get(PackageNamespace.CAPABILITY_VERSION_ATTRIBUTE);
+					String packageName = (String) bc.getAttributes()
+						.get(PackageNamespace.PACKAGE_NAMESPACE);
+					Version version = (Version) bc.getAttributes()
+						.get(PackageNamespace.CAPABILITY_VERSION_ATTRIBUTE);
 					String id = packageName + ";" + version;
 					Export to = index.get(id);
 					if (to == null) {
@@ -222,10 +222,12 @@ public class EnRouteCommands implements LogListener, BundleActivator {
 				}
 
 				for (BundleWire w : exports) {
-					String packageName = (String) w.getCapability().getAttributes()
-							.get(PackageNamespace.PACKAGE_NAMESPACE);
-					Version version = (Version) w.getCapability().getAttributes()
-							.get(PackageNamespace.CAPABILITY_VERSION_ATTRIBUTE);
+					String packageName = (String) w.getCapability()
+						.getAttributes()
+						.get(PackageNamespace.PACKAGE_NAMESPACE);
+					Version version = (Version) w.getCapability()
+						.getAttributes()
+						.get(PackageNamespace.CAPABILITY_VERSION_ATTRIBUTE);
 					String id = packageName + ";" + version;
 					Export to = index.get(id);
 					if (to == null) {
@@ -237,8 +239,13 @@ public class EnRouteCommands implements LogListener, BundleActivator {
 					}
 
 					BundleRevision ibr = w.getRequirer();
-					int ir = w.getRequirer().getBundle().adapt(BundleRevisions.class).getRevisions().indexOf(ibr);
-					Double importRevision = (double) ibr.getBundle().getBundleId();
+					int ir = w.getRequirer()
+						.getBundle()
+						.adapt(BundleRevisions.class)
+						.getRevisions()
+						.indexOf(ibr);
+					Double importRevision = (double) ibr.getBundle()
+						.getBundleId();
 					if (ir > 0)
 						importRevision += ir / 10;
 
@@ -264,15 +271,16 @@ public class EnRouteCommands implements LogListener, BundleActivator {
 					String name = export.name.equals(packageName) ? "" : export.name;
 					String warning = export.wires.size() > 1 ? "**" : "";
 					String version = export.version.getMajor() + "." + export.version.getMinor() + "."
-							+ export.version.getMicro();
-					Iterator<Map.Entry<Double,Set<Double>>> it = export.wires.entrySet().iterator();
-					Entry<Double,Set<Double>> first = it.next();
+						+ export.version.getMicro();
+					Iterator<Map.Entry<Double, Set<Double>>> it = export.wires.entrySet()
+						.iterator();
+					Entry<Double, Set<Double>> first = it.next();
 
 					f.format("%2s %-40s %-10s  %-5s -> %s%n", warning, name, version, first.getKey(), first.getValue());
 					for (; it.hasNext();) {
-						Entry<Double,Set<Double>> v = it.next();
+						Entry<Double, Set<Double>> v = it.next();
 						f.format("**                                                        %-8s -> %s%n", v.getKey(),
-								v.getValue());
+							v.getValue());
 					}
 				}
 			}
@@ -282,11 +290,11 @@ public class EnRouteCommands implements LogListener, BundleActivator {
 
 	/**
 	 * Just show a service
-	 * 
+	 *
 	 * @throws InvalidSyntaxException
 	 */
 
-	public Object srv(ServiceReference< ? >... refs) throws InvalidSyntaxException {
+	public Object srv(ServiceReference<?>... refs) throws InvalidSyntaxException {
 		if (refs == null || refs.length == 0)
 			return context.getServiceReferences((String) null, null);
 
@@ -310,20 +318,21 @@ public class EnRouteCommands implements LogListener, BundleActivator {
 	/*
 	 * Check log for errors
 	 */
-	static long	lastspoken;
+	static long lastspoken;
 
 	@Override
 	public void logged(LogEntry entry) {
 		if (watchlog && entry.getLevel() <= LogService.LOG_WARNING) {
 			try {
-				if (System.currentTimeMillis() > lastspoken + 15000 &&  !entry.getMessage().contains("[silent]")) {
-					say("error in bundle " + entry.getBundle().getBundleId());
+				if (System.currentTimeMillis() > lastspoken + 15000 && !entry.getMessage()
+					.contains("[silent]")) {
+					say("error in bundle " + entry.getBundle()
+						.getBundleId());
 					lastspoken = System.currentTimeMillis();
 				}
 				System.err.println(entry.getMessage());
 				log.add(entry);
-			}
-			catch (Exception e) {
+			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
@@ -332,7 +341,7 @@ public class EnRouteCommands implements LogListener, BundleActivator {
 	@Override
 	public void start(BundleContext context) throws Exception {
 		this.context = context;
-		this.lrs = new ServiceTracker<LogReaderService,LogReaderService>(context, LogReaderService.class, null) {
+		this.lrs = new ServiceTracker<LogReaderService, LogReaderService>(context, LogReaderService.class, null) {
 			@Override
 			public LogReaderService addingService(ServiceReference<LogReaderService> lrs) {
 				LogReaderService l = super.addingService(lrs);
@@ -348,10 +357,10 @@ public class EnRouteCommands implements LogListener, BundleActivator {
 		};
 		this.lrs.open();
 
-		Hashtable<String,Object> map = new Hashtable<>();
+		Hashtable<String, Object> map = new Hashtable<>();
 		map.put(Debug.COMMAND_SCOPE, "enroute");
 		map.put(Debug.COMMAND_FUNCTION, new String[] {
-				"say", "lg", "watchlog", "lss", "srv", "exports"
+			"say", "lg", "watchlog", "lss", "srv", "exports"
 		});
 		context.registerService(Object.class, this, map);
 	}

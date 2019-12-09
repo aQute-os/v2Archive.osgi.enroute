@@ -31,28 +31,29 @@ import osgi.enroute.rest.api.RestConstants;
  * Making a REST service work is the result of the intersection between a
  * namespaced class that implements the {@code REST} interface, and a REST URI
  * service hook, which is created when a {@code UriMapper} is registered.
- * Mapping between the two is handed by the {@code UriMapper}.
- * 
- * This controller is responsible for listening to service registrations for
- * REST and UriMapper services, and instatiating the necessary resources (mostly
+ * Mapping between the two is handed by the {@code UriMapper}. This controller
+ * is responsible for listening to service registrations for REST and UriMapper
+ * services, and instatiating the necessary resources (mostly
  * {@code RestServlet}s).
  */
-@Designate(ocd=Config.class)
+@Designate(ocd = Config.class)
 @RequireHttpImplementation
 @Capability(namespace = ImplementationNamespace.IMPLEMENTATION_NAMESPACE, name = RestConstants.REST_SPECIFICATION_NAME, version = RestConstants.REST_SPECIFICATION_VERSION)
 @Component(name = "osgi.enroute.rest.simple", immediate = true)
 public class RestControllerService {
-	Logger log = LoggerFactory.getLogger(RestControllerService.class);
-	
+	Logger									log						= LoggerFactory
+		.getLogger(RestControllerService.class);
+
 	private static final String				DEFAULT_SERVLET_PATTERN	= "/rest/*";
-	
+
 	@Reference
 	private DTOs							$dtos;
 	private BundleContext					context;
 	private final Map<String, RestServlet>	servlets				= new ConcurrentHashMap<>();
 	private Config							config;
 	private final String					defaultServletPattern[]	= new String[] {
-			DEFAULT_SERVLET_PATTERN };
+		DEFAULT_SERVLET_PATTERN
+	};
 	private ServiceTracker<REST, REST>		tracker;
 
 	@Activate
@@ -60,29 +61,25 @@ public class RestControllerService {
 		this.context = context;
 		this.config = config;
 		if (config.osgi_http_whiteboard_servlet_pattern() != null)
-			this.defaultServletPattern[0] = config
-					.osgi_http_whiteboard_servlet_pattern();
+			this.defaultServletPattern[0] = config.osgi_http_whiteboard_servlet_pattern();
 
-		log.trace(
-				"Using default REST endpoint " + this.defaultServletPattern[0]);
+		log.trace("Using default REST endpoint " + this.defaultServletPattern[0]);
 
 		tracker = new ServiceTracker<REST, REST>(context, REST.class, null) {
 			@Override
 			public REST addingService(ServiceReference<REST> reference) {
 				try {
 					String[] namespaces = getNamespaces(reference);
-					Integer ranking = (Integer) reference
-							.getProperty(Constants.SERVICE_RANKING);
+					Integer ranking = (Integer) reference.getProperty(Constants.SERVICE_RANKING);
 					if (ranking == null)
 						ranking = new Integer(0);
 
 					REST resourceManager = super.addingService(reference);
-					
+
 					for (String namespace : namespaces) {
 						log.trace("adding REST %s on %s", resourceManager, namespace);
-						RestServlet restServlet = servlets.computeIfAbsent(
-								namespace,
-								RestControllerService.this::createServlet);
+						RestServlet restServlet = servlets.computeIfAbsent(namespace,
+							RestControllerService.this::createServlet);
 						restServlet.add(resourceManager, ranking);
 					}
 					return resourceManager;
@@ -93,8 +90,7 @@ public class RestControllerService {
 			}
 
 			@Override
-			public void removedService(ServiceReference<REST> reference,
-					REST resourceManager) {
+			public void removedService(ServiceReference<REST> reference, REST resourceManager) {
 				try {
 					String[] namespaces = getNamespaces(reference);
 					for (String namespace : namespaces) {
@@ -120,11 +116,9 @@ public class RestControllerService {
 		tracker.close();
 	}
 
-	private String[] getNamespaces(ServiceReference<REST> reference)
-			throws Exception {
-		String namespaces[] = $dtos
-				.convert(reference.getProperty(REST.ENDPOINT))
-				.to(String[].class);
+	private String[] getNamespaces(ServiceReference<REST> reference) throws Exception {
+		String namespaces[] = $dtos.convert(reference.getProperty(REST.ENDPOINT))
+			.to(String[].class);
 
 		if (namespaces == null || namespaces.length == 0)
 			namespaces = defaultServletPattern;
@@ -135,10 +129,8 @@ public class RestControllerService {
 	private RestServlet createServlet(String namespace) {
 		RestServlet rs = new RestServlet(config, namespace);
 		Hashtable<String, Object> p = new Hashtable<>();
-		p.put(HttpWhiteboardConstants.HTTP_WHITEBOARD_SERVLET_PATTERN,
-				namespace);
-		ServiceRegistration<Servlet> reg = context
-				.registerService(Servlet.class, rs, p);
+		p.put(HttpWhiteboardConstants.HTTP_WHITEBOARD_SERVLET_PATTERN, namespace);
+		ServiceRegistration<Servlet> reg = context.registerService(Servlet.class, rs, p);
 		rs.setCloseable(() -> reg.unregister());
 		return rs;
 	}

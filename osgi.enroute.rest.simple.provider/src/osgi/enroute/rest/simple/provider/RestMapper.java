@@ -62,12 +62,12 @@ import osgi.enroute.rest.api.RESTResponse;
  * has methods that provide access to the underlying servlet request and
  * response.
  * <p>
- * 
+ *
  * <pre>
  * interface MyOptions extends RESTRequest {
  * 	int[] value();
  * }
- * 
+ *
  * int getFoo(MyOptions options) {
  * 	int sum = 1;
  * 	for (int i : options.value())
@@ -75,48 +75,45 @@ import osgi.enroute.rest.api.RESTResponse;
  * 	return sum;
  * }
  * // is mapped from https://localhost:8080/rest?value=45
- * 
+ *
  * </pre>
- * 
+ *
  * Since rest is supposed to carry the arguments in the URL, the segments in the
  * URL after the method name are mapped to arguments, potentially varargs. For
  * example:
- * 
+ *
  * <pre>
- * interface MyOptions extends RESTRequest {
- * }
- * 
+ * interface MyOptions extends RESTRequest {}
+ *
  * Attr getFoo(MyOptions options, byte[] id, int attr) {
  * 	return getObject(id).getAttr(attr);
  * }
- * 
+ *
  * // is mapped from https://localhost:8080/rest/0348E767F0/23
- * 
+ *
  * </pre>
- * 
+ *
  * For POST and PUT requests, the Options interface provides access to the
  * underlying stream. Just declare a field _body on the Options interface and
  * this method will return the converted value from the JSON decoded input
  * stream:
- * 
+ *
  * <pre>
  * interface MyOptions extends RESTRequest {
  * 	Person _body();
  * }
- * 
+ *
  * int getFoo(MyOptions options) {
  * 	Person p = options._();
  * 	return p.age;
  * }
  * // is mapped from a POST/PUT https://localhost:8080/rest
- * 
+ *
  * </pre>
  */
 public class RestMapper {
-	static Logger			log				= LoggerFactory
-			.getLogger(RestMapper.class);
-	final static Pattern	METHOD_NAME_P	= Pattern
-			.compile("(?<verb>get|post|put|delete|option|head)(?<path>.*)");
+	static Logger			log				= LoggerFactory.getLogger(RestMapper.class);
+	final static Pattern	METHOD_NAME_P	= Pattern.compile("(?<verb>get|post|put|delete|option|head)(?<path>.*)");
 	final List<REST>		endpoints		= new CopyOnWriteArrayList<>();
 	final static JSONCodec	codec			= new JSONCodec();
 	final static JSONCodec	codecNoNull		= new JSONCodec();
@@ -131,7 +128,7 @@ public class RestMapper {
 	 * argument be an interface that extends {@link Options}.
 	 */
 	final static Pattern		ACCEPTED_METHOD_NAMES_P	= Pattern
-			.compile("(?<verb>get|post|put|delete|option|head)(?<path>.*)");
+		.compile("(?<verb>get|post|put|delete|option|head)(?<path>.*)");
 	final String				namespace;
 
 	public RestMapper(String namespace) {
@@ -139,7 +136,8 @@ public class RestMapper {
 	}
 
 	public synchronized void addResource(REST resource, int ranking) {
-		for (Method m : resource.getClass().getMethods()) {
+		for (Method m : resource.getClass()
+			.getMethods()) {
 			if (m.getDeclaringClass() == Object.class)
 				continue;
 
@@ -152,14 +150,13 @@ public class RestMapper {
 			if (!matcher.lookingAt())
 				continue;
 
-			Verb verb = Verb.valueOf(Verb.class, matcher.group("verb"));
+			Verb verb = Enum.valueOf(Verb.class, matcher.group("verb"));
 			String path = "/" + decode(matcher.group("path"));
 
 			Function function = new Function(resource, m, verb, path, ranking);
 			functions.add(function.getName(), function);
 
-			Collections.sort(functions.get(function.getName()),
-					(a, b) -> Integer.compare(a.ranking, b.ranking));
+			Collections.sort(functions.get(function.getName()), (a, b) -> Integer.compare(a.ranking, b.ranking));
 		}
 		endpoints.add(resource);
 	}
@@ -173,21 +170,20 @@ public class RestMapper {
 		for (int i = 0; i < path.length(); i++) {
 			char c = path.charAt(i);
 			switch (c) {
-			case '_':
-				sb.append('-');
-				break;
-			case '$':
-				c = (char) (Hex.nibble(path.charAt(i + 1)) * 16
-						+ Hex.nibble(path.charAt(i + 2)));
-				i += 2;
-				sb.append(c);
-				break;
-			default:
-				if (toLower)
-					sb.append(Character.toLowerCase(c));
-				else
+				case '_' :
+					sb.append('-');
+					break;
+				case '$' :
+					c = (char) (Hex.nibble(path.charAt(i + 1)) * 16 + Hex.nibble(path.charAt(i + 2)));
+					i += 2;
 					sb.append(c);
-				break;
+					break;
+				default :
+					if (toLower)
+						sb.append(Character.toLowerCase(c));
+					else
+						sb.append(c);
+					break;
 			}
 
 		}
@@ -217,16 +213,13 @@ public class RestMapper {
 
 	/**
 	 * Execute a web request.
-	 * 
-	 * @param rq
-	 *                the request
-	 * @param rsp
-	 *                the response
+	 *
+	 * @param rq the request
+	 * @param rsp the response
 	 * @return true if we matched and executed
 	 * @throws IOException
 	 */
-	public boolean execute(HttpServletRequest rq, HttpServletResponse rsp)
-			throws IOException {
+	public boolean execute(HttpServletRequest rq, HttpServletResponse rsp) throws IOException {
 		try {
 			String path = rq.getPathInfo();
 			if (path == null)
@@ -258,19 +251,19 @@ public class RestMapper {
 			//
 
 			if (candidates == null || candidates.isEmpty())
-				throw new FileNotFoundException("No such method " + name + "/"
-						+ cardinality + ". Available: " + functions);
+				throw new FileNotFoundException(
+					"No such method " + name + "/" + cardinality + ". Available: " + functions);
 
 			//
 			// All values are arrays, turn them into singletons when
 			// they have one element
 			//
-			Map<String, Object> args = new HashMap<String, Object>(
-					rq.getParameterMap());
+			Map<String, Object> args = new HashMap<String, Object>(rq.getParameterMap());
 
 			for (Map.Entry<String, Object> e : args.entrySet()) {
 				Object o = e.getValue();
-				if (o.getClass().isArray()) {
+				if (o.getClass()
+					.isArray()) {
 					if (Array.getLength(o) == 1)
 						e.setValue(Array.get(o, 0));
 				}
@@ -315,7 +308,8 @@ public class RestMapper {
 				Type type = f.getPayloadType();
 				if (type != null) {
 					Object payload = null;
-					Decoder d = codec.dec().from(rq.getInputStream());
+					Decoder d = codec.dec()
+						.from(rq.getInputStream());
 					if (!d.isEof())
 						payload = d.get(type);
 
@@ -352,8 +346,7 @@ public class RestMapper {
 		return true;
 	}
 
-	private void doRestResponse(HttpServletRequest rq, HttpServletResponse rsp,
-			RESTResponse e) {
+	private void doRestResponse(HttpServletRequest rq, HttpServletResponse rsp, RESTResponse e) {
 		doResponseHeaders(rsp, e);
 
 		if (e.getContentType() != null)
@@ -373,8 +366,8 @@ public class RestMapper {
 	}
 
 	private boolean doOpenAPI(HttpServletRequest rq, HttpServletResponse rsp) throws Exception {
-		OpenAPI openAPI = new OpenAPI(this,
-				new URI(rq.getRequestURL().toString()));
+		OpenAPI openAPI = new OpenAPI(this, new URI(rq.getRequestURL()
+			.toString()));
 		printOutput(rq, rsp, openAPI);
 		return true;
 	}
@@ -383,59 +376,53 @@ public class RestMapper {
 		try {
 
 			getPublicFields(e.getClass(), RESTResponse.class) //
-					.forEach(headerField -> {
-						try {
-							Object o = headerField.get(e);
-							if (o != null) {
-								String headerName = decode(
-										headerField.getName()).toUpperCase();
-								if (o instanceof Collection
-										|| o.getClass().isArray()) {
-									// Use csv? pipe? See collectionFormat
-									String[] values = Converter
-											.cnv(String[].class, o);
-									for (String value : values)
-										rsp.addHeader(headerName, value);
-								} else
-									rsp.addHeader(headerName, o.toString());
-							}
-						} catch (Exception ex) {
-							log.error("Field to get header from field "
-									+ headerField, ex);
+				.forEach(headerField -> {
+					try {
+						Object o = headerField.get(e);
+						if (o != null) {
+							String headerName = decode(headerField.getName()).toUpperCase();
+							if (o instanceof Collection || o.getClass()
+								.isArray()) {
+								// Use csv? pipe? See collectionFormat
+								String[] values = Converter.cnv(String[].class, o);
+								for (String value : values)
+									rsp.addHeader(headerName, value);
+							} else
+								rsp.addHeader(headerName, o.toString());
 						}
-					});
+					} catch (Exception ex) {
+						log.error("Field to get header from field " + headerField, ex);
+					}
+				});
 
 		} catch (Exception ee) {
 			log.error("Unexpected reflection error", ee);
 		}
 	}
 
-	static <T> Stream<Field> getPublicFields(Class<? extends T> clazz,
-			Class<T> base) {
+	static <T> Stream<Field> getPublicFields(Class<? extends T> clazz, Class<T> base) {
 		return Stream.of(clazz.getFields()) //
-				.filter(f -> !Modifier.isStatic(f.getModifiers()))//
-				.filter(f -> true);
+			.filter(f -> !Modifier.isStatic(f.getModifiers()))//
+			.filter(f -> true);
 	}
 
-	static <T> Stream<Method> getPublicMethod(Class<? extends T> clazz,
-			Class<T> base) {
+	static <T> Stream<Method> getPublicMethod(Class<? extends T> clazz, Class<T> base) {
 		return Stream.of(clazz.getMethods()) //
-				.filter(f -> !Modifier.isStatic(f.getModifiers()))//
-				.filter(f -> true);
+			.filter(f -> !Modifier.isStatic(f.getModifiers()))//
+			.filter(f -> true);
 	}
 
 	public void setDiagnostics(boolean on) {
 		this.diagnostics = true;
 	}
 
-	private void printOutput(HttpServletRequest rq, HttpServletResponse rsp,
-			Object result) throws Exception {
+	private void printOutput(HttpServletRequest rq, HttpServletResponse rsp, Object result) throws Exception {
 		printOutput(rq, rsp, result, codec.enc());
 	}
 
 	@SuppressWarnings("unchecked")
-	private void printOutput(HttpServletRequest rq, HttpServletResponse rsp,
-			Object result, Encoder enc) throws Exception {
+	private void printOutput(HttpServletRequest rq, HttpServletResponse rsp, Object result, Encoder enc)
+		throws Exception {
 		//
 		// Check if we can compress the result
 		//
@@ -446,8 +433,7 @@ public class RestMapper {
 				//
 				// < 14 bytes screws up
 				//
-				if (!(result instanceof Number) && !(result instanceof String
-						&& ((String) result).length() < 100)) {
+				if (!(result instanceof Number) && !(result instanceof String && ((String) result).length() < 100)) {
 					String acceptEncoding = rq.getHeader("Accept-Encoding");
 					if (acceptEncoding != null) {
 						boolean gzip = acceptEncoding.indexOf("gzip") >= 0;
@@ -484,7 +470,9 @@ public class RestMapper {
 					rsp.setContentType("application/json;charset=UTF-8");
 					if (result instanceof Iterable)
 						result = new ExtList<Object>((Iterable<Object>) result);
-					enc.writeDefaults().to(out).put(result);
+					enc.writeDefaults()
+						.to(out)
+						.put(result);
 				}
 			}
 			out.close();

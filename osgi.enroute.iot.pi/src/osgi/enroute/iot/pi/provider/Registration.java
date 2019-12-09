@@ -9,9 +9,9 @@ import com.pi4j.io.gpio.Pin;
  * Registration of a GPIO pin.
  */
 class Registration<T> {
-	Class<T> type;
-	ServiceRegistration<?> reg;
-	T service;
-	Pin pin;
-	GpioPin gpioPin;
+	Class<T>				type;
+	ServiceRegistration<?>	reg;
+	T						service;
+	Pin						pin;
+	GpioPin					gpioPin;
 }

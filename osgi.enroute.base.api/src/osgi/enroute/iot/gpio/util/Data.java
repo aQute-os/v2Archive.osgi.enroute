@@ -6,9 +6,8 @@ package osgi.enroute.iot.gpio.util;
 public interface Data {
 	/**
 	 * The data
-	 * 
-	 * @param data
-	 *            the data
+	 *
+	 * @param data the data
 	 * @throws Exception
 	 */
 	void stream(byte[] data) throws Exception;

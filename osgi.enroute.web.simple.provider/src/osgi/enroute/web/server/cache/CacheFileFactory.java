@@ -24,19 +24,18 @@ public class CacheFileFactory {
 					throw new NotFound404Exception(null, new IllegalArgumentException("not a file (anymore?) " + f));
 				Digester<MD5> digester = MD5.getDigester();
 				IO.copy(f, digester);
-				return digester.digest().digest();
-			}
-			catch (NotFound404Exception e ) {
+				return digester.digest()
+					.digest();
+			} catch (NotFound404Exception e) {
 				throw e;
-			}
-			catch (Exception e) {
+			} catch (Exception e) {
 				throw new InternalServer500Exception(e);
 			}
 		}
 	}
 
 	public static class Mimes {
-		static Properties				mimes							= new Properties();
+		static Properties mimes = new Properties();
 
 		static Properties mimes() {
 			Properties copy = new Properties(mimes);
@@ -44,11 +43,13 @@ public class CacheFileFactory {
 		}
 	}
 
-	public static CacheFile newCacheFile(File f, Bundle b, long expiration, String path) throws NotFound404Exception, InternalServer500Exception {
+	public static CacheFile newCacheFile(File f, Bundle b, long expiration, String path)
+		throws NotFound404Exception, InternalServer500Exception {
 		return newCacheFile(f, b, Etag.get(f), expiration, path);
 	}
 
-	public static CacheFile newCacheFile(File f, long expiration) throws NotFound404Exception, InternalServer500Exception {
+	public static CacheFile newCacheFile(File f, long expiration)
+		throws NotFound404Exception, InternalServer500Exception {
 		return newCacheFile(f, null, expiration, f.getAbsolutePath());
 	}
 
@@ -70,7 +71,8 @@ public class CacheFileFactory {
 		int n = path.lastIndexOf('.');
 		if (n > 0) {
 			String ext = path.substring(n + 1);
-			c.mime = Mimes.mimes().getProperty(ext);
+			c.mime = Mimes.mimes()
+				.getProperty(ext);
 		}
 		c.expiration = expiration;
 

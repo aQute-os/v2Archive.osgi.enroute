@@ -12,10 +12,10 @@ import osgi.enroute.iot.gpio.util.Digital;
 import osgi.enroute.iot.gpio.util.ICAdapter;
 import osgi.enroute.iot.toolkit.And.AndConfig;
 
-@Designate(ocd=AndConfig.class, factory=true)
-@Component(service=IC.class, name="osgi.enroute.iot.toolkit.and")
+@Designate(ocd = AndConfig.class, factory = true)
+@Component(service = IC.class, name = "osgi.enroute.iot.toolkit.and")
 public class And extends ICAdapter<Binary, Digital> implements Binary {
-	boolean	a, b;
+	boolean a, b;
 
 	@ObjectClassDefinition
 	@interface AndConfig {
@@ -38,9 +38,9 @@ public class And extends ICAdapter<Binary, Digital> implements Binary {
 		out().set(a && b);
 	}
 
+	@Override
 	@Reference
-	protected
-	void setCircuitBoard(CircuitBoard board) {
+	protected void setCircuitBoard(CircuitBoard board) {
 		super.setCircuitBoard(board);
 	}
 

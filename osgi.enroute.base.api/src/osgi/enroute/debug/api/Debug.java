@@ -1,5 +1,7 @@
 package osgi.enroute.debug.api;
 
+import org.apache.felix.service.command.annotations.GogoCommand;
+
 /**
  * This service will be registered when in debug mode. The purpose of debug mode
  * is to help developers develop the system and find bugs in production. In
@@ -13,7 +15,11 @@ public interface Debug {
 	 * <p>
 	 * The scope is a {@code String} that defines the main group name of the
 	 * command.
+	 * <p>
+	 * This constant is deprecated because the {@link GogoCommand} does the job
+	 * much better
 	 */
+	@Deprecated
 	String	COMMAND_SCOPE		= "osgi.command.scope";
 	/**
 	 * For shell functions on a service register the service with the
@@ -22,7 +28,11 @@ public interface Debug {
 	 * <p>
 	 * The function is a {@code String+} of command names. The command names
 	 * must map to valid public methods on this service.
+	 * <p>
+	 * This constant is deprecated because the {@link GogoCommand} does the job
+	 * much better
 	 */
+	@Deprecated
 	String	COMMAND_FUNCTION	= "osgi.command.function";
 
 	/**

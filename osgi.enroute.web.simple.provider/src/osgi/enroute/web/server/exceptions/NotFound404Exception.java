@@ -3,7 +3,7 @@ package osgi.enroute.web.server.exceptions;
 public class NotFound404Exception extends WebServerException {
 	private static final long	serialVersionUID	= 1L;
 
-	private final String bsn;
+	private final String		bsn;
 
 	public NotFound404Exception(String bsn) {
 		super();
@@ -15,8 +15,7 @@ public class NotFound404Exception extends WebServerException {
 		this.bsn = bsn;
 	}
 
-	public String getBundleSymbolicName()
-	{
+	public String getBundleSymbolicName() {
 		return bsn;
 	}
 }

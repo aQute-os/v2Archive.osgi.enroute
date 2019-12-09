@@ -13,8 +13,7 @@ import osgi.enroute.rest.openapi.annotations.Required;
 
 /**
  * Describes a single API operation on a path.
- * 
- * @see https://github.com/OAI/OpenAPI-Specification/blob/master/versions/2.0.md#operation-object
+ *
  */
 public class OperationObject extends DTO {
 	/**

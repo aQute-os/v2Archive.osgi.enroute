@@ -21,8 +21,9 @@ import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.http.whiteboard.HttpWhiteboardConstants;
-import org.osgi.service.log.LogService;
 import org.osgi.util.tracker.BundleTracker;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import osgi.enroute.web.server.cache.Cache;
 import osgi.enroute.web.server.cache.CacheFile;
@@ -30,28 +31,21 @@ import osgi.enroute.web.server.config.WebServerConfig;
 import osgi.enroute.web.server.exceptions.ExceptionHandler;
 import osgi.enroute.web.server.exceptions.NotFound404Exception;
 
-@Component(
-		name = "osgi.enroute.web.service.provider.bfs",
-		property = {
-				HttpWhiteboardConstants.HTTP_WHITEBOARD_SERVLET_PATTERN + "=/bnd/*", 
-				Constants.SERVICE_RANKING + ":Integer=100",
-				"addTrailingSlash=true"
-		}, 
-		service = Servlet.class, 
-		configurationPid = BundleMixinServer.NAME,
-		configurationPolicy = ConfigurationPolicy.OPTIONAL,
-		immediate = true)
+@Component(name = "osgi.enroute.web.service.provider.bfs", property = {
+	HttpWhiteboardConstants.HTTP_WHITEBOARD_SERVLET_PATTERN + "=/bnd/*", Constants.SERVICE_RANKING + ":Integer=100",
+	"addTrailingSlash=true"
+}, service = Servlet.class, configurationPid = BundleMixinServer.NAME, configurationPolicy = ConfigurationPolicy.OPTIONAL, immediate = true)
 public class BundleFileServer extends HttpServlet {
 
-	private static final long					serialVersionUID	= 1L;
+	private static final long		serialVersionUID	= 1L;
+	private final static Logger		log					= LoggerFactory.getLogger(BundleFileServer.class);
 
-	protected WebServerConfig					config;
-	private BundleTracker<?>					tracker;
-	protected Map<String, Bundle>				bundles = new HashMap<>();
-	private Cache								cache;
-	private ResponseWriter						writer;
-	private ExceptionHandler					exceptionHandler;
-	private LogService							log;
+	protected WebServerConfig		config;
+	private BundleTracker<?>		tracker;
+	protected Map<String, Bundle>	bundles				= new HashMap<>();
+	private Cache					cache;
+	private ResponseWriter			writer;
+	private ExceptionHandler		exceptionHandler;
 
 	@Activate
 	void activate(WebServerConfig config, BundleContext context) throws Exception {
@@ -60,6 +54,7 @@ public class BundleFileServer extends HttpServlet {
 		exceptionHandler = new ExceptionHandler(config.addTrailingSlash(), log);
 
 		tracker = new BundleTracker<Bundle>(context, Bundle.ACTIVE | Bundle.STARTING, null) {
+			@Override
 			public Bundle addingBundle(Bundle bundle, BundleEvent event) {
 				String bsn = bundle.getSymbolicName();
 				boolean found = false;
@@ -68,7 +63,7 @@ public class BundleFileServer extends HttpServlet {
 				else
 					found = bundle.findEntries("static/" + bsn, "*", false) != null;
 
-				if(!found)
+				if (!found)
 					return null;
 
 				bundles.put(bsn, bundle);
@@ -84,6 +79,7 @@ public class BundleFileServer extends HttpServlet {
 		tracker.open();
 	}
 
+	@Override
 	public void doGet(HttpServletRequest rq, HttpServletResponse rsp) throws ServletException, IOException {
 
 		Bundle b = null;
@@ -92,7 +88,7 @@ public class BundleFileServer extends HttpServlet {
 		try {
 			String path = rq.getPathInfo();
 
-			if (path == null ) {
+			if (path == null) {
 				throw new NotFound404Exception(bsn);
 			}
 
@@ -111,12 +107,12 @@ public class BundleFileServer extends HttpServlet {
 
 			boolean is404 = false;
 			URL url = cache.internalUrlOf(b, path);
-			if (url == null ) {
+			if (url == null) {
 				// Attempt to load the 404.html file within the bundle
 				path = bsn + "/404.html";
 				is404 = true;
 				url = cache.internalUrlOf(b, path);
-				if (url == null )
+				if (url == null)
 					throw new NotFound404Exception(bsn);
 			}
 
@@ -124,7 +120,7 @@ public class BundleFileServer extends HttpServlet {
 			c.is404 = is404;
 			cache.put(path, c);
 			writer.writeResponse(rq, rsp, c);
-		} catch (Exception e ) {
+		} catch (Exception e) {
 			exceptionHandler.handle(rq, rsp, e);
 		}
 	}
@@ -132,11 +128,6 @@ public class BundleFileServer extends HttpServlet {
 	@Deactivate
 	void deactivate() {
 		tracker.close();
-	}
-
-	@Reference
-	void setLog(LogService log) {
-		this.log = log;
 	}
 
 	@Reference

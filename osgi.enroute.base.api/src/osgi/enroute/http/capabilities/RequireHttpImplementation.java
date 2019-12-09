@@ -28,13 +28,12 @@ import org.osgi.namespace.implementation.ImplementationNamespace;
  * otherwise a new record is created.
  */
 @Requirement(namespace = ImplementationNamespace.IMPLEMENTATION_NAMESPACE, filter = "(&("
-		+ ImplementationNamespace.IMPLEMENTATION_NAMESPACE
-		+ "=" + HttpConstants.HTTP_SPECIFICATION_NAME + "))")
+	+ ImplementationNamespace.IMPLEMENTATION_NAMESPACE + "=" + HttpConstants.HTTP_SPECIFICATION_NAME + "))")
 @Retention(RetentionPolicy.CLASS)
 public @interface RequireHttpImplementation {
 	/**
 	 * The place where to look for resources
-	 * 
+	 *
 	 * @return the location
 	 */
 	String configuration_loc() default "configuration/configuration.json";

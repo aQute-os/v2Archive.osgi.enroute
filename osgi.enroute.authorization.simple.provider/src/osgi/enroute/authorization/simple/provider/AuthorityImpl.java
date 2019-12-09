@@ -26,28 +26,28 @@ import osgi.enroute.authorization.api.Authority;
 import osgi.enroute.authorization.api.AuthorityAdmin;
 import osgi.enroute.authorization.api.AuthorizationConstants;
 
-@Capability(namespace=ImplementationNamespace.IMPLEMENTATION_NAMESPACE, name=AuthorizationConstants.AUTHORIZATION_SPECIFICATION_NAME, version=AuthorizationConstants.AUTHORIZATION_SPECIFICATION_VERSION)
+@Capability(namespace = ImplementationNamespace.IMPLEMENTATION_NAMESPACE, name = AuthorizationConstants.AUTHORIZATION_SPECIFICATION_NAME, version = AuthorizationConstants.AUTHORIZATION_SPECIFICATION_VERSION)
 @Component
 public class AuthorityImpl implements Authority, AuthorityAdmin {
 	private static final Glob[]				EMPTY_GLOBS	= new Glob[0];
-	private Logger							log = LoggerFactory.getLogger(AuthorityImpl.class);
+	private Logger							log			= LoggerFactory.getLogger(AuthorityImpl.class);
 	@Reference
 	private UserAdmin						userAdmin;
 
 	@Reference
-	volatile List<UserAdmin>						userAdmins = new ArrayList<UserAdmin>();
-	
+	volatile List<UserAdmin>				userAdmins	= new ArrayList<UserAdmin>();
+
 	private ThreadLocal<SecurityContext>	context		= new ThreadLocal<>();
 
 	static class SecurityContext extends DTO {
 		public String						userId;
 		public Thread						onThread;
 		public long							started;
-		public NavigableMap<String,Assert>	asserts	= new TreeMap<>();
+		public NavigableMap<String, Assert>	asserts	= new TreeMap<>();
 	}
 
 	static class Assert {
-		final Glob[]	matchers;
+		final Glob[] matchers;
 
 		public Assert(String key) {
 			String[] parts = key.split(";");
@@ -63,7 +63,8 @@ public class AuthorityImpl implements Authority, AuthorityAdmin {
 				return false;
 
 			for (int i = 0; i < matchers.length; i++)
-				if (!matchers[i].matcher(arguments[i]).matches())
+				if (!matchers[i].matcher(arguments[i])
+					.matches())
 					return false;
 
 			return true;
@@ -99,8 +100,8 @@ public class AuthorityImpl implements Authority, AuthorityAdmin {
 		if (context == null)
 			return false;
 
-		NavigableMap<String,Assert> tailMap = context.asserts.tailMap(permission, true);
-		for (Map.Entry<String,Assert> entry : tailMap.entrySet()) {
+		NavigableMap<String, Assert> tailMap = context.asserts.tailMap(permission, true);
+		for (Map.Entry<String, Assert> entry : tailMap.entrySet()) {
 
 			String key = entry.getKey();
 
@@ -133,7 +134,7 @@ public class AuthorityImpl implements Authority, AuthorityAdmin {
 			throw new SecurityException("User " + getUserId() + " does not have permission " + permission);
 
 		throw new SecurityException("User " + getUserId() + " does not have permission " + permission
-				+ " for arguments " + Arrays.toString(arguments));
+			+ " for arguments " + Arrays.toString(arguments));
 	}
 
 	@Override
@@ -171,12 +172,10 @@ public class AuthorityImpl implements Authority, AuthorityAdmin {
 
 			return task.call();
 
-		}
-		catch (Exception e) {
+		} catch (Exception e) {
 			log.error("Invocation for user " + userId + " failed", e);
 			throw e;
-		}
-		finally {
+		} finally {
 			this.context.set(null);
 		}
 	}

@@ -9,31 +9,30 @@ public class WireDTO extends DTO {
 	/**
 	 * Unique id for this wire
 	 */
-	public int wireId;
+	public int		wireId;
 
 	/**
 	 * From device id
 	 */
-	public String fromDevice;
+	public String	fromDevice;
 
 	/**
 	 * From pin
-	 * 
 	 */
-	public String fromPin;
+	public String	fromPin;
 
 	/**
 	 * To device id
 	 */
-	public String toDevice;
+	public String	toDevice;
 
 	/**
 	 * To device pin
 	 */
-	public String toPin;
-	
+	public String	toPin;
+
 	/**
 	 * The wire is actually wiring two pins.
 	 */
-	public boolean wired = false;
+	public boolean	wired	= false;
 }

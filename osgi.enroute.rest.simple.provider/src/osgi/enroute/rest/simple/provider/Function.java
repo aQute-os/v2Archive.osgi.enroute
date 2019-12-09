@@ -34,8 +34,7 @@ class Function {
 	Map<String, String>					args		= Collections.emptyMap();
 
 	static Converter					converter	= new Converter();
-	static EnumSet<Verb>				PAYLOAD		= EnumSet.of(Verb.post,
-			Verb.put);
+	static EnumSet<Verb>				PAYLOAD		= EnumSet.of(Verb.post, Verb.put);
 
 	static {
 		converter.hook(byte[].class, new Converter.Hook() {
@@ -50,8 +49,7 @@ class Function {
 		});
 	}
 
-	Function(Object target, Method method, Verb verb, String path,
-			int ranking) {
+	Function(Object target, Method method, Verb verb, String path, int ranking) {
 		this.target = target;
 		this.method = method;
 		this.verb = verb;
@@ -72,19 +70,21 @@ class Function {
 					Class<? extends RESTRequest> rrc = (Class<? extends RESTRequest>) rc;
 					hasRequesParam = true;
 					cardinality--; // don't count as cardinality
-					
+
 					//
 					// Calculate any decoded names for args
 					//
-					
+
 					Map<String, String> args = new HashMap<>();
 					RestMapper.getPublicMethod(rrc, RESTRequest.class)
-							.filter(m -> !m.getName().startsWith("_"))
-							.forEach(m -> {
-								String decoded = RestMapper.decode(m.getName(), false);
-								if (!m.getName().equals(decoded))
-									args.put(decoded, m.getName());
-							});
+						.filter(m -> !m.getName()
+							.startsWith("_"))
+						.forEach(m -> {
+							String decoded = RestMapper.decode(m.getName(), false);
+							if (!m.getName()
+								.equals(decoded))
+								args.put(decoded, m.getName());
+						});
 
 					if (!args.isEmpty())
 						this.args = args;
@@ -93,7 +93,7 @@ class Function {
 					// This might silently fail if there is
 					// no such method
 					//
-					
+
 					this.bodyMethod = rc.getMethod("_body");
 					requestBody = bodyMethod.getGenericReturnType();
 				}
@@ -110,12 +110,10 @@ class Function {
 
 		if (requestBody == null && (PAYLOAD.contains(verb))) {
 			if (cardinality == 0)
-				throw new IllegalArgumentException("Invalid " + verb
-						+ " method " + method.getName() + ". A payload method "
-						+ PAYLOAD
-						+ " must have a RESTRequest subclass with a _body method defined or a parameter that acts as the body type.");
-			requestBody = method.getParameterTypes()[hasRequestParameter ? 1
-					: 0];
+				throw new IllegalArgumentException("Invalid " + verb + " method " + method.getName()
+					+ ". A payload method " + PAYLOAD
+					+ " must have a RESTRequest subclass with a _body method defined or a parameter that acts as the body type.");
+			requestBody = method.getParameterTypes()[hasRequestParameter ? 1 : 0];
 			cardinality--; // don't count as cardinality
 			hasPayloadAsParameter = true;
 		} else {
@@ -123,14 +121,14 @@ class Function {
 		}
 
 		if (path.equals("/") && cardinality > 0)
-			throw new IllegalArgumentException("Invalid " + verb
-					+ " method " + method.getName() + ". A method on the root path cannot have a non-zero cardinality.");
+			throw new IllegalArgumentException("Invalid " + verb + " method " + method.getName()
+				+ ". A method on the root path cannot have a non-zero cardinality.");
 
 		this.post = requestBody;
 
 		this.cardinality = cardinality;
 
-		if ((varargs = method.isVarArgs()))
+		if ((varargs = method.isVarArgs()) == true)
 			this.name = verb + path.substring(1);
 		else
 			this.name = verb + path.substring(1) + "/" + this.cardinality;
@@ -144,8 +142,7 @@ class Function {
 
 		int len = method.getParameters().length - offset;
 		this.parameters = new java.lang.reflect.Parameter[len];
-		System.arraycopy(method.getParameters(), offset, this.parameters, 0,
-				len);
+		System.arraycopy(method.getParameters(), offset, this.parameters, 0, len);
 	}
 
 	Type getPayloadType() {
@@ -156,31 +153,26 @@ class Function {
 		return name;
 	}
 
+	@Override
 	public String toString() {
 		return name;
 	}
 
 	/**
 	 * This is the heart, it tries to map the parameters to this method.
-	 * 
-	 * @param args
-	 *            mapped to the Options interface (first parameter)
-	 * @param list
-	 *            the parameters of the call (segments in the url)
+	 *
+	 * @param args mapped to the Options interface (first parameter)
+	 * @param list the parameters of the call (segments in the url)
 	 * @return the converted arguments or null if no possible match
 	 */
-	public Object[] match(Map<String, Object> args, List<String> list)
-			throws Exception {
-		Object[] parameters = new Object[cardinality
-				+ (hasRequestParameter ? 1 : 0)
-				+ (hasPayloadAsParameter ? 1 : 0)];
+	public Object[] match(Map<String, Object> args, List<String> list) throws Exception {
+		Object[] parameters = new Object[cardinality + (hasRequestParameter ? 1 : 0) + (hasPayloadAsParameter ? 1 : 0)];
 		Type[] types = method.getGenericParameterTypes();
 		if (hasRequestParameter) {
 			parameters[0] = converter.convert(types[0], args);
 		}
 
-		for (int i = (hasRequestParameter ? 1 : 0)
-				+ (hasPayloadAsParameter ? 1 : 0); i < parameters.length; i++) {
+		for (int i = (hasRequestParameter ? 1 : 0) + (hasPayloadAsParameter ? 1 : 0); i < parameters.length; i++) {
 			if (varargs && i == parameters.length - 1) {
 				parameters[i] = converter.convert(types[i], list);
 			} else {
@@ -197,13 +189,12 @@ class Function {
 
 	/**
 	 * Invoke the method
-	 * 
-	 * @param parameters
-	 *            the Options interface and optional segments
+	 *
+	 * @param parameters the Options interface and optional segments
 	 * @return the result of the invocation
 	 */
-	public Object invoke(Object[] parameters) throws IllegalArgumentException,
-			IllegalAccessException, InvocationTargetException {
+	public Object invoke(Object[] parameters)
+		throws IllegalArgumentException, IllegalAccessException, InvocationTargetException {
 		return method.invoke(target, parameters);
 	}
 

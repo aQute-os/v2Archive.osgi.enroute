@@ -21,22 +21,18 @@ public interface CircuitAdmin {
 
 	/**
 	 * Get a list of devices
-	 * 
+	 *
 	 * @return An array of IC descriptions in DTOs
 	 */
 	ICDTO[] getICs();
 
 	/**
 	 * Connect two Pins in a circuit wiring.
-	 * 
-	 * @param fromDevice
-	 *            the device id that originates
-	 * @param fromPin
-	 *            the pin on the fromDevice
-	 * @param toDevice
-	 *            the device id that is the destination
-	 * @param toPin
-	 *            the pin on the toDevice
+	 *
+	 * @param fromDevice the device id that originates
+	 * @param fromPin the pin on the fromDevice
+	 * @param toDevice the device id that is the destination
+	 * @param toPin the pin on the toDevice
 	 * @return a new Wire DTO
 	 * @throws Exception
 	 */
@@ -44,9 +40,8 @@ public interface CircuitAdmin {
 
 	/**
 	 * Disconnect a wire in a wiring
-	 * 
-	 * @param wireId
-	 *            the given wireid
+	 *
+	 * @param wireId the given wireid
 	 * @return true if the wire existed
 	 * @throws Exception
 	 */
@@ -54,7 +49,7 @@ public interface CircuitAdmin {
 
 	/**
 	 * Return a list of wires
-	 * 
+	 *
 	 * @return a list of wires
 	 */
 	List<WireDTO> getWires();

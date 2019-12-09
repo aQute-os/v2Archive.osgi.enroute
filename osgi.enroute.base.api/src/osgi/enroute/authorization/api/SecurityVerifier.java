@@ -13,7 +13,7 @@ import java.util.Formatter;
  * If the method name contains a '_' then it is replaced with a '.'.
  */
 public class SecurityVerifier {
-	static final String[]	EMPTY_STRING	= new String[0];
+	static final String[] EMPTY_STRING = new String[0];
 
 	static class CheckHandler extends SecurityVerifier.HasHandler {
 
@@ -39,7 +39,8 @@ public class SecurityVerifier {
 				String extra = f.toString();
 				f.close();
 
-				throw new SecurityException("No permission for " + method.getName().replace('_', '.') + extra);
+				throw new SecurityException("No permission for " + method.getName()
+					.replace('_', '.') + extra);
 			}
 
 			return true;
@@ -47,7 +48,7 @@ public class SecurityVerifier {
 	}
 
 	static class HasHandler implements InvocationHandler {
-		Authority	authority;
+		Authority authority;
 
 		public HasHandler(Authority authority) {
 			this.authority = authority;
@@ -90,11 +91,9 @@ public class SecurityVerifier {
 	/**
 	 * Create a security checker. This one will throw a Security Exception when
 	 * the permission was not granted.
-	 * 
-	 * @param type
-	 *            the interface with the method names as the permission names.
-	 * @param authority
-	 *            The Authority service
+	 *
+	 * @param type the interface with the method names as the permission names.
+	 * @param authority The Authority service
 	 * @return A security exception throwing security checker based on the given
 	 *         interface
 	 */
@@ -108,11 +107,9 @@ public class SecurityVerifier {
 	/**
 	 * Create a security verifier. This one will throw a Security Exception when
 	 * the permission was not granted.
-	 * 
-	 * @param type
-	 *            the interface with the method names as the permission names.
-	 * @param authority
-	 *            The Authority service
+	 *
+	 * @param type the interface with the method names as the permission names.
+	 * @param authority The Authority service
 	 * @return A security verifier that returns booleans instead of throwing an
 	 *         exception
 	 */

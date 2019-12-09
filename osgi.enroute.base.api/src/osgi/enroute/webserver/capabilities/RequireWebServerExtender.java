@@ -25,6 +25,6 @@ import osgi.enroute.namespace.WebResourceNamespace;
  * zipping, caching, etc.
  */
 @Requirement(namespace = ExtenderNamespace.EXTENDER_NAMESPACE, filter = "(&(" + ExtenderNamespace.EXTENDER_NAMESPACE
-		+ "=osgi.enroute.webserver)(version>=" + WebServerConstants.WEB_SERVER_EXTENDER_VERSION + "))")
+	+ "=osgi.enroute.webserver)(version>=" + WebServerConstants.WEB_SERVER_EXTENDER_VERSION + "))")
 @Retention(RetentionPolicy.CLASS)
 public @interface RequireWebServerExtender {}

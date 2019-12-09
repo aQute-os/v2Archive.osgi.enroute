@@ -1,7 +1,7 @@
 package osgi.enroute.webserver.capabilities;
 
 /**
- * 
+ *
  */
 public interface WebServerConstants {
 	/**

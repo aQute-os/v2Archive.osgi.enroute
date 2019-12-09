@@ -50,20 +50,19 @@ import osgi.enroute.scheduler.api.Scheduler;
 @Capability(namespace = ImplementationNamespace.IMPLEMENTATION_NAMESPACE, name = IotAdminConstants.IOT_ADMIN_SPECIFICATION_NAME, version = IotAdminConstants.IOT_ADMIN_SPECIFICATION_VERSION)
 @Component(immediate = true, name = "osgi.enroute.iot.circuit")
 public class CircuitAdminImpl implements CircuitAdmin, CircuitBoard {
-	private static final String			WIREFACTORYPID	= "osgi.enroute.iot.circuit.wires";
-	final Map<IC, ICTracker>			ics				= new IdentityHashMap<>();
-	final MultiMap<String, ICTracker>	index			= new MultiMap<>();
-	final Map<String, WireImpl>			wires			= new ConcurrentHashMap<>();
-	final AtomicInteger					id				= new AtomicInteger(
-			1000);
-	final Object						lock			= new Object();;
+	private static final String							WIREFACTORYPID	= "osgi.enroute.iot.circuit.wires";
+	final Map<IC, ICTracker>							ics				= new IdentityHashMap<>();
+	final MultiMap<String, ICTracker>					index			= new MultiMap<>();
+	final Map<String, WireImpl>							wires			= new ConcurrentHashMap<>();
+	final AtomicInteger									id				= new AtomicInteger(1000);
+	final Object										lock			= new Object();;
 
 	DTOs												dtos;
 	ServiceTracker<IC, ICTracker>						tracker;
 	EventAdmin											ea;
 	private ConfigurationAdmin							cm;
 	private ServiceRegistration<ManagedServiceFactory>	msf;
-	private Set<String>									names	= new HashSet<>();
+	private Set<String>									names			= new HashSet<>();
 	private Scheduler									sc;
 
 	/*
@@ -71,50 +70,46 @@ public class CircuitAdminImpl implements CircuitAdmin, CircuitBoard {
 	 */
 
 	@Activate
-	void activate(Map<String, Object> map, BundleContext context)
-			throws Exception {
+	void activate(Map<String, Object> map, BundleContext context) throws Exception {
 		Hashtable<String, Object> props = new Hashtable<String, Object>();
 		props.put(Constants.SERVICE_PID, WIREFACTORYPID);
-		msf = context.registerService(ManagedServiceFactory.class,
-				new ManagedServiceFactory() {
+		msf = context.registerService(ManagedServiceFactory.class, new ManagedServiceFactory() {
 
-					@Override
-					public void updated(String pid,
-							Dictionary<String, ?> properties)
-									throws ConfigurationException {
-						try {
-							Map<String, Object> map = new HashMap<>();
-							Enumeration<String> keys = properties.keys();
-							while (keys.hasMoreElements()) {
-								String key = keys.nextElement();
-								Object value = properties.get(key);
-								map.put(key, value);
-							}
-
-							WireImpl wire = dtos.convert(map)
-									.to(WireImpl.class);
-							wire.circuit = CircuitAdminImpl.this;
-							addWire(wire, pid);
-						} catch (Exception e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
+			@Override
+			public void updated(String pid, Dictionary<String, ?> properties) throws ConfigurationException {
+				try {
+					Map<String, Object> map = new HashMap<>();
+					Enumeration<String> keys = properties.keys();
+					while (keys.hasMoreElements()) {
+						String key = keys.nextElement();
+						Object value = properties.get(key);
+						map.put(key, value);
 					}
 
-					@Override
-					public String getName() {
-						return WIREFACTORYPID;
-					}
+					WireImpl wire = dtos.convert(map)
+						.to(WireImpl.class);
+					wire.circuit = CircuitAdminImpl.this;
+					addWire(wire, pid);
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
 
-					@Override
-					public void deleted(String pid) {
-						WireImpl wire = wires.get(pid);
-						if (wire == null)
-							return;
+			@Override
+			public String getName() {
+				return WIREFACTORYPID;
+			}
 
-						removeWire(wire, pid);
-					}
-				}, props);
+			@Override
+			public void deleted(String pid) {
+				WireImpl wire = wires.get(pid);
+				if (wire == null)
+					return;
+
+				removeWire(wire, pid);
+			}
+		}, props);
 
 		//
 		// To break any circularity
@@ -123,7 +118,7 @@ public class CircuitAdminImpl implements CircuitAdmin, CircuitBoard {
 		sc.after(() -> {
 			tracker = getTracker(context);
 			tracker.open();
-		} , 200);
+		}, 200);
 	}
 
 	@Deactivate
@@ -133,13 +128,10 @@ public class CircuitAdminImpl implements CircuitAdmin, CircuitBoard {
 	}
 
 	/**
-	 * Create a new wire.
-	 *
-	 * TODO check if wire already exists
+	 * Create a new wire. TODO check if wire already exists
 	 */
 	@Override
-	public WireDTO connect(String fromDevice, String fromPin, String toDevice,
-			String toPin) throws Exception {
+	public WireDTO connect(String fromDevice, String fromPin, String toDevice, String toPin) throws Exception {
 
 		WireDTO wire = new WireDTO();
 		wire.wireId = id.incrementAndGet();
@@ -151,8 +143,7 @@ public class CircuitAdminImpl implements CircuitAdmin, CircuitBoard {
 
 		Hashtable<String, Object> ht = new Hashtable<>(dtos.asMap(wire));
 
-		Configuration config = cm.createFactoryConfiguration(WIREFACTORYPID,
-				"?");
+		Configuration config = cm.createFactoryConfiguration(WIREFACTORYPID, "?");
 		config.update(ht);
 		return wire;
 	}
@@ -180,8 +171,10 @@ public class CircuitAdminImpl implements CircuitAdmin, CircuitBoard {
 
 	@Override
 	public ICDTO[] getICs() {
-		return ics.values().stream().map((ICTracker t) -> t.icdto)
-				.toArray((n) -> new ICDTO[n]);
+		return ics.values()
+			.stream()
+			.map((ICTracker t) -> t.icdto)
+			.toArray((n) -> new ICDTO[n]);
 	}
 
 	/*
@@ -195,8 +188,7 @@ public class CircuitAdminImpl implements CircuitAdmin, CircuitBoard {
 
 			for (WireImpl wire : wires.values()) {
 				if (!wire.wired) {
-					if (wire.fromDevice.equals(tracker.icdto.deviceId)
-							|| wire.toDevice.equals(tracker.icdto.deviceId))
+					if (wire.fromDevice.equals(tracker.icdto.deviceId) || wire.toDevice.equals(tracker.icdto.deviceId))
 						wire.connect();
 				}
 			}
@@ -227,8 +219,7 @@ public class CircuitAdminImpl implements CircuitAdmin, CircuitBoard {
 					if (wire.input == null || wire.output == null) {
 						System.err.println("Oops??");
 					}
-					if (wire.input.getTracker() == tracker
-							|| wire.output.getTracker() == tracker)
+					if (wire.input.getTracker() == tracker || wire.output.getTracker() == tracker)
 						wire.disconnect();
 					event = true;
 				}
@@ -281,8 +272,7 @@ public class CircuitAdminImpl implements CircuitAdmin, CircuitBoard {
 
 					String name = getName(reference, ic);
 
-					ICTracker tracker = new ICTracker(name, ic,
-							CircuitAdminImpl.this);
+					ICTracker tracker = new ICTracker(name, ic, CircuitAdminImpl.this);
 					addTracker(tracker);
 					return tracker;
 				} catch (Exception e) {
@@ -305,12 +295,10 @@ public class CircuitAdminImpl implements CircuitAdmin, CircuitBoard {
 					name = ic.getName();
 					if (name == null) {
 
-						name = (String) reference
-								.getProperty(Constants.SERVICE_PID);
+						name = (String) reference.getProperty(Constants.SERVICE_PID);
 						if (name == null) {
 
-							name = reference.getProperty(Constants.SERVICE_ID)
-									+ "";
+							name = reference.getProperty(Constants.SERVICE_ID) + "";
 						}
 					}
 				}
@@ -328,8 +316,7 @@ public class CircuitAdminImpl implements CircuitAdmin, CircuitBoard {
 			}
 
 			@Override
-			public void removedService(ServiceReference<IC> reference,
-					ICTracker service) {
+			public void removedService(ServiceReference<IC> reference, ICTracker service) {
 				try {
 					synchronized (names) {
 						names.remove(service.getName());

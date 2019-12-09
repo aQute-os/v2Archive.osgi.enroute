@@ -17,29 +17,35 @@ import osgi.enroute.oauth2.api.AuthorizationServer;
 import osgi.enroute.oauth2.api.AuthorizationServer.AccessToken;
 import osgi.enroute.twitter.provider.dto.SearchResult;
 
-@GogoCommand(function = "search", scope="twitter")
+@GogoCommand(function = "search", scope = "twitter")
 @Component(service = Twitter.class)
 public class Twitter {
 
 	@Reference(target = "(domain=twitter)")
-	AuthorizationServer								oath2;
+	AuthorizationServer	oath2;
 
 	@Reference
-	DTOs											dtos;
+	DTOs				dtos;
 
 	public List<String> search(//
-			@Parameter(names = { "-c", "--count" }, absentValue = "10") int count, //
-			@Parameter(names = { "-l", "--language" }, absentValue = "en") String language, //
-			String arg)
-			throws Exception {
-		AccessToken at = oath2.getAccessToken().getValue();
+		@Parameter(names = {
+			"-c", "--count"
+		}, absentValue = "10") int count, //
+		@Parameter(names = {
+			"-l", "--language"
+		}, absentValue = "en") String language, //
+		String arg) throws Exception {
+		AccessToken at = oath2.getAccessToken()
+			.getValue();
 		URI uri = new URI("https://api.twitter.com/1.1/search/tweets.json?q=" + URLEncoder.encode(arg, "UTF-8")
-				+ "&count=" + count + "&lang="+ language);
+			+ "&count=" + count + "&lang=" + language);
 		HttpURLConnection authorized = at.authorize(uri);
 		String result = IO.collect(authorized.getInputStream());
 		SearchResult statuses = dtos.decoder(SearchResult.class) //
-				.get(result);
+			.get(result);
 
-		return statuses.statuses.stream().map( s -> s.text).collect( Collectors.toList());
+		return statuses.statuses.stream()
+			.map(s -> s.text)
+			.collect(Collectors.toList());
 	}
 }

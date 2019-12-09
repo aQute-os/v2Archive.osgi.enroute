@@ -11,7 +11,7 @@ Private-Package:  \
 
 -includeresource: \
 	{readme.md}, \
-	{configuration=configuration}, \
+	{OSGI-INF=OSGI-INF}, \
 	{static=static}, \
 	web=web, \
 	LICENSE.txt=${build}/licenses/ASL-2.0.txt

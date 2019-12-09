@@ -12,60 +12,66 @@ import org.osgi.util.promise.Success;
 
 import osgi.enroute.scheduler.api.CancellablePromise;
 
-
 abstract class CancellablePromiseImpl<T> implements CancellablePromise<T>, Closeable {
 
 	private Promise<T> promise;
 
+	@Override
 	public boolean isDone() {
 		return promise.isDone();
 	}
 
-	public T getValue() throws InvocationTargetException,
-			InterruptedException {
+	@Override
+	public T getValue() throws InvocationTargetException, InterruptedException {
 		return promise.getValue();
 	}
 
+	@Override
 	public Throwable getFailure() throws InterruptedException {
 		return promise.getFailure();
 	}
 
+	@Override
 	public Promise<T> onResolve(Runnable callback) {
 		return promise.onResolve(callback);
 	}
 
-	public <R> Promise<R> then(Success<? super T, ? extends R> success,
-			Failure failure) {
+	@Override
+	public <R> Promise<R> then(Success<? super T, ? extends R> success, Failure failure) {
 		return promise.then(success, failure);
 	}
 
+	@Override
 	public <R> Promise<R> then(Success<? super T, ? extends R> success) {
 		return promise.then(success);
 	}
 
+	@Override
 	public Promise<T> filter(Predicate<? super T> predicate) {
 		return promise.filter(predicate);
 	}
 
+	@Override
 	public <R> Promise<R> map(Function<? super T, ? extends R> mapper) {
 		return promise.map(mapper);
 	}
 
-	public <R> Promise<R> flatMap(
-			Function<? super T, Promise<? extends R>> mapper) {
+	@Override
+	public <R> Promise<R> flatMap(Function<? super T, Promise<? extends R>> mapper) {
 		return promise.flatMap(mapper);
 	}
 
-	public Promise<T> recover(
-			Function<Promise<?>, ? extends T> recovery) {
+	@Override
+	public Promise<T> recover(Function<Promise<?>, ? extends T> recovery) {
 		return promise.recover(recovery);
 	}
 
-	public Promise<T> recoverWith(
-			Function<Promise<?>, Promise<? extends T>> recovery) {
+	@Override
+	public Promise<T> recoverWith(Function<Promise<?>, Promise<? extends T>> recovery) {
 		return promise.recoverWith(recovery);
 	}
 
+	@Override
 	public Promise<T> fallbackTo(Promise<? extends T> fallback) {
 		return promise.fallbackTo(fallback);
 	}
@@ -74,6 +80,7 @@ abstract class CancellablePromiseImpl<T> implements CancellablePromise<T>, Close
 		this.promise = promise;
 	}
 
+	@Override
 	public void close() {
 		cancel();
 	}

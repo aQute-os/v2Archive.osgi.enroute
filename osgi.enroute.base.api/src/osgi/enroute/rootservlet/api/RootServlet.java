@@ -23,15 +23,13 @@ public interface RootServlet {
 	 * <p>
 	 * If this method throws an exception it will be logged and removed from the
 	 * list. The request is assumed to have returned false in that case.
-	 * 
-	 * @param rq
-	 *            The servlet request
-	 * @param rsp
-	 *            The servlet response
+	 *
+	 * @param rq The servlet request
+	 * @param rsp The servlet response
 	 * @return @{code true} if the request was handled, {@code false} otherwise.
-	 * @throws Exception
-	 *             If thrown, the request is called and the servlet is removed
-	 *             from the list of to be called services until re-registered.
+	 * @throws Exception If thrown, the request is called and the servlet is
+	 *             removed from the list of to be called services until
+	 *             re-registered.
 	 */
 	boolean doConditionalService(HttpServletRequest rq, HttpServletResponse rsp) throws Exception;
 }

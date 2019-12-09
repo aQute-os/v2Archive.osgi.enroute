@@ -10,22 +10,24 @@ import osgi.enroute.namespace.WebResourceNamespace;
 /**
  * A Web Resource that provides Jsonrpc javascript files.
  */
-@Requirement(namespace = WebResourceNamespace.NS, filter = "(&(" + WebResourceNamespace.NS
-		+ "="+JsplumbConstants.JSPLUMB_WEB_RESOURCE_NAME+")${frange;"+JsplumbConstants.JSPLUMB_WEB_RESOURCE_VERSION+"})")
+@Requirement(namespace = WebResourceNamespace.NS, filter = "(&(" + WebResourceNamespace.NS + "="
+	+ JsplumbConstants.JSPLUMB_WEB_RESOURCE_NAME + ")${frange;" + JsplumbConstants.JSPLUMB_WEB_RESOURCE_VERSION + "})")
 @Retention(RetentionPolicy.CLASS)
 public @interface RequireJsplumbWebResource {
 
 	/**
 	 * Define the default resource to return
-	 * 
+	 *
 	 * @return the list of resources to include
 	 */
-	String[] resource() default {"dom.jsPlumb.js"};
+	String[] resource() default {
+		"dom.jsPlumb.js"
+	};
 
 	/**
 	 * Define the priority of this web resources. The higher the priority, the
 	 * earlier it is loaded when all web resources are combined.
-	 * 
+	 *
 	 * @return the priority
 	 */
 	int priority() default 100;

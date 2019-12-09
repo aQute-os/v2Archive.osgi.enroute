@@ -15,16 +15,13 @@ import org.osgi.annotation.versioning.ConsumerType;
  * compared case insensitive with any public methods that accept a
  * {@link RESTRequest} in their first argument.
  * <p>
- * The following segments, if any, are mapped to the arguments of the method. 
- * 
- *  
- *  
- *  The name of the method defines
- * the path. The method name is broken by on the first upper case letter. The
- * first part is the HTTP verb: {@code get, put, delete, option, post}. The
- * remaining parts are the URI relative from the REST base URI. I.e.
- * {@code getFoo} maps to {@code http://host.com/rest/foo/bar}, assuming that
- * the REST endpoint is {@code http://host.com/rest}.
+ * The following segments, if any, are mapped to the arguments of the method.
+ * The name of the method defines the path. The method name is broken by on the
+ * first upper case letter. The first part is the HTTP verb:
+ * {@code get, put, delete, option, post}. The remaining parts are the URI
+ * relative from the REST base URI. I.e. {@code getFoo} maps to
+ * {@code http://host.com/rest/foo/bar}, assuming that the REST endpoint is
+ * {@code http://host.com/rest}.
  * <p>
  * The first argument extends {@link RESTRequest} and thereby provides access to
  * the request information.

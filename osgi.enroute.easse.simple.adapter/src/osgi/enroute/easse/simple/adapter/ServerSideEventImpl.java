@@ -26,12 +26,12 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
-import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
 import org.osgi.service.http.whiteboard.HttpWhiteboardConstants;
-import org.osgi.service.log.LogService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import aQute.lib.json.JSONCodec;
 import osgi.enroute.http.capabilities.RequireHttpImplementation;
@@ -50,21 +50,18 @@ import osgi.enroute.http.capabilities.RequireHttpImplementation;
  * For IE-9, this article was very helpfull: <a href=
  * "http://blogs.msdn.com/b/ieinternals/archive/2010/04/06/comet-streaming-in-internet-explorer-with-xmlhttprequest-and-xdomainrequest.aspx"
  * >Comet Streaming in Explorer with XMLHttpRequest and XDomainRequest</a>
- * 
  */
 @RequireHttpImplementation
 @Component(name = "osgi.eventadmin.sse", property = HttpWhiteboardConstants.HTTP_WHITEBOARD_SERVLET_PATTERN
-		+ "=/sse/1/*", service = Servlet.class, configurationPolicy = ConfigurationPolicy.OPTIONAL)
+	+ "=/sse/1/*", service = Servlet.class, configurationPolicy = ConfigurationPolicy.OPTIONAL)
 public class ServerSideEventImpl extends HttpServlet {
+	final static Logger			log					= LoggerFactory.getLogger(ServerSideEventImpl.class);
 	private static final long	serialVersionUID	= 1L;
 	private static JSONCodec	codec				= new JSONCodec();
 	private static byte[]		prelude;
 	private static Random		random				= new SecureRandom();
 	final Map<String, Thread>	threads				= new ConcurrentHashMap<String, Thread>();
 	BundleContext				context;
-
-	@Reference
-	LogService					log;
 
 	@Activate
 	void activate(BundleContext context) {
@@ -79,8 +76,7 @@ public class ServerSideEventImpl extends HttpServlet {
 	}
 
 	@Override
-	public void doGet(HttpServletRequest rq, HttpServletResponse rsp)
-			throws IOException {
+	public void doGet(HttpServletRequest rq, HttpServletResponse rsp) throws IOException {
 		//
 		// First some house cleaning. The caller can abort
 		// a previous connection. The request then passes abort=instanceId.
@@ -106,8 +102,7 @@ public class ServerSideEventImpl extends HttpServlet {
 
 		String path = rq.getPathInfo();
 		if (path == null || path.isEmpty()) {
-			rsp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Incorrect path "
-					+ path);
+			rsp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Incorrect path " + path);
 			return;
 		}
 
@@ -134,12 +129,9 @@ public class ServerSideEventImpl extends HttpServlet {
 			threads.put(instanceId, thread);
 
 			final PrintStream pout = new PrintStream(out);
-			final BlockingQueue<Event> eventQueue = new LinkedBlockingQueue<Event>(
-					20);
-			final AtomicReference<Closeable> ref = new AtomicReference<Closeable>(
-					out);
-			ServiceRegistration<?> registration = register(topic, eventQueue,
-					instanceId, ref, thread);
+			final BlockingQueue<Event> eventQueue = new LinkedBlockingQueue<Event>(20);
+			final AtomicReference<Closeable> ref = new AtomicReference<Closeable>(out);
+			ServiceRegistration<?> registration = register(topic, eventQueue, instanceId, ref, thread);
 
 			try {
 
@@ -169,10 +161,11 @@ public class ServerSideEventImpl extends HttpServlet {
 						for (String name : event.getPropertyNames()) {
 							props.put(name, event.getProperty(name));
 						}
-						pout.printf("type: org.osgi.service.eventadmin;topic=%s\n",
-								topic);
+						pout.printf("type: org.osgi.service.eventadmin;topic=%s\n", topic);
 
-						String json = codec.enc().put(props).toString();
+						String json = codec.enc()
+							.put(props)
+							.toString();
 						pout.printf("data: %s\n\n", json);
 					}
 					pout.flush();
@@ -181,7 +174,7 @@ public class ServerSideEventImpl extends HttpServlet {
 			} catch (InterruptedException ie) {
 				rsp.setStatus(HttpServletResponse.SC_OK);
 			} catch (Exception e) {
-				log.log(LogService.LOG_INFO, "Quiting " + topic, e);
+				log.info("Quiting {}", topic, e);
 				// time to close ...
 			} finally {
 				threads.remove(instanceId);
@@ -209,64 +202,60 @@ public class ServerSideEventImpl extends HttpServlet {
 	 * @param out
 	 * @return
 	 */
-	private ServiceRegistration<?> register(final String topic,
-			final BlockingQueue<Event> eventQueue, String instanceId,
-			final AtomicReference<Closeable> out, final Thread thread) {
+	private ServiceRegistration<?> register(final String topic, final BlockingQueue<Event> eventQueue,
+		String instanceId, final AtomicReference<Closeable> out, final Thread thread) {
 		Hashtable<String, String> p = new Hashtable<String, String>();
 		p.put(EventConstants.EVENT_TOPIC, topic);
 		p.put("instance.id", instanceId);
-		ServiceRegistration<?> registration = context.registerService(
-				EventHandler.class.getName(), new EventHandler() {
+		ServiceRegistration<?> registration = context.registerService(EventHandler.class.getName(), new EventHandler() {
 
-					@Override
-					public synchronized void handleEvent(Event event) {
+			@Override
+			public synchronized void handleEvent(Event event) {
 
-						if (eventQueue.offer(event))
-							return;
+				if (eventQueue.offer(event))
+					return;
+
+				//
+				// Our queue is filling up, this is likely caused by
+				// a dead SSE thread (browser closed without warning
+				// us. So we kill it
+				//
+
+				try (Closeable o = out.getAndSet(null)) {
+					if (o == null)
+						//
+						// Already killed
+						//
+						return;
+
+					log.warn("Killing orphaned GUI thread beause queue is full");
+
+					//
+					// First interrupt it so we kill it nicely
+					//
+
+					try {
+						thread.interrupt();
 
 						//
-						// Our queue is filling up, this is likely caused by
-						// a dead SSE thread (browser closed without warning
-						// us. So we kill it
+						// Then the hammer to kill for real
 						//
 
-						try (Closeable o = out.getAndSet(null)) {
-							if (o == null)
-								//
-								// Already killed
-								//
-								return;
+						o.close();
 
-							log.log(LogService.LOG_WARNING,
-									"Killing orphaned GUI thread beause queue is full");
+					} catch (IOException e) {}
 
-							//
-							// First interrupt it so we kill it nicely
-							//
-
-							try {
-								thread.interrupt();
-
-								//
-								// Then the hammer to kill for real
-								//
-
-								o.close();
-
-							} catch (IOException e) {
-							}
-
-						} catch (IOException e1) {
-							throw new RuntimeException(e1);
-						}
-					}
-				}, p);
+				} catch (IOException e1) {
+					throw new RuntimeException(e1);
+				}
+			}
+		}, p);
 		return registration;
 	}
 
 	/**
 	 * Kill a running instance
-	 * 
+	 *
 	 * @param instanceId
 	 */
 	private void kill(String instanceId) {
@@ -289,11 +278,6 @@ public class ServerSideEventImpl extends HttpServlet {
 			prelude[prelude.length - 1] = '\n';
 		}
 		return prelude;
-	}
-
-	@Reference
-	void setLog(LogService log) {
-		this.log = log;
 	}
 
 }

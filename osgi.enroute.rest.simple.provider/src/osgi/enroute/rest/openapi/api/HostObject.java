@@ -4,7 +4,6 @@ import org.osgi.dto.DTO;
 
 /**
  * An object representing a Host.
- *
  */
 public class HostObject extends DTO {
 
@@ -14,7 +13,7 @@ public class HostObject extends DTO {
 	 * host is not included, the host serving the documentation is to be used
 	 * (including the port). The host does not support path templating.
 	 */
-	public String	host;
+	public String			host;
 
 	/**
 	 * The base path on which the API is served, which is relative to the host.
@@ -22,7 +21,7 @@ public class HostObject extends DTO {
 	 * value MUST start with a leading slash (/). The basePath does not support
 	 * path templating.
 	 */
-	public String	basePath;
+	public String			basePath;
 
 	/**
 	 * The transfer protocol of the API. Values MUST be from the list: "http",

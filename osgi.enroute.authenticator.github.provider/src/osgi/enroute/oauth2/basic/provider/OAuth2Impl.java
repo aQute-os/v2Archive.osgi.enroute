@@ -46,21 +46,21 @@ import osgi.enroute.rest.api.REST;
 import osgi.enroute.rest.api.RESTRequest;
 import osgi.enroute.scheduler.api.Scheduler;
 
-@Designate(ocd=OAuth2BasicConfig.class, factory=true)
+@Designate(ocd = OAuth2BasicConfig.class, factory = true)
 @Component(scope = ServiceScope.BUNDLE, name = "osgi.enroute.oauth2.basic", configurationPolicy = ConfigurationPolicy.REQUIRE)
 public class OAuth2Impl implements AuthorizationServer, Filter, REST {
 	final static String				redirect	= "enrouteredirectendpoint";
 	final ThreadLocal<HttpSession>	local		= new ThreadLocal<>();
 	private Deferred<AccessToken>	self		= null;
 
-	URI					authorizationEndpoint;
-	URI					tokenEndpoint;
-	URI					redirect_endpoint;
-	String				clientId;
-	String				clientSecret;
-	boolean				selfAuthorize;
-	String domain;
-	Map<String, State>	states	= new HashMap<>();
+	URI								authorizationEndpoint;
+	URI								tokenEndpoint;
+	URI								redirect_endpoint;
+	String							clientId;
+	String							clientSecret;
+	boolean							selfAuthorize;
+	String							domain;
+	Map<String, State>				states		= new HashMap<>();
 
 	class State {
 		String					name;
@@ -75,13 +75,13 @@ public class OAuth2Impl implements AuthorizationServer, Filter, REST {
 	}
 
 	@Reference
-	DTOs dtos;
+	DTOs		dtos;
 
 	@Reference
-	Scheduler scheduler;
+	Scheduler	scheduler;
 
 	public static class XAccessToken extends DTO implements Serializable {
-		private static final long serialVersionUID = 1L;
+		private static final long	serialVersionUID	= 1L;
 
 		public String				access_token;
 		public String				token_type;
@@ -99,10 +99,10 @@ public class OAuth2Impl implements AuthorizationServer, Filter, REST {
 		clientSecret = config.client_secret();
 		selfAuthorize = config.self_authorize();
 		domain = config.domain();
-		
-		if ( clientSecret == null)
+
+		if (clientSecret == null)
 			throw new IllegalArgumentException("Client secret not set");
-		if ( clientId == null)
+		if (clientId == null)
 			throw new IllegalArgumentException("Client secret not set");
 	}
 
@@ -114,7 +114,7 @@ public class OAuth2Impl implements AuthorizationServer, Filter, REST {
 
 	@Override
 	public void doFilter(ServletRequest request, ServletResponse arg1, FilterChain chain)
-			throws IOException, ServletException {
+		throws IOException, ServletException {
 		try {
 			HttpServletRequest req = (HttpServletRequest) request;
 			local.set(req.getSession());
@@ -157,7 +157,7 @@ public class OAuth2Impl implements AuthorizationServer, Filter, REST {
 
 	@Override
 	public Promise<osgi.enroute.oauth2.api.AuthorizationServer.AccessToken> getAccessToken(String name)
-			throws Exception {
+		throws Exception {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -169,7 +169,7 @@ public class OAuth2Impl implements AuthorizationServer, Filter, REST {
 		for (int i = 0; i < encoded.length; i++) {
 			char c = (char) encoded[i];
 			if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '-' || c == '.'
-					|| c == '_' || c == '~')
+				|| c == '_' || c == '~')
 				sb.append(c);
 			else {
 				sb.append("%");
@@ -201,7 +201,8 @@ public class OAuth2Impl implements AuthorizationServer, Filter, REST {
 		HttpSession session = local.get();
 		State state = (State) session.getAttribute(getStateName(rq.state()));
 		if (state == null) {
-			rq._response().sendError(404);
+			rq._response()
+				.sendError(404);
 			return;
 		}
 
@@ -213,29 +214,34 @@ public class OAuth2Impl implements AuthorizationServer, Filter, REST {
 		con.setRequestProperty("Accept", "application/json");
 		con.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
 		con.setDoOutput(true);
-		con.getOutputStream().write(u.getBytes(StandardCharsets.UTF_8));
+		con.getOutputStream()
+			.write(u.getBytes(StandardCharsets.UTF_8));
 		if (con.getResponseCode() / 100 == 2) {
 			String s = IO.collect(con.getInputStream());
 			System.out.println(con.getContent());
-			AccessToken accessToken = dtos.decoder(AccessToken.class).get(s);
+			AccessToken accessToken = dtos.decoder(AccessToken.class)
+				.get(s);
 			System.out.println("AT is " + accessToken);
 
 			state.deferred.resolve(accessToken);
 			if (state.redirect != null) {
-				rq._response().addHeader("Location", state.redirect.toString());
+				rq._response()
+					.addHeader("Location", state.redirect.toString());
 				return;
 			}
 		} else {
-			state.deferred.fail(new SecurityException("Invalid request OAuth2 token request " + con.getResponseCode()
-					+ " : " + rq._request().getRequestURI()));
+			state.deferred.fail(new SecurityException(
+				"Invalid request OAuth2 token request " + con.getResponseCode() + " : " + rq._request()
+					.getRequestURI()));
 		}
 	}
 
 	private HttpsURLConnection authorize(URI uri, String type, String userId, String password) throws IOException {
-		HttpsURLConnection con = (HttpsURLConnection) uri.toURL().openConnection();
+		HttpsURLConnection con = (HttpsURLConnection) uri.toURL()
+			.openConnection();
 		String authorization = encode(clientId) + ":" + encode(clientSecret);
 		con.setRequestProperty("Authorization",
-				"Basic " + Base64.encodeBase64(authorization.getBytes(StandardCharsets.UTF_8)));
+			"Basic " + Base64.encodeBase64(authorization.getBytes(StandardCharsets.UTF_8)));
 		return con;
 	}
 
@@ -246,8 +252,9 @@ public class OAuth2Impl implements AuthorizationServer, Filter, REST {
 	@Override
 	public Promise<AccessToken> getAccessToken(String... scope) throws Exception {
 		if (!selfAuthorize)
-			throw new IllegalArgumentException("Does not support self authorization via 'Client Credentials Grant' for domain "+ domain);
-		
+			throw new IllegalArgumentException(
+				"Does not support self authorization via 'Client Credentials Grant' for domain " + domain);
+
 		synchronized (this) {
 			if (self != null)
 				return self.getPromise();
@@ -267,12 +274,15 @@ public class OAuth2Impl implements AuthorizationServer, Filter, REST {
 		urlc.setRequestMethod("POST");
 		urlc.setDoOutput(true);
 		urlc.setDoInput(true);
-		urlc.getOutputStream().write(sb.toString().getBytes(StandardCharsets.UTF_8));
-		
-		return doInBackground(urlc,scope);
+		urlc.getOutputStream()
+			.write(sb.toString()
+				.getBytes(StandardCharsets.UTF_8));
+
+		return doInBackground(urlc, scope);
 	}
 
-	private Promise<AccessToken> doInBackground(HttpURLConnection urlc, String... scope) throws IOException, ProtocolException {
+	private Promise<AccessToken> doInBackground(HttpURLConnection urlc, String... scope)
+		throws IOException, ProtocolException {
 
 		try {
 			if (urlc.getResponseCode() / 100 != 2) {
@@ -282,7 +292,8 @@ public class OAuth2Impl implements AuthorizationServer, Filter, REST {
 				if (!response.startsWith("{\"token")) {
 					self.fail(new SecurityException(response));
 				} else {
-					XAccessToken token = dtos.decoder(XAccessToken.class).get(response);
+					XAccessToken token = dtos.decoder(XAccessToken.class)
+						.get(response);
 					self.resolve(new AccessToken() {
 
 						@Override
@@ -293,25 +304,28 @@ public class OAuth2Impl implements AuthorizationServer, Filter, REST {
 						@Override
 						public HttpURLConnection authorize(URI resource, Proxy proxy) throws Exception {
 							URL url = resource.toURL();
-							
-							HttpURLConnection con = (HttpURLConnection) (proxy == null ? url.openConnection() : url.openConnection(proxy));
-							switch( token.token_type.toLowerCase()) {
-							case "bearer":
-								con.setRequestProperty("Authorization", "Bearer " + token.access_token);
-								return con;
 
-								default:
+							HttpURLConnection con = (HttpURLConnection) (proxy == null ? url.openConnection()
+								: url.openConnection(proxy));
+							switch (token.token_type.toLowerCase()) {
+								case "bearer" :
+									con.setRequestProperty("Authorization", "Bearer " + token.access_token);
+									return con;
+
+								default :
 									throw new UnsupportedOperationException("The token type is not supported");
 							}
 						}
 
 						@Override
 						public Set<String> getScopes() {
-							if ( token.scope != null) {
-								return Stream.of(token.scope.split(" +")).collect( Collectors.toSet());
+							if (token.scope != null) {
+								return Stream.of(token.scope.split(" +"))
+									.collect(Collectors.toSet());
 							} else
 								return Collections.emptySet();
-						}});
+						}
+					});
 				}
 			}
 		} catch (Throwable e) {

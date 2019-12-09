@@ -8,10 +8,10 @@ import org.osgi.framework.wiring.BundleRevisions;
  * Analyzes the framework for any anomalies
  */
 public class WiringState {
-	
+
 	final BundleContext	context;
-	boolean ok;
-	
+	boolean				ok;
+
 	public WiringState(BundleContext context) {
 		this.context = context;
 	}
@@ -22,9 +22,10 @@ public class WiringState {
 	}
 
 	void verify() {
-		for ( Bundle b : context.getBundles()) {
+		for (Bundle b : context.getBundles()) {
 			BundleRevisions revisions = b.adapt(BundleRevisions.class);
-			if ( revisions.getRevisions().size() != 1 ) {
+			if (revisions.getRevisions()
+				.size() != 1) {
 				System.out.println("Needs refresh " + b);
 			}
 		}

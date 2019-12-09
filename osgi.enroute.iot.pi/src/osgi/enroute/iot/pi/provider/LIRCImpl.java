@@ -32,11 +32,10 @@ import osgi.enroute.iot.gpio.util.Wave;
  * http://www.nishioka.com/train/ we learned that the LIRC is basically a
  * sequence of int's where each int specifies the width of a pulse. The first
  * one is on, the second one off, third on. The total number must be odd, the
- * LIRC driver switches off at the end automatically.
- *
- * According to our sources, the option softcarrier=1 must be chosen but not
- * found anywhere this is defined. On a Raspberry, make sure you configure the
- * Pi. On modern OS's this requires that you use the device tree.
+ * LIRC driver switches off at the end automatically. According to our sources,
+ * the option softcarrier=1 must be chosen but not found anywhere this is
+ * defined. On a Raspberry, make sure you configure the Pi. On modern OS's this
+ * requires that you use the device tree.
  *
  * <pre>
  * 	/boot/config.txt:
@@ -45,14 +44,13 @@ import osgi.enroute.iot.gpio.util.Wave;
  *
  * By default the IR out signal is on GPIO17 (GPIO00 for Pi4J numbering).
  * However, with the dtoverlay you can override it.
- *
  */
 
-@Designate(ocd=LircConfig.class, factory=true)
+@Designate(ocd = LircConfig.class, factory = true)
 @Component(name = "osgi.enroute.iot.lirc", service = IC.class)
 public class LIRCImpl extends ICAdapter<Wave, Void> implements Wave {
-	private ByteOrder endianness = ByteOrder.nativeOrder();
-	private File file;
+	private ByteOrder	endianness	= ByteOrder.nativeOrder();
+	private File		file;
 
 	@Activate
 	void activate(Map<String, Object> map) throws Exception {
@@ -60,16 +58,14 @@ public class LIRCImpl extends ICAdapter<Wave, Void> implements Wave {
 		String path = "/dev/lirc" + config.device();
 		this.file = new File(path);
 		if (!file.exists())
-			throw new ConfigurationException(
-					path
-							+ " does not exist. LIRC requires device tree + dtoverlay=lirc-rpi,softcarrier=0 in /boot/config.txt");
+			throw new ConfigurationException(path
+				+ " does not exist. LIRC requires device tree + dtoverlay=lirc-rpi,softcarrier=0 in /boot/config.txt");
 
 		endianness = ByteOrder.LITTLE_ENDIAN;
 	}
 
 	@Deactivate
-	void deactivate() throws IOException {
-	}
+	void deactivate() throws IOException {}
 
 	@Override
 	public void send(int[] times) throws Exception {
@@ -95,6 +91,7 @@ public class LIRCImpl extends ICAdapter<Wave, Void> implements Wave {
 		}
 	}
 
+	@Override
 	@Reference
 	protected void setCircuitBoard(CircuitBoard board) {
 		super.setCircuitBoard(board);

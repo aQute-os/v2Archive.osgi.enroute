@@ -5,12 +5,12 @@ package osgi.enroute.scheduler.api;
  */
 
 public class CancelException extends RuntimeException {
-	private static final long	serialVersionUID	= 1L;
+	private static final long serialVersionUID = 1L;
 
 	private CancelException() {}
 
 	/**
 	 * The singleton Cancel Exception instance
 	 */
-	public static CancelException	SINGLETON	= new CancelException();
+	public static CancelException SINGLETON = new CancelException();
 }

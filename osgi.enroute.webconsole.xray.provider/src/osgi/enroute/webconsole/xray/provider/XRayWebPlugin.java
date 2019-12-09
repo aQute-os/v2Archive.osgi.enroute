@@ -96,6 +96,7 @@ public final class XRayWebPlugin extends AbstractWebConsolePlugin implements Bun
 	 * Called at startup
 	 */
 
+	@Override
 	public void activate(BundleContext context) {
 		super.activate(context);
 		this.context = context;
@@ -106,6 +107,7 @@ public final class XRayWebPlugin extends AbstractWebConsolePlugin implements Bun
 		 */
 		lhook = context.registerService(ListenerHook.class, new ListenerHook() {
 
+			@Override
 			public synchronized void added(Collection<ListenerInfo> listeners) {
 				if (quiting)
 					return;
@@ -114,6 +116,7 @@ public final class XRayWebPlugin extends AbstractWebConsolePlugin implements Bun
 				}
 			}
 
+			@Override
 			public synchronized void removed(Collection<ListenerInfo> listeners) {
 				if (quiting)
 					return;
@@ -153,6 +156,7 @@ public final class XRayWebPlugin extends AbstractWebConsolePlugin implements Bun
 	 * We need to be able to serve the state easily. So we implement the doGet
 	 * and let the superclass handle anything but the state data.
 	 */
+	@Override
 	public void doGet(HttpServletRequest rq, HttpServletResponse rsp) throws ServletException, IOException {
 		String path = rq.getPathInfo();
 		if (path.endsWith("/state.json"))
@@ -166,6 +170,7 @@ public final class XRayWebPlugin extends AbstractWebConsolePlugin implements Bun
 			URL resource = getResource(path);
 			if (resource == null) {
 				rsp.sendError(HttpServletResponse.SC_NOT_FOUND, "The path " + path + " cannot be found");
+				return;
 			}
 
 			String mime = getDefaultMime(path);
@@ -185,7 +190,8 @@ public final class XRayWebPlugin extends AbstractWebConsolePlugin implements Bun
 		if (path != null) {
 			int n = path.lastIndexOf('.');
 			if (n > 0) {
-				String suffix = path.substring(n + 1).toLowerCase();
+				String suffix = path.substring(n + 1)
+					.toLowerCase();
 
 				if (suffix.equals("css"))
 					return "text/css";
@@ -198,7 +204,7 @@ public final class XRayWebPlugin extends AbstractWebConsolePlugin implements Bun
 
 	/**
 	 * Execute a command
-	 * 
+	 *
 	 * @param rq
 	 * @param rsp
 	 */
@@ -222,7 +228,7 @@ public final class XRayWebPlugin extends AbstractWebConsolePlugin implements Bun
 
 	/**
 	 * Create a JSON file.
-	 * 
+	 *
 	 * @param rq
 	 * @param rsp
 	 */
@@ -251,7 +257,12 @@ public final class XRayWebPlugin extends AbstractWebConsolePlugin implements Bun
 				rsp.setContentType("application/json");
 				rsp.setCharacterEncoding("utf-8");
 				try (OutputStream out = rsp.getOutputStream()) {
-					codec.enc().charset("utf-8").to(out).writeDefaults().put(output).flush();
+					codec.enc()
+						.charset("utf-8")
+						.to(out)
+						.writeDefaults()
+						.put(output)
+						.flush();
 				}
 			}
 		} catch (Exception e) {
@@ -281,7 +292,10 @@ public final class XRayWebPlugin extends AbstractWebConsolePlugin implements Bun
 			Result result = build(services);
 			result.root = rq.getContextPath() + rq.getServletPath();
 
-			codec.enc().to(rsp.getWriter()).writeDefaults().put(result);
+			codec.enc()
+				.to(rsp.getWriter())
+				.writeDefaults()
+				.put(result);
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -304,7 +318,9 @@ public final class XRayWebPlugin extends AbstractWebConsolePlugin implements Bun
 	 */
 	@Override
 	public String[] getCssReferences() {
-		return new String[] { "/" + PLUGIN_NAME + "/style.css" };
+		return new String[] {
+			"/" + PLUGIN_NAME + "/style.css"
+		};
 	}
 
 	/**
@@ -321,7 +337,7 @@ public final class XRayWebPlugin extends AbstractWebConsolePlugin implements Bun
 
 	/**
 	 * Build up the graph
-	 * 
+	 *
 	 * @param ignoredServices
 	 * @throws InvalidSyntaxException
 	 */
@@ -555,28 +571,28 @@ public final class XRayWebPlugin extends AbstractWebConsolePlugin implements Bun
 			bd.name = shortBsn(14, bd.bsn);
 
 			switch (bundle.getState()) {
-			case Bundle.INSTALLED:
-				bd.state = STATE.INSTALLED;
-				break;
-			case Bundle.RESOLVED:
-				bd.state = STATE.RESOLVED;
-				break;
-			case Bundle.STARTING:
-				bd.state = STATE.STARTING;
-				break;
-			case Bundle.STOPPING:
-				bd.state = STATE.STOPPING;
-				break;
-			case Bundle.UNINSTALLED:
-				bd.state = STATE.UNINSTALLED;
-				break;
-			case Bundle.ACTIVE:
-				bd.state = STATE.ACTIVE;
-				break;
+				case Bundle.INSTALLED :
+					bd.state = STATE.INSTALLED;
+					break;
+				case Bundle.RESOLVED :
+					bd.state = STATE.RESOLVED;
+					break;
+				case Bundle.STARTING :
+					bd.state = STATE.STARTING;
+					break;
+				case Bundle.STOPPING :
+					bd.state = STATE.STOPPING;
+					break;
+				case Bundle.UNINSTALLED :
+					bd.state = STATE.UNINSTALLED;
+					break;
+				case Bundle.ACTIVE :
+					bd.state = STATE.ACTIVE;
+					break;
 
-			default:
-				bd.state = STATE.UNKNOWN;
-				break;
+				default :
+					bd.state = STATE.UNKNOWN;
+					break;
 			}
 
 			if (bundle.getState() == Bundle.STARTING || bundle.getState() == Bundle.ACTIVE) {
@@ -612,7 +628,8 @@ public final class XRayWebPlugin extends AbstractWebConsolePlugin implements Bun
 		for (int i = 1; i < split.length; i++) {
 			nn -= split[i].length() + 1;
 			if (nn < n) {
-				sb.append(".").append(split[i]);
+				sb.append(".")
+					.append(split[i]);
 			}
 		}
 		return sb.toString();
@@ -687,7 +704,7 @@ public final class XRayWebPlugin extends AbstractWebConsolePlugin implements Bun
 								message = sw.toString();
 							}
 							f.format("%s:%s %s\n", entry.getLevel() == LogService.LOG_WARNING ? "W" : "E",
-									entry.getMessage(), message);
+								entry.getMessage(), message);
 							if (entry.getLevel() == LogService.LOG_WARNING)
 								bd.errors |= true;
 						}
@@ -783,13 +800,15 @@ public final class XRayWebPlugin extends AbstractWebConsolePlugin implements Bun
 
 		try {
 			ServiceTracker<ConfigurationAdmin, ConfigurationAdmin> cmt = new ServiceTracker<ConfigurationAdmin, ConfigurationAdmin>(
-					context, ConfigurationAdmin.class.getName(), null) {
+				context, ConfigurationAdmin.class.getName(), null) {
+				@Override
 				public ConfigurationAdmin addingService(ServiceReference<ConfigurationAdmin> ref) {
 					ConfigurationAdmin cm = context.getService(ref);
 					setCfg(cm);
 					return cm;
 				}
 
+				@Override
 				public void removedService(ServiceReference<ConfigurationAdmin> ref, ConfigurationAdmin s) {
 					unsetCfg(s);
 				}
@@ -801,13 +820,15 @@ public final class XRayWebPlugin extends AbstractWebConsolePlugin implements Bun
 
 		try {
 			ServiceTracker<LogService, LogService> logt = new ServiceTracker<LogService, LogService>(context,
-					LogService.class.getName(), null) {
+				LogService.class.getName(), null) {
+				@Override
 				public LogService addingService(ServiceReference<LogService> ref) {
 					LogService s = context.getService(ref);
 					setLog(s);
 					return s;
 				}
 
+				@Override
 				public void removedService(ServiceReference<LogService> ref, LogService s) {
 					unsetLog(s);
 				}
@@ -819,13 +840,15 @@ public final class XRayWebPlugin extends AbstractWebConsolePlugin implements Bun
 
 		try {
 			ServiceTracker<LogReaderService, LogReaderService> rdrt = new ServiceTracker<LogReaderService, LogReaderService>(
-					context, LogReaderService.class.getName(), null) {
+				context, LogReaderService.class.getName(), null) {
+				@Override
 				public LogReaderService addingService(ServiceReference<LogReaderService> ref) {
 					LogReaderService s = context.getService(ref);
 					setLogReader(s);
 					return s;
 				}
 
+				@Override
 				public void removedService(ServiceReference<LogReaderService> ref, LogReaderService s) {
 					unsetLogReader(s);
 				}
@@ -837,13 +860,15 @@ public final class XRayWebPlugin extends AbstractWebConsolePlugin implements Bun
 
 		try {
 			ServiceTracker<ServiceComponentRuntime, ServiceComponentRuntime> scrt = new ServiceTracker<ServiceComponentRuntime, ServiceComponentRuntime>(
-					context, ServiceComponentRuntime.class.getName(), null) {
+				context, ServiceComponentRuntime.class.getName(), null) {
+				@Override
 				public ServiceComponentRuntime addingService(ServiceReference<ServiceComponentRuntime> ref) {
 					ServiceComponentRuntime s = context.getService(ref);
 					setScr(s);
 					return s;
 				}
 
+				@Override
 				public void removedService(ServiceReference<ServiceComponentRuntime> ref, ServiceComponentRuntime s) {
 					unsetScr(s);
 				}

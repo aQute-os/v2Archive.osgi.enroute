@@ -14,7 +14,7 @@ import osgi.enroute.namespace.WebResourceNamespace;
  * <a href="http://enroute.osgi.org/services/osgi.enroute.jsonrpc.api.html">
  * service catalog JSON RPC entry</a>. The following is a skeleton of the
  * Javascript code:
- * 
+ *
  * <pre>
  * (function() {
 
@@ -31,7 +31,7 @@ import osgi.enroute.namespace.WebResourceNamespace;
 			resolve : resolveBefore
 		});
 		$routeProvider.otherwise('/');
-		
+
 	});
 
 	MODULE.run(function($rootScope, en$jsonrpc) {
@@ -53,24 +53,23 @@ import osgi.enroute.namespace.WebResourceNamespace;
  * </pre>
  */
 @Requirement(namespace = WebResourceNamespace.NS, filter = "(&(" + WebResourceNamespace.NS + "="
-		+ JsonrpcConstants.JSONRPC_WEB_RESOURCE_PATH + ")(version>=" + JsonrpcConstants.JSONRPC_WEB_RESOURCE_VERSION
-		+ "))")
+	+ JsonrpcConstants.JSONRPC_WEB_RESOURCE_PATH + ")(version>=" + JsonrpcConstants.JSONRPC_WEB_RESOURCE_VERSION + "))")
 @Retention(RetentionPolicy.CLASS)
 public @interface RequireJsonrpcWebResource {
 
 	/**
 	 * Define the default resource to return
-	 * 
+	 *
 	 * @return the list of resources to include
 	 */
-	String[]resource() default {
-			"jsonrpc.js"
+	String[] resource() default {
+		"jsonrpc.js"
 	};
 
 	/**
 	 * Define the priority of this web resources. The higher the priority, the
 	 * earlier it is loaded when all web resources are combined.
-	 * 
+	 *
 	 * @return the priority
 	 */
 	int priority() default 100;

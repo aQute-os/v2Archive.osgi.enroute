@@ -10,9 +10,9 @@ import osgi.enroute.rest.api.REST;
 import osgi.enroute.rest.api.RESTRequest;
 
 /*
- * 
- * 
- * 
+ *
+ *
+ *
  */
 
 public class MapperTest extends TestCase {
@@ -232,8 +232,8 @@ public class MapperTest extends TestCase {
 	}
 
 	private void assertMapper(Class<? extends REST> clazz, String method, String parameters, String result)
-			throws Exception {
-		
+		throws Exception {
+
 		method = RestMapper.decode(method);
 		String parms[] = parameters == null ? new String[0] : parameters.split("/");
 		ExtList<String> ps = new ExtList<>(parms);

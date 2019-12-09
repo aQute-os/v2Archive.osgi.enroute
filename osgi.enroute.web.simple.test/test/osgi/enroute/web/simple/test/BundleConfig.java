@@ -1,11 +1,11 @@
 package osgi.enroute.web.simple.test;
 
-import osgi.enroute.configurer.api.RequireConfigurerExtender;
+import org.osgi.service.configurator.annotations.RequireConfigurator;
+
 import osgi.enroute.webserver.capabilities.RequireWebServerExtender;
 
 @RequireWebServerExtender
-@RequireConfigurerExtender
-public interface BundleConfig
-{
+@RequireConfigurator
+public interface BundleConfig {
 
 }

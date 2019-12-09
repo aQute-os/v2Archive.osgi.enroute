@@ -19,11 +19,12 @@ import osgi.enroute.iot.gpio.util.ICAdapter;
 import osgi.enroute.iot.toolkit.Wave.WaveConfig;
 import osgi.enroute.scheduler.api.Scheduler;
 
-@Designate(ocd=WaveConfig.class, factory=true)
-@Component(service = IC.class, name="osgi.enroute.iot.toolkit.wave")
+@Designate(ocd = WaveConfig.class, factory = true)
+@Component(service = IC.class, name = "osgi.enroute.iot.toolkit.wave")
 public class Wave extends ICAdapter<Void, Analog> {
 	enum Shape {
-		unity, sin;
+		unity,
+		sin;
 	}
 
 	@ObjectClassDefinition
@@ -53,21 +54,22 @@ public class Wave extends ICAdapter<Void, Analog> {
 
 	@Activate
 	void activate(Map<String, Object> map) throws Exception {
-		cfg = getDTOs().convert(map).to(WaveConfig.class);
+		cfg = getDTOs().convert(map)
+			.to(WaveConfig.class);
 		this.stepTime = Math.max(cfg.stepTime(), 1);
 		this.steps = Math.max(cfg.steps(), 1);
 		this.gain = cfg.gain();
 		switch (cfg.shape()) {
-		case sin:
-			this.delta = (2 * Math.PI) / this.steps;
-			this.function = this::sin;
-			break;
+			case sin :
+				this.delta = (2 * Math.PI) / this.steps;
+				this.function = this::sin;
+				break;
 
-		case unity:
-		default:
-			this.delta = 1.0D / this.steps;
-			this.function = this::unity;
-			break;
+			case unity :
+			default :
+				this.delta = 1.0D / this.steps;
+				this.function = this::unity;
+				break;
 
 		}
 		this.delta = 1.0D / this.steps;
@@ -104,11 +106,13 @@ public class Wave extends ICAdapter<Void, Analog> {
 		this.scheduler = sch;
 	}
 
+	@Override
 	@Reference
 	protected void setCircuitBoard(CircuitBoard board) {
 		super.setCircuitBoard(board);
 	}
 
+	@Override
 	@Reference
 	protected void setDTOs(DTOs dtos) {
 		super.setDTOs(dtos);

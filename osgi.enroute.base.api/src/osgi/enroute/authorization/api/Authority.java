@@ -21,19 +21,19 @@ import org.osgi.annotation.versioning.ProviderType;
  * Arguments can use any character except control (<0x20, so also no cr/lf). In
  * the unlikely case you need to match an argument with a ';', use the Unicode
  * 'full width semicolon' (\uFF1B) instead.
- * 
+ *
  * <pre>
  * 	example.write.file
  *  example.write.file;/tmp/*
  * </pre>
- * 
+ *
  * Empty or missing places match any argument.
  */
 @ProviderType
 public interface Authority {
 	/**
 	 * Get the current user id.
-	 * 
+	 *
 	 * @return the current user id. This is never <code>null</code>
 	 * @throws Exception
 	 */
@@ -41,7 +41,7 @@ public interface Authority {
 
 	/**
 	 * Get the set of permissions associated with the current user.
-	 * 
+	 *
 	 * @return the set of permissions. If there are no permissions, an empty
 	 *         list is returned. This list is read only.
 	 * @throws Exception
@@ -56,11 +56,9 @@ public interface Authority {
 	 * arguments. I a wildcard expression is empty it matches anything, even a
 	 * missing argument or null, just like a full wildcard. Otherwise the
 	 * expression must match the argument and the argument must be present.
-	 * 
-	 * @param permission
-	 *            The permission to check
-	 * @param arguments
-	 *            The arguments specified in the permission
+	 *
+	 * @param permission The permission to check
+	 * @param arguments The arguments specified in the permission
 	 * @return true if the current user is granted the permission, otherwise
 	 *         false
 	 * @throws Exception
@@ -71,14 +69,12 @@ public interface Authority {
 	 * Call {@link #hasPermission(String, String...)}. If this returns true,
 	 * this method returns silently. Otherwise it will throw a
 	 * SecurityException.
-	 * 
-	 * @param permission
-	 *            The permission to check
-	 * @param arguments
-	 *            The arguments to the check
+	 *
+	 * @param permission The permission to check
+	 * @param arguments The arguments to the check
 	 * @throws Exception
-	 * @throws SecurityException
-	 *             if the permission is not granted to the current caller
+	 * @throws SecurityException if the permission is not granted to the current
+	 *             caller
 	 */
 	void checkPermission(String permission, String... arguments) throws Exception;
 }

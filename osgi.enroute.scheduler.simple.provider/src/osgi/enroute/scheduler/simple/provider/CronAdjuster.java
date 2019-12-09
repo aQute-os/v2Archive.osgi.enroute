@@ -15,7 +15,7 @@ import java.util.regex.Pattern;
 /**
  * This class creates a Temporal Adjuster that takes a temporal and adjust it to
  * the next deadline based on a cron specification.
- * 
+ *
  * @See http://www.cronmaker.com/
  * @See http://www.quartz-scheduler.org/documentation/quartz-1.x/tutorials/
  *      crontrigger
@@ -23,9 +23,8 @@ import java.util.regex.Pattern;
 
 class CronAdjuster implements TemporalAdjuster {
 
-	static Pattern WEEKDAY_P = Pattern.compile(
-			"(?<day>\\d+|MON|TUE|WED|THU|FRI|SAT|SUN)(#(?<nr>\\d+)|(?<l>L))?",
-			Pattern.CASE_INSENSITIVE);
+	static Pattern WEEKDAY_P = Pattern.compile("(?<day>\\d+|MON|TUE|WED|THU|FRI|SAT|SUN)(#(?<nr>\\d+)|(?<l>L))?",
+		Pattern.CASE_INSENSITIVE);
 
 	/*
 	 * A function interface that we use to check a Temporal to see if it matches
@@ -35,8 +34,8 @@ class CronAdjuster implements TemporalAdjuster {
 		boolean matches(Temporal t);
 	}
 
-	Checker ALWAYS_FALSE = (t) -> false;
-	Checker ALWAYS_TRUE = (t) -> true;
+	Checker	ALWAYS_FALSE	= (t) -> false;
+	Checker	ALWAYS_TRUE		= (t) -> true;
 
 	/*
 	 * Maintains the type and the combined checker. It can verify if a specific
@@ -44,8 +43,8 @@ class CronAdjuster implements TemporalAdjuster {
 	 * higher temporal with the lower fields set to their minimum value.
 	 */
 	static class Field {
-		ChronoField type;
-		Checker checker;
+		ChronoField	type;
+		Checker		checker;
 
 		Temporal isOk(Temporal t) {
 			if (checker.matches(t))
@@ -54,27 +53,27 @@ class CronAdjuster implements TemporalAdjuster {
 			Temporal out = t.plus(1, type.getBaseUnit());
 
 			switch (type) {
-			case YEAR:
-				out = out.with(ChronoField.MONTH_OF_YEAR, 1);
+				case YEAR :
+					out = out.with(ChronoField.MONTH_OF_YEAR, 1);
 
-			case MONTH_OF_YEAR:
-				out = out.with(ChronoField.DAY_OF_MONTH, 1);
+				case MONTH_OF_YEAR :
+					out = out.with(ChronoField.DAY_OF_MONTH, 1);
 
-			case DAY_OF_WEEK:
-			case DAY_OF_MONTH:
-				out = out.with(ChronoField.HOUR_OF_DAY, 0);
+				case DAY_OF_WEEK :
+				case DAY_OF_MONTH :
+					out = out.with(ChronoField.HOUR_OF_DAY, 0);
 
-			case HOUR_OF_DAY:
-				out = out.with(ChronoField.MINUTE_OF_HOUR, 0);
+				case HOUR_OF_DAY :
+					out = out.with(ChronoField.MINUTE_OF_HOUR, 0);
 
-			case MINUTE_OF_HOUR:
-				out = out.with(ChronoField.SECOND_OF_MINUTE, 0);
+				case MINUTE_OF_HOUR :
+					out = out.with(ChronoField.SECOND_OF_MINUTE, 0);
 
-			case SECOND_OF_MINUTE:
-				return out;
+				case SECOND_OF_MINUTE :
+					return out;
 
-			default:
-				throw new IllegalArgumentException("Invalid field type " + type);
+				default :
+					throw new IllegalArgumentException("Invalid field type " + type);
 			}
 
 		}
@@ -84,19 +83,19 @@ class CronAdjuster implements TemporalAdjuster {
 	 * We adjust the given temporal with this type before we check it to prevent
 	 * it from keep matching the same value.
 	 */
-	TemporalField minIncrement = ChronoField.SECOND_OF_MINUTE;
+	TemporalField				minIncrement	= ChronoField.SECOND_OF_MINUTE;
 
-	final Field seconds;
-	final Field minutes;
-	final Field hours;
-	final Field dayOfMonth;
-	final Field month;
-	final Field dayOfWeek;
-	final Field year;
-	final Field fields[];
-	final Map<String, String> map;
-	final boolean reboot;
-	
+	final Field					seconds;
+	final Field					minutes;
+	final Field					hours;
+	final Field					dayOfMonth;
+	final Field					month;
+	final Field					dayOfWeek;
+	final Field					year;
+	final Field					fields[];
+	final Map<String, String>	map;
+	final boolean				reboot;
+
 	/*
 	 * Constructor
 	 */
@@ -108,36 +107,37 @@ class CronAdjuster implements TemporalAdjuster {
 		String expression = entries[entries.length - 1].trim();
 
 		reboot = expression.equals("@reboot");
-		
+
 		if (expression.startsWith("@"))
 			expression = preDeclared(expression);
 
-		String parts[] = expression.trim().toUpperCase().split("\\s+");
+		String parts[] = expression.trim()
+			.toUpperCase()
+			.split("\\s+");
 
 		if (parts.length < 6 || parts.length > 7)
 			throw new IllegalArgumentException(
-					"Invalid cron expression, too many fields. Only 6 or 7 (with year) allowed: "
-							+ expression);
+				"Invalid cron expression, too many fields. Only 6 or 7 (with year) allowed: " + expression);
 
 		seconds = parse(parts[0], ChronoField.SECOND_OF_MINUTE);
 		minutes = parse(parts[1], ChronoField.MINUTE_OF_HOUR);
 		hours = parse(parts[2], ChronoField.HOUR_OF_DAY);
 		dayOfMonth = parse(parts[3], ChronoField.DAY_OF_MONTH);
-		month = parse(parts[4], ChronoField.MONTH_OF_YEAR, "JAN", "FEB", "MAR",
-				"APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC");
-		dayOfWeek = parse(parts[5], ChronoField.DAY_OF_WEEK, "MON", "TUE",
-				"WED", "THU", "FRI", "SAT", "SUN");
+		month = parse(parts[4], ChronoField.MONTH_OF_YEAR, "JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG",
+			"SEP", "OCT", "NOV", "DEC");
+		dayOfWeek = parse(parts[5], ChronoField.DAY_OF_WEEK, "MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN");
 		if (parts.length > 6) {
 			year = parse(parts[6], ChronoField.YEAR);
 		} else
 			year = null;
 
-		fields = new Field[] { year, month, dayOfWeek, dayOfMonth, hours,
-				minutes, seconds };
+		fields = new Field[] {
+			year, month, dayOfWeek, dayOfMonth, hours, minutes, seconds
+		};
 	}
 
-	private Map<String,String> doEnv(String[] entries) {
-		Map<String,String> map = new HashMap<String, String>();
+	private Map<String, String> doEnv(String[] entries) {
+		Map<String, String> map = new HashMap<String, String>();
 		if (entries.length > 1) {
 			for (int i = 0; i < entries.length - 1; i++) {
 
@@ -146,8 +146,10 @@ class CronAdjuster implements TemporalAdjuster {
 
 				int n = entries[i].indexOf('=');
 				if (n >= 0) {
-					String key = entries[i].substring(0, n).trim();
-					String value = entries[i].substring(n + 1).trim();
+					String key = entries[i].substring(0, n)
+						.trim();
+					String value = entries[i].substring(n + 1)
+						.trim();
 					map.put(key, value);
 				} else {
 					map.put(entries[i].trim(), Boolean.TRUE.toString());
@@ -160,38 +162,38 @@ class CronAdjuster implements TemporalAdjuster {
 
 	/**
 	 * <pre>
-	 * 	@yearly (or @annually)	Run once a year at midnight on the morning of January 1	0 0 1 1 *
-	 * 	@monthly	Run once a month at midnight on the morning of the first day of the month	0 0 1 * *
-	 * 	@weekly	Run once a week at midnight on Sunday morning	0 0 * * 0
-	 * 	@daily	Run once a day at midnight	0 0 * * *
-	 * 	@hourly	Run once an hour at the beginning of the hour	0 * * * *
-	 * 	@reboot	Run at startup	@reboot
+	 * 	&#64;yearly (or @annually)	Run once a year at midnight on the morning of January 1	0 0 1 1 *
+	 * 	&#64;monthly	Run once a month at midnight on the morning of the first day of the month	0 0 1 * *
+	 * 	&#64;weekly	Run once a week at midnight on Sunday morning	0 0 * * 0
+	 * 	&#64;daily	Run once a day at midnight	0 0 * * *
+	 * 	&#64;hourly	Run once an hour at the beginning of the hour	0 * * * *
+	 * 	&#64;reboot	Run at startup	@reboot
 	 * </pre>
 	 */
 
 	private String preDeclared(String expression) {
 		switch (expression) {
-		case "@annually":
-		case "@yearly":
-			return "0 0 0 1 1 *";
+			case "@annually" :
+			case "@yearly" :
+				return "0 0 0 1 1 *";
 
-		case "@monthly":
-			return "1 0 0 1 * *";
+			case "@monthly" :
+				return "1 0 0 1 * *";
 
-		case "@weekly":			
-			return "2 0 0 ? * MON";
-			
-		case "@daily":			
-			return "3 0 0 * * ?";
-			
-		case "@hourly":			
-			return "4 0 * * * ?";
-			
-		case "@reboot":			
-			return "0 0 0 1 1 ? 1900";
-			
-		default:
-			return expression;
+			case "@weekly" :
+				return "2 0 0 ? * MON";
+
+			case "@daily" :
+				return "3 0 0 * * ?";
+
+			case "@hourly" :
+				return "4 0 * * * ?";
+
+			case "@reboot" :
+				return "0 0 0 1 1 ? 1900";
+
+			default :
+				return expression;
 		}
 	}
 
@@ -248,8 +250,10 @@ class CronAdjuster implements TemporalAdjuster {
 		// Max and min for the current type
 		//
 
-		int min = (int) cf.range().getMinimum();
-		int max = (int) cf.range().getMaximum();
+		int min = (int) cf.range()
+			.getMinimum();
+		int max = (int) cf.range()
+			.getMaximum();
 
 		if (cf == ChronoField.DAY_OF_WEEK) {
 			if ("L".equals(sub))
@@ -258,13 +262,11 @@ class CronAdjuster implements TemporalAdjuster {
 				Matcher m = WEEKDAY_P.matcher(sub);
 				if (m.matches()) {
 					int day = parseInt(m.group("day"), min, max, names);
-					Checker c = (temporal) -> temporal
-							.get(ChronoField.DAY_OF_WEEK) == day;
+					Checker c = (temporal) -> temporal.get(ChronoField.DAY_OF_WEEK) == day;
 
 					if (m.group("nr") != null) {
 						int n = Integer.parseInt(m.group("nr"));
-						return and(c,
-								(temporal) -> isNthWeekDayInMonth(temporal, n));
+						return and(c, (temporal) -> isNthWeekDayInMonth(temporal, n));
 
 					} else if (m.group("l") != null) {
 						return and(c, CronAdjuster::isLastOfThisWeekDayInMonth);
@@ -307,8 +309,7 @@ class CronAdjuster implements TemporalAdjuster {
 
 			return (temporal) -> {
 				int n = temporal.get(cf);
-				return n >= range[0] && n <= range[1]
-						&& ((n - range[0]) % increment) == 0;
+				return n >= range[0] && n <= range[1] && ((n - range[0]) % increment) == 0;
 			};
 
 		}
@@ -340,7 +341,7 @@ class CronAdjuster implements TemporalAdjuster {
 	private static boolean isLastOfThisWeekDayInMonth(Temporal temporal) {
 		int day = temporal.get(ChronoField.DAY_OF_MONTH);
 		int max = (int) ChronoField.DAY_OF_MONTH.rangeRefinedBy(temporal)
-				.getMaximum();
+			.getMaximum();
 		return day + 7 > max;
 	}
 
@@ -350,7 +351,7 @@ class CronAdjuster implements TemporalAdjuster {
 	private static boolean isLastDayInMonth(Temporal temporal) {
 		int day = temporal.get(ChronoField.DAY_OF_MONTH);
 		int max = (int) ChronoField.DAY_OF_MONTH.rangeRefinedBy(temporal)
-				.getMaximum();
+			.getMaximum();
 		return day == max;
 	}
 
@@ -361,22 +362,22 @@ class CronAdjuster implements TemporalAdjuster {
 		int day = temporal.get(ChronoField.DAY_OF_MONTH);
 		DayOfWeek type = DayOfWeek.of(temporal.get(ChronoField.DAY_OF_WEEK));
 		int max = (int) ChronoField.DAY_OF_MONTH.rangeRefinedBy(temporal)
-				.getMaximum();
+			.getMaximum();
 
 		switch (type) {
-		case MONDAY:
-		case TUESDAY:
-		case WEDNESDAY:
-		case THURSDAY:
-			return day == max;
+			case MONDAY :
+			case TUESDAY :
+			case WEDNESDAY :
+			case THURSDAY :
+				return day == max;
 
-		case FRIDAY:
-			return day + 2 >= max;
+			case FRIDAY :
+				return day + 2 >= max;
 
-		default:
-		case SATURDAY:
-		case SUNDAY:
-			return false;
+			default :
+			case SATURDAY :
+			case SUNDAY :
+				return false;
 		}
 	}
 
@@ -388,27 +389,27 @@ class CronAdjuster implements TemporalAdjuster {
 		int day = temporal.get(ChronoField.DAY_OF_MONTH);
 		DayOfWeek type = DayOfWeek.of(temporal.get(ChronoField.DAY_OF_WEEK));
 		switch (type) {
-		case MONDAY:
-			return //
-			day == target // the actual day
+			case MONDAY :
+				return //
+				day == target // the actual day
 					|| day == target + 1 // target was on a sunday
 					|| (day == target + 2 && day == 3) // target was
 														// Saturday 1
-			;
+				;
 
-		case TUESDAY:
-		case WEDNESDAY:
-		case THURSDAY:
-			return day == target;
+			case TUESDAY :
+			case WEDNESDAY :
+			case THURSDAY :
+				return day == target;
 
-		case FRIDAY:
-			return day == target || day + 1 == target;
+			case FRIDAY :
+				return day == target || day + 1 == target;
 
 			// not a work day
-		default:
-		case SATURDAY:
-		case SUNDAY:
-			return false;
+			default :
+			case SATURDAY :
+			case SUNDAY :
+				return false;
 		}
 	}
 
@@ -419,8 +420,7 @@ class CronAdjuster implements TemporalAdjuster {
 		return temporal.get(ChronoField.YEAR) >= 2200;
 	}
 
-	private int[] parseRange(String range, int min, int max, ChronoField cf,
-			String[] names) {
+	private int[] parseRange(String range, int min, int max, ChronoField cf, String[] names) {
 		int[] r = new int[2];
 		r[0] = 0;
 		r[1] = max;
@@ -433,11 +433,9 @@ class CronAdjuster implements TemporalAdjuster {
 			r[1] = parseInt(parts[1], min, max, names);
 
 		if (r[0] < min)
-			throw new IllegalArgumentException("Value too small: " + r[0]
-					+ " for " + cf.toString());
+			throw new IllegalArgumentException("Value too small: " + r[0] + " for " + cf.toString());
 		if (r[1] > max)
-			throw new IllegalArgumentException("Value too high: " + r[1]
-					+ " for " + cf.toString());
+			throw new IllegalArgumentException("Value too high: " + r[1] + " for " + cf.toString());
 
 		return r;
 	}
@@ -445,7 +443,7 @@ class CronAdjuster implements TemporalAdjuster {
 	private int parseInt(String string, int min, int max, String[] names) {
 		if (string.isEmpty())
 			return 0;
-		
+
 		for (int n = 0; n < names.length; n++) {
 			if (names[n].equals(string))
 				return n + min;
@@ -523,7 +521,7 @@ class CronAdjuster implements TemporalAdjuster {
 		return (temporal) -> a.matches(temporal) && b.matches(temporal);
 	}
 
-	public Map<String,String> getEnv() {
+	public Map<String, String> getEnv() {
 		return map;
 	}
 

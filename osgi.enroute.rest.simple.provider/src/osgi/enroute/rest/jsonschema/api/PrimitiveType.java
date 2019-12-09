@@ -1,7 +1,13 @@
 package osgi.enroute.rest.jsonschema.api;
 
 public enum PrimitiveType {
-	STRING("string"), INTEGER, NUMBER, BOOLEAN, ARRAY, OBJECT, NONE;
+	STRING("string"),
+	INTEGER,
+	NUMBER,
+	BOOLEAN,
+	ARRAY,
+	OBJECT,
+	NONE;
 
 	private final String name;
 
@@ -12,7 +18,8 @@ public enum PrimitiveType {
 	private PrimitiveType() {
 		this.name = super.toString().toLowerCase();
 	}
-	
+
+	@Override
 	public String toString() {
 		return name;
 	}

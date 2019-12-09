@@ -38,7 +38,8 @@ import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.http.whiteboard.HttpWhiteboardConstants;
-import org.osgi.service.log.LogService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import aQute.bnd.osgi.Verifier;
 import aQute.lib.converter.Converter;
@@ -69,36 +70,36 @@ import osgi.enroute.webserver.capabilities.WebServerConstants;
  * is traversed recursively for any resources that match the glob expression.
  * <p>
  * Example using manifest headers:
- * 
+ *
  * <pre>
- * 
+ *
  * &#064;RequireCapability(namespace = &quot;osgi.enroute.webresource&quot;, filter = &quot;(osgi.enroute.webresource=/google/angular)&quot;)
  * public @interface AngularWebResource {
  * 	String[] resource();
- * 
+ *
  * 	int priority() default 1000;
  * }
- * 
+ *
  * &#064;RequireCapability(namespace = &quot;osgi.enroute.webresource&quot;, filter = &quot;(osgi.enroute.webresource=/twitter/bootstrap)&quot;)
  * public @interface BootstrapWebResource {
  * 	String[] resource() default {
- * 			&quot;bootstrap.css&quot;
+ * 		&quot;bootstrap.css&quot;
  * 	};
- * 
+ *
  * 	int priority() default 1000;
  * }
- * 
+ *
  * &#064;BootstrapWebResource(resource = {
- * 		&quot;angular.js&quot;, &quot;angular-resource.js&quot;
+ * 	&quot;angular.js&quot;, &quot;angular-resource.js&quot;
  * })
  * &#064;AngularWebResource(resource = {
- * 		&quot;angular.js&quot;, &quot;angular-resource.js&quot;
+ * 	&quot;angular.js&quot;, &quot;angular-resource.js&quot;
  * })
  * public class App {
- * 
+ *
  * }
  * </pre>
- * 
+ *
  * <pre>
  * {@code
  * index.html
@@ -109,11 +110,11 @@ import osgi.enroute.webserver.capabilities.WebServerConstants;
  *     </head>
  *     <body>
  *       ...
- *       
+ *
  *       <script src="/osgi.enroute.webresource/bundle/1.2.3/*.js"></script>
  *     </body>
  *   </html>
- *     
+ *
  * }
  * </pre>
  * <p>
@@ -124,19 +125,18 @@ import osgi.enroute.webserver.capabilities.WebServerConstants;
 @Capability(namespace = ExtenderNamespace.EXTENDER_NAMESPACE, name = WebServerConstants.WEB_SERVER_EXTENDER_NAME, version = WebServerConstants.WEB_SERVER_EXTENDER_VERSION)
 @RequireHttpImplementation
 @Component(property = {
-		HttpWhiteboardConstants.HTTP_WHITEBOARD_SERVLET_PATTERN + "=/" + WebresourceServlet.OSGI_ENROUTE_WEBRESOURCE
-				+ "/*",
-		Constants.SERVICE_RANKING + ":Integer=101", "addTrailingSlash=true"
+	HttpWhiteboardConstants.HTTP_WHITEBOARD_SERVLET_PATTERN + "=/" + WebresourceServlet.OSGI_ENROUTE_WEBRESOURCE + "/*",
+	Constants.SERVICE_RANKING + ":Integer=101", "addTrailingSlash=true"
 }, service = Servlet.class, immediate = true, name = WebresourceServlet.NAME, configurationPid = BundleMixinServer.NAME, configurationPolicy = ConfigurationPolicy.OPTIONAL)
 public class WebresourceServlet extends HttpServlet {
-
+	private final static Logger	log							= LoggerFactory.getLogger(WebresourceServlet.class);
 	private static final long	serialVersionUID			= 1L;
 
 	static final String			NAME						= "osgi.enroute.simple.webresource";
 	public static final String	OSGI_ENROUTE_WEBRESOURCE	= "osgi.enroute.webresource";
 
 	final static Pattern		WEBRESOURCES_P				= Pattern.compile("osgi.enroute.webresource/(?<bsn>"
-			+ Verifier.SYMBOLICNAME_STRING + "+)/(?<version>" + Verifier.VERSION_STRING + ")/(?<glob>.+)");
+		+ Verifier.SYMBOLICNAME_STRING + "+)/(?<version>" + Verifier.VERSION_STRING + ")/(?<glob>.+)");
 
 	/*
 	 * Helper class to sort the entries according to their priority and order.
@@ -164,10 +164,11 @@ public class WebresourceServlet extends HttpServlet {
 
 	final TypeReference<List<String>>	listOfStrings	= new TypeReference<List<String>>() {};
 	WebServerConfig						config;
+
+	@Reference
 	private Cache						cache;
 	private ResponseWriter				writer;
 	private ExceptionHandler			exceptionHandler;
-	private LogService					log;
 	boolean								proxy;
 
 	@Activate
@@ -209,8 +210,7 @@ public class WebresourceServlet extends HttpServlet {
 					} else
 						cache.put(path, c);
 				}
-			}
-			finally {
+			} finally {
 				cache.unlock();
 			}
 
@@ -218,8 +218,7 @@ public class WebresourceServlet extends HttpServlet {
 				throw new NotFound404Exception(null);
 
 			writer.writeResponse(rq, rsp, c);
-		}
-		catch (Exception e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 			exceptionHandler.handle(rq, rsp, e);
 		}
@@ -280,13 +279,14 @@ public class WebresourceServlet extends HttpServlet {
 			BundleCapability capability = wire.getCapability();
 			BundleRevision provider = capability.getResource();
 
-			Map<String,Object> attrs = requirement.getAttributes();
+			Map<String, Object> attrs = requirement.getAttributes();
 
 			//
 			// Get the root path
 			//
 
-			String root = (String) capability.getAttributes().get("root");
+			String root = (String) capability.getAttributes()
+				.get("root");
 			if (root == null)
 				root = "";
 
@@ -294,7 +294,8 @@ public class WebresourceServlet extends HttpServlet {
 				root = root + "/";
 
 			if (literal) {
-				URL url = provider.getBundle().getEntry(root + globss);
+				URL url = provider.getBundle()
+					.getEntry(root + globss);
 				if (url != null)
 					webresources.add(new WR(url, 0, order++));
 			} else {
@@ -304,7 +305,7 @@ public class WebresourceServlet extends HttpServlet {
 				// so we use the converter
 				//
 
-				int priority = Converter.cnv(Integer.class, attrs.get("priority"));
+				int priority = Converter.cnv(Integer.class, attrs.getOrDefault("priority", 0));
 				List<String> resources = Converter.cnv(listOfStrings, attrs.get("resource"));
 				if (resources != null) {
 
@@ -316,15 +317,17 @@ public class WebresourceServlet extends HttpServlet {
 
 						// Felix does not split comma separated List attributes
 						// as Equinox does. So we do it for them.
-						
+
 						for (String resource : resourceWithCommas.split("\\s*(?!\\\\),\\s*")) {
-							if (glob.matcher(resource).matches()) {
-								URL url = provider.getBundle().getEntry(root + resource);
+							if (glob.matcher(resource)
+								.matches()) {
+								URL url = provider.getBundle()
+									.getEntry(root + resource);
 								if (url != null) {
 									webresources.add(new WR(url, priority, order++));
 								} else {
-									log.log(LogService.LOG_ERROR, "A web resource " + resource + " from " + requirement
-											+ " in bundle " + bsn + "-" + version);
+									log.error("A web resource " + resource + " from " + requirement + " in bundle "
+										+ bsn + "-" + version);
 									return null;
 								}
 							}
@@ -336,7 +339,8 @@ public class WebresourceServlet extends HttpServlet {
 					// the existing resources
 					//
 
-					List<URL> entries = Collections.list(provider.getBundle().findEntries(root, "*", true));
+					List<URL> entries = Collections.list(provider.getBundle()
+						.findEntries(root, "*", true));
 
 					for (URL url : entries) {
 						String p = url.getPath();
@@ -344,7 +348,8 @@ public class WebresourceServlet extends HttpServlet {
 						if (n >= 0)
 							p = p.substring(n + 1);
 
-						if (glob.matcher(p).matches()) {
+						if (glob.matcher(p)
+							.matches()) {
 							webresources.add(new WR(url, priority, order++));
 						}
 					}
@@ -360,8 +365,10 @@ public class WebresourceServlet extends HttpServlet {
 		if (entries != null) {
 			while (entries.hasMoreElements()) {
 				URL url = entries.nextElement();
-				String rpath = url.getPath().substring(4);
-				if (glob.matcher(rpath).matches())
+				String rpath = url.getPath()
+					.substring(4);
+				if (glob.matcher(rpath)
+					.matches())
 					webresources.add(new WR(url, -1, order++));
 			}
 		}
@@ -371,7 +378,8 @@ public class WebresourceServlet extends HttpServlet {
 		//
 		String validFileName = toValidFileName(glob.toString());
 		File file = b.getDataFile(OSGI_ENROUTE_WEBRESOURCE + "/" + version + "/" + validFileName);
-		file.getParentFile().mkdirs();
+		file.getParentFile()
+			.mkdirs();
 		File tmp = new File(file.getParentFile(), validFileName + "-tmp");
 
 		//
@@ -379,17 +387,18 @@ public class WebresourceServlet extends HttpServlet {
 		//
 
 		try (FileOutputStream out = new FileOutputStream(tmp); PrintStream pout = new PrintStream(out);) {
-			webresources.stream().sorted().map((wr) -> wr.resource).distinct().forEach((url) ->
-			{
-				try {
-					IO.copy(url.openStream(), pout);
-					pout.println("\n");
-				}
-				catch (Exception e) {
-					log.log(LogService.LOG_ERROR, "A web resource fails " + url + " in bundle " + bsn + "-" + version,
-							e);
-				}
-			});
+			webresources.stream()
+				.sorted()
+				.map((wr) -> wr.resource)
+				.distinct()
+				.forEach((url) -> {
+					try {
+						IO.copy(url.openStream(), pout);
+						pout.println("\n");
+					} catch (Exception e) {
+						log.error("A web resource fails " + url + " in bundle " + bsn + "-" + version, e);
+					}
+				});
 		}
 
 		//
@@ -412,7 +421,8 @@ public class WebresourceServlet extends HttpServlet {
 		StringBuffer sb = new StringBuffer();
 		Matcher m = BADCHAR_P.matcher(string);
 		while (m.find()) {
-			char x = m.group(0).charAt(0);
+			char x = m.group(0)
+				.charAt(0);
 			if (x >= 128 || x <= 0)
 				m.appendReplacement(sb, "");
 			else if (x <= 15)
@@ -429,7 +439,8 @@ public class WebresourceServlet extends HttpServlet {
 	 */
 	private Bundle getBundle(String bsn, String version) {
 		Version v = new Version(version);
-		BundleContext context = FrameworkUtil.getBundle(getClass()).getBundleContext();
+		BundleContext context = FrameworkUtil.getBundle(getClass())
+			.getBundleContext();
 		for (Bundle b : context.getBundles()) {
 			if (bsn.equals(b.getSymbolicName()) && v.equals(b.getVersion()))
 				return b;
@@ -440,13 +451,4 @@ public class WebresourceServlet extends HttpServlet {
 	@Deactivate
 	void deactivate() {}
 
-	@Reference
-	void setLog(LogService log) {
-		this.log = log;
-	}
-
-	@Reference
-	void setCache(Cache cache) {
-		this.cache = cache;
-	}
 }

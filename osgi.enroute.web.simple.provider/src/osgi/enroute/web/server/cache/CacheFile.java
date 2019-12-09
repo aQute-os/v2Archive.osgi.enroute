@@ -41,14 +41,16 @@ public class CacheFile {
 			byte[] etag = Etag.get(file);
 			this.etag = Hex.toHexString(etag);
 			md5 = Base64.encodeBase64(etag);
-			int n = file.getAbsolutePath().lastIndexOf('.');
+			int n = file.getAbsolutePath()
+				.lastIndexOf('.');
 			if (n > 0) {
-				String ext = file.getAbsolutePath().substring(n + 1);
-				mime = Mimes.mimes().getProperty(ext);
+				String ext = file.getAbsolutePath()
+					.substring(n + 1);
+				mime = Mimes.mimes()
+					.getProperty(ext);
 			}
 			return true;
-		}
-		catch (Exception e) {
+		} catch (Exception e) {
 			expiration = System.currentTimeMillis() + expiration;
 			return false;
 		}

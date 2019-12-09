@@ -18,40 +18,34 @@ import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.http.whiteboard.HttpWhiteboardConstants;
-import org.osgi.service.log.LogService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import osgi.enroute.servlet.api.ConditionalServlet;
 import osgi.enroute.web.server.config.ConditionalServletConfig;
 
-@Component(
-		name = "osgi.enroute.web.service.provider",
-		property = {
-				HttpWhiteboardConstants.HTTP_WHITEBOARD_SERVLET_PATTERN + "=/", 
-				"name=DispatchServlet", 
-				Constants.SERVICE_RANKING + ":Integer=100"
-		}, 
-		service = Servlet.class, 
-		configurationPolicy = ConfigurationPolicy.OPTIONAL, 
-		immediate = true)
+@Component(name = "osgi.enroute.web.service.provider", property = {
+	HttpWhiteboardConstants.HTTP_WHITEBOARD_SERVLET_PATTERN + "=/", "name=DispatchServlet",
+	Constants.SERVICE_RANKING + ":Integer=100"
+}, service = Servlet.class, configurationPolicy = ConfigurationPolicy.OPTIONAL, immediate = true)
 public class DispatchServlet extends HttpServlet {
-
+	private static final Logger					log					= LoggerFactory.getLogger(DispatchServlet.class);
 	private static final long					serialVersionUID	= 1L;
 
 	ConditionalServletConfig					config;
 
 	// Blacklist badly behaving servlets for a certain period of time.
-	private final Map<ConditionalServlet,Long>	blacklist			= new ConcurrentHashMap<>();
+	private final Map<ConditionalServlet, Long>	blacklist			= new ConcurrentHashMap<>();
 
 	@Reference(cardinality = ReferenceCardinality.AT_LEAST_ONE)
 	volatile List<ConditionalServlet>			targets;
-	@Reference
-	LogService									log;
 
 	@Activate
 	void activate(ConditionalServletConfig config) throws Exception {
 		this.config = config;
 	}
 
+	@Override
 	public void service(HttpServletRequest rq, HttpServletResponse rsp) throws ServletException, IOException {
 
 		for (ConditionalServlet cs : targets) {
@@ -63,8 +57,7 @@ public class DispatchServlet extends HttpServlet {
 				if (cs.doConditionalService(rq, rsp)) {
 					return;
 				}
-			}
-			catch (Exception e) {
+			} catch (Exception e) {
 				String message = "Exception thrown by ConditionalServlet.";
 				if (config.timeout() != 0) {
 					// Blacklist this servlet by adding to the blacklist
@@ -74,7 +67,7 @@ public class DispatchServlet extends HttpServlet {
 					message += " This servlet has been blacklisted!";
 				}
 
-				log.log(LogService.LOG_ERROR, message, e);
+				log.error(message, e);
 
 				// Do not throw the Exception, but fall through to the next
 				// Servlet on the list

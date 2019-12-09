@@ -10,11 +10,11 @@ import java.lang.reflect.Type;
  * type T, then subclassing it. The subclass will have a reference to the super
  * class that contains this generic information. Through reflection, we pick
  * this reference up and return it with the getType() call.
- * 
+ *
  * <pre>
  * 	List<String> result = dtos.convert( new TypeReference<List<String>() {}, Arrays.asList(1,2,3));
  * </pre>
- * 
+ *
  * @param <T>
  */
 public class TypeReference<T> {
@@ -26,7 +26,7 @@ public class TypeReference<T> {
 
 	/**
 	 * Return the actual type of this Type Reference
-	 * 
+	 *
 	 * @return the type of this reference.
 	 */
 	public Type getType() {

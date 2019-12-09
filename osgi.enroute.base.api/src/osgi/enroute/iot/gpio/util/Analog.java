@@ -7,9 +7,8 @@ public interface Analog {
 
 	/**
 	 * Set the single pin analog value
-	 * 
-	 * @param value
-	 *            the given value
+	 *
+	 * @param value the given value
 	 */
 	void set(double value);
 }

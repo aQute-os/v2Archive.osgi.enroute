@@ -8,15 +8,15 @@ import org.osgi.annotation.bundle.Requirement;
 import osgi.enroute.namespace.WebResourceNamespace;
 
 /**
- * A sample web resource requirement 
+ * A sample web resource requirement
  */
 
-@Requirement(namespace = WebResourceNamespace.NS, filter = "(&(" + WebResourceNamespace.NS + "="
-		+ D3Constants.D3PATH + ")(version>=" + D3Constants.D3VERSION
-		+ "))")
+@Requirement(namespace = WebResourceNamespace.NS, filter = "(&(" + WebResourceNamespace.NS + "=" + D3Constants.D3PATH
+	+ ")(version>=" + D3Constants.D3VERSION + "))")
 @Retention(RetentionPolicy.CLASS)
 public @interface RequireD3Webresource {
 
 	String[] resource() default "d3.js";
+
 	int priority() default 0;
 }

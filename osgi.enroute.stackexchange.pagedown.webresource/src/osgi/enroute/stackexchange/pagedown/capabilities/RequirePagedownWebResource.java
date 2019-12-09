@@ -10,14 +10,15 @@ import osgi.enroute.namespace.WebResourceNamespace;
 /**
  * A Web Resource that provides Showdown markdown converter's javascript files.
  */
-@Requirement(namespace = WebResourceNamespace.NS, filter = "(&(" + WebResourceNamespace.NS
-		+ "="+PagedownConstants.PAGEDOWN_WEB_RESOURCE_NAME+")(version>="+PagedownConstants.PAGEDOWN_WEB_RESOURCE_VERSION+"))")
+@Requirement(namespace = WebResourceNamespace.NS, filter = "(&(" + WebResourceNamespace.NS + "="
+	+ PagedownConstants.PAGEDOWN_WEB_RESOURCE_NAME + ")(version>=" + PagedownConstants.PAGEDOWN_WEB_RESOURCE_VERSION
+	+ "))")
 @Retention(RetentionPolicy.CLASS)
 public @interface RequirePagedownWebResource {
 
 	/**
 	 * Define the default resource to return
-	 * 
+	 *
 	 * @return the list of resources to include
 	 */
 	String[] resource() default "enmarkdown.js";
@@ -25,7 +26,7 @@ public @interface RequirePagedownWebResource {
 	/**
 	 * Define the priority of this web resources. The higher the priority, the
 	 * earlier it is loaded when all web resources are combined.
-	 * 
+	 *
 	 * @return the priority
 	 */
 	int priority() default 0;

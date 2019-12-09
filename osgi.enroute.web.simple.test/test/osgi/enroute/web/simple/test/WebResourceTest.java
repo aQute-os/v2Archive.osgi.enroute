@@ -23,10 +23,10 @@ import junit.framework.TestCase;
 @SuppressWarnings("resource")
 public class WebResourceTest extends TestCase {
 
-    private static final String HTML_BODY_TEST_BODY_HTML = "<html><body>test</body></html>";
+	private static final String	HTML_BODY_TEST_BODY_HTML	= "<html><body>test</body></html>";
 
-	static LaunchpadBuilder	builder;
-	
+	static LaunchpadBuilder		builder;
+
 	static {
 		try {
 			builder = new LaunchpadBuilder().bndrun("bnd.bnd");
@@ -36,13 +36,16 @@ public class WebResourceTest extends TestCase {
 		}
 	}
 	Launchpad lp;
-	
+
+	@Override
 	public void setUp() throws Exception {
-		lp = builder.create().inject(this);
+		lp = builder.create()
+			.inject(this);
 	}
+
 	@Override
 	protected void tearDown() throws Exception {
-		lp.close();		
+		lp.close();
 	}
 
 	// sync so we do not start before the http service is started
@@ -53,13 +56,16 @@ public class WebResourceTest extends TestCase {
 		try (Builder b = new Builder();) {
 			b.setProperties(new File("resources/webresources.bnd"));
 			Jar jar = b.build();
-			jar.getManifest().write(System.out);
-			Bundle bundle = lp.getBundleContext().installBundle("test", new JarResource(jar).openInputStream());
+			jar.getManifest()
+				.write(System.out);
+			Bundle bundle = lp.getBundleContext()
+				.installBundle("test", new JarResource(jar).openInputStream());
 			try {
 				bundle.start();
 
-				final WebClient webClient = new WebClient(BrowserVersion.FIREFOX_52);
-				webClient.getOptions().setTimeout(0);
+				final WebClient webClient = new WebClient(BrowserVersion.FIREFOX_60);
+				webClient.getOptions()
+					.setTimeout(0);
 				final HtmlPage page = webClient.getPage("http://localhost:8080/test.html");
 
 				//
@@ -78,7 +84,8 @@ public class WebResourceTest extends TestCase {
 	public void testSimple() throws BundleException, Exception {
 		Jar jar = new Jar("test");
 		jar.putResource("static/debug/test.html", new EmbeddedResource(HTML_BODY_TEST_BODY_HTML.getBytes(), 0));
-		Bundle b = lp.getBundleContext().installBundle("test",new JarResource(jar).openInputStream());
+		Bundle b = lp.getBundleContext()
+			.installBundle("test", new JarResource(jar).openInputStream());
 		try {
 			b.start();
 

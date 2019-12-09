@@ -10,10 +10,10 @@ public class Delta {
 	/**
 	 * The system time this delta was created
 	 */
-	public long time;
+	public long					time;
 
 	/**
 	 * The connector values
 	 */
-	public Map<Integer, Object> connectorValues;
+	public Map<Integer, Object>	connectorValues;
 }

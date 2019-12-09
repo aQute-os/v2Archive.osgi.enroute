@@ -18,13 +18,11 @@ import osgi.enroute.rest.api.REST;
  * Resource Manager services (i.e. those registered services that implement
  * {@code REST}). Each servlet has its own endpoint and therefore its own
  * mapper.
- * 
  */
 class RestServlet extends HttpServlet implements REST, Closeable {
 	@Override
 	public String toString() {
-		return "RestServlet [servletPattern=" + servletPattern + ", closed="
-				+ closed + "]";
+		return "RestServlet [servletPattern=" + servletPattern + ", closed=" + closed + "]";
 	}
 
 	private static final long	serialVersionUID	= 1L;
@@ -48,6 +46,7 @@ class RestServlet extends HttpServlet implements REST, Closeable {
 		this.closeable = c;
 	}
 
+	@Override
 	public void service(HttpServletRequest rq, HttpServletResponse rsp) throws IOException, ServletException {
 		if (corsEnabled) {
 			addCorsHeaders(rsp);
@@ -64,6 +63,7 @@ class RestServlet extends HttpServlet implements REST, Closeable {
 	 * this is required to handle the Client requests with Request METHOD
 	 * &quot;OPTIONS&quot; typically the preflight requests
 	 */
+	@Override
 	protected void doOptions(HttpServletRequest rq, HttpServletResponse rsp) throws ServletException, IOException {
 		super.doOptions(rq, rsp);
 	}
@@ -76,6 +76,7 @@ class RestServlet extends HttpServlet implements REST, Closeable {
 		rsp.setHeader("Allow", config.allowedMethods());
 	}
 
+	@Override
 	public void close() throws IOException {
 		if (closed.getAndSet(true))
 			return;

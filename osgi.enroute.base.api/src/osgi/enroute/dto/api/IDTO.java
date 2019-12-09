@@ -24,8 +24,8 @@ import org.osgi.dto.DTO;
  * TODO TESTING!!! not yet verified
  */
 public class IDTO extends DTO {
-	private final static WeakHashMap<Class< ? >,Field[]>	cache	= new WeakHashMap<>();
-	private final Field[]									primaries;
+	private final static WeakHashMap<Class<?>, Field[]>	cache	= new WeakHashMap<>();
+	private final Field[]								primaries;
 
 	protected IDTO() {
 		Field fields[] = IDTO.cache.get(getClass());
@@ -53,7 +53,8 @@ public class IDTO extends DTO {
 
 				@Override
 				public int compare(Field o1, Field o2) {
-					return o1.getName().compareTo(o2.getName());
+					return o1.getName()
+						.compareTo(o2.getName());
 				}
 			});
 
@@ -63,6 +64,7 @@ public class IDTO extends DTO {
 		this.primaries = fields;
 	}
 
+	@Override
 	public boolean equals(Object other) {
 		if (other == null)
 			return false;
@@ -70,7 +72,7 @@ public class IDTO extends DTO {
 		if (other == this)
 			return true;
 
-		Class< ? > oc = other.getClass();
+		Class<?> oc = other.getClass();
 		if (oc != getClass())
 			return false;
 
@@ -85,12 +87,12 @@ public class IDTO extends DTO {
 					return false;
 			}
 			return true;
-		}
-		catch (Exception e) {
+		} catch (Exception e) {
 			return false;
 		}
 	}
 
+	@Override
 	public int hashCode() {
 		int prime = 31;
 		int result = 1;
@@ -100,15 +102,14 @@ public class IDTO extends DTO {
 				result = prime * result + (a == null ? 0 : a.hashCode());
 			}
 			return result;
-		}
-		catch (Exception e) {
+		} catch (Exception e) {
 			return result;
 		}
 	}
 
 	/**
 	 * A helper method to initialize a IDTO field with a list
-	 * 
+	 *
 	 * @return a list
 	 */
 	public static <T> List<T> list() {
@@ -117,7 +118,7 @@ public class IDTO extends DTO {
 
 	/**
 	 * A helper method to initialize a IDTO field with a set
-	 * 
+	 *
 	 * @return a list
 	 */
 	public static <T> Set<T> set() {
@@ -126,10 +127,10 @@ public class IDTO extends DTO {
 
 	/**
 	 * A helper method to initialize a IDTO field with a map
-	 * 
+	 *
 	 * @return a list
 	 */
-	public static <K, V> Map<K,V> map() {
+	public static <K, V> Map<K, V> map() {
 		return new LinkedHashMap<>();
 	}
 }

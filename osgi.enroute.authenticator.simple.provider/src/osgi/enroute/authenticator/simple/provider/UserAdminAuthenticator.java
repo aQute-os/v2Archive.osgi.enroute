@@ -29,16 +29,18 @@ import osgi.enroute.authentication.api.AuthenticationConstants;
 import osgi.enroute.authentication.api.Authenticator;
 import osgi.enroute.authenticator.simple.provider.Config.Algorithm;
 
-@Capability(namespace=ImplementationNamespace.IMPLEMENTATION_NAMESPACE, name=AuthenticationConstants.AUTHENTICATION_SPECIFICATION_NAME, version=AuthenticationConstants.AUTHENTICATION_SPECIFICATION_VERSION)
-@GogoCommand(scope="user", function= {"hash", "passwd", "adduser", "rmrole", "role", "user"})
+@Capability(namespace = ImplementationNamespace.IMPLEMENTATION_NAMESPACE, name = AuthenticationConstants.AUTHENTICATION_SPECIFICATION_NAME, version = AuthenticationConstants.AUTHENTICATION_SPECIFICATION_VERSION)
+@GogoCommand(scope = "user", function = {
+	"hash", "passwd", "adduser", "rmrole", "role", "user"
+})
 @Component
 public class UserAdminAuthenticator implements Authenticator {
 	private static final Pattern	AUTHORIZATION_P	= Pattern.compile("Basic\\s+(?<base64>[A-Za-z0-9+/]{3,}={0,2})");
 	private static final Pattern	IDPW_P			= Pattern.compile("(?<id>[^:]+):(?<pw>.*)");
-	
+
 	@Reference
 	private UserAdmin				userAdmin;
-	private Logger					log = LoggerFactory.getLogger(UserAdminAuthenticator.class);
+	private Logger					log				= LoggerFactory.getLogger(UserAdminAuthenticator.class);
 
 	private byte[]					salt;
 	private Algorithm				algorithm;
@@ -50,7 +52,7 @@ public class UserAdminAuthenticator implements Authenticator {
 		salt = config.salt();
 		if (salt == null || salt.length == 0) {
 			salt = new byte[] {
-					0x2f, 0x68, (byte) 0xcb, 0x75, 0x6c, (byte) 0xf1, 0x74, (byte) 0x84, 0x2a, (byte) 0xef
+				0x2f, 0x68, (byte) 0xcb, 0x75, 0x6c, (byte) 0xf1, 0x74, (byte) 0x84, 0x2a, (byte) 0xef
 			};
 		}
 
@@ -64,12 +66,13 @@ public class UserAdminAuthenticator implements Authenticator {
 			iterations = 997;
 
 		root = config._root();
-		if (root != null && root.trim().isEmpty())
+		if (root != null && root.trim()
+			.isEmpty())
 			root = null;
 	}
 
 	@Override
-	public String authenticate(Map<String,Object> arguments, String... sources) throws Exception {
+	public String authenticate(Map<String, Object> arguments, String... sources) throws Exception {
 
 		for (String source : sources) {
 
@@ -85,7 +88,7 @@ public class UserAdminAuthenticator implements Authenticator {
 			if (Authenticator.SERVLET_SOURCE.equals(source)) {
 				String uri = (String) arguments.get(Authenticator.SERVLET_SOURCE_METHOD);
 				if (uri.startsWith("https:")) {
-					TreeMap<String,Object> map = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+					TreeMap<String, Object> map = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 					map.putAll(arguments);
 
 					String auth = (String) map.get("Authorization");
@@ -161,7 +164,8 @@ public class UserAdminAuthenticator implements Authenticator {
 	byte[] pbkdf2(char[] password, byte[] salt, int iterations, int bytes) throws Exception {
 		PBEKeySpec spec = new PBEKeySpec(password, salt, iterations, bytes * 8);
 		SecretKeyFactory skf = SecretKeyFactory.getInstance(algorithm.toString());
-		return skf.generateSecret(spec).getEncoded();
+		return skf.generateSecret(spec)
+			.getEncoded();
 	}
 
 	public Role adduser(String id) {
@@ -207,16 +211,14 @@ public class UserAdminAuthenticator implements Authenticator {
 		return n;
 	}
 
-	
 	public String user() {
-		return "User Admin commands\n"
-				+ "  hash <password>                        Create the hash of a password\n"
-				+ "  passwd <id> <password>                 Set password\n"
-				+ "  adduser <id>                           Create a user\n"
-				+ "  rmrole                                 Remove a role\n"
-				+ "  role                                   List the roles\n"
-				+ "\n";
+		return "User Admin commands\n" + "  hash <password>                        Create the hash of a password\n"
+			+ "  passwd <id> <password>                 Set password\n"
+			+ "  adduser <id>                           Create a user\n"
+			+ "  rmrole                                 Remove a role\n"
+			+ "  role                                   List the roles\n" + "\n";
 	}
+
 	@SuppressWarnings("unchecked")
 	public void passwd(String id, String pw) throws Exception {
 		Role role = userAdmin.getRole(id);
@@ -230,7 +232,8 @@ public class UserAdminAuthenticator implements Authenticator {
 
 		User user = (User) role;
 
-		user.getCredentials().put(algorithm.toString(), hash(pw));
+		user.getCredentials()
+			.put(algorithm.toString(), hash(pw));
 	}
 
 }

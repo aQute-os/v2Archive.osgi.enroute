@@ -40,7 +40,7 @@ import osgi.enroute.http.capabilities.RequireHttpImplementation;
 @RequireHttpImplementation
 @Designate(ocd = SecurityFilter.Config.class, factory = true)
 @Component(property = {
-		HttpWhiteboardConstants.HTTP_WHITEBOARD_FILTER_REGEX + "=.*"
+	HttpWhiteboardConstants.HTTP_WHITEBOARD_FILTER_REGEX + "=.*"
 })
 public class SecurityFilter implements Filter {
 	final static String							DEFAULT_REALM		= "OSGi enRoute Default";
@@ -76,7 +76,7 @@ public class SecurityFilter implements Filter {
 
 	@Override
 	public void doFilter(final ServletRequest req, final ServletResponse resp, final FilterChain chain)
-			throws IOException, ServletException {
+		throws IOException, ServletException {
 
 		//
 		// Create a lambda for our task to do
@@ -108,7 +108,8 @@ public class SecurityFilter implements Filter {
 			//
 			String userId = null;
 			if (hreq.getSession() != null) {
-				userId = (String) hreq.getSession().getAttribute("userid");
+				userId = (String) hreq.getSession()
+					.getAttribute("userid");
 			}
 
 			if (userId == null)
@@ -117,7 +118,8 @@ public class SecurityFilter implements Filter {
 			if (userId != null) {
 
 				if (hreq.getSession() != null)
-					hreq.getSession().setAttribute("userid", userId);
+					hreq.getSession()
+						.setAttribute("userid", userId);
 
 				run(userId, runAs);
 				return;
@@ -136,7 +138,8 @@ public class SecurityFilter implements Filter {
 
 	private void run(String userId, Callable<Void> runAs) throws ServletException, IOException {
 		try {
-			authorityAdminRef.get().call(userId, runAs);
+			authorityAdminRef.get()
+				.call(userId, runAs);
 		} catch (RuntimeException | ServletException | IOException e) {
 			throw e;
 		} catch (Exception e) {
@@ -166,15 +169,13 @@ public class SecurityFilter implements Filter {
 	}
 
 	@Override
-	public void init(FilterConfig arg0) throws ServletException {
-	}
+	public void init(FilterConfig arg0) throws ServletException {}
 
 	/**
 	 * Turn a HttpServletRequest into a map for the authenticator according to
 	 * the {@link Authenticator} service.
-	 * 
-	 * @param req
-	 *            The (Http)ServletRequest
+	 *
+	 * @param req The (Http)ServletRequest
 	 * @return a map
 	 * @throws MalformedURLException
 	 */
@@ -207,18 +208,20 @@ public class SecurityFilter implements Filter {
 		 */
 
 		if (req instanceof HttpServletRequest) {
-			HttpServletRequest hreq = (HttpServletRequest) req;
+			HttpServletRequest hreq = req;
 			for (Enumeration<String> e = hreq.getHeaderNames(); e.hasMoreElements();) {
 				String key = e.nextElement();
 				String header = hreq.getHeader(key);
 				map.put(key, header);
 			}
-			map.put("servlet.source", new URL(hreq.getRequestURL().toString()));
+			map.put("servlet.source", new URL(hreq.getRequestURL()
+				.toString()));
 			map.put("servlet.source.method", hreq.getMethod());
 			map.put("servlet.secure", hreq.isSecure());
 		}
-		for (String key : req.getParameterMap().keySet()) {
-			String[] parameterValues = req.getParameterValues((String) key);
+		for (String key : req.getParameterMap()
+			.keySet()) {
+			String[] parameterValues = req.getParameterValues(key);
 			if (parameterValues != null) {
 				if (parameterValues.length > 1)
 					map.put(key, new ExtList<String>(parameterValues));
@@ -231,8 +234,7 @@ public class SecurityFilter implements Filter {
 	}
 
 	@Override
-	public void destroy() {
-	}
+	public void destroy() {}
 
 	@Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
 	void addAuthenticator(Authenticator authenticator) {

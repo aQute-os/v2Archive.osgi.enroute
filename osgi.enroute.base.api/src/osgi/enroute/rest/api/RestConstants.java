@@ -7,10 +7,10 @@ public interface RestConstants {
 	/**
 	 * Name
 	 */
-	String REST_SPECIFICATION_NAME = "osgi.enroute.rest";
+	String	REST_SPECIFICATION_NAME		= "osgi.enroute.rest";
 
 	/**
 	 * Version
 	 */
-	String REST_SPECIFICATION_VERSION = "1.1.0";
+	String	REST_SPECIFICATION_VERSION	= "1.1.0";
 }

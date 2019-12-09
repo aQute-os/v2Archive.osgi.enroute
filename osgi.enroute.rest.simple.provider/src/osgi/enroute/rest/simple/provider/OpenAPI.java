@@ -58,8 +58,7 @@ import osgi.enroute.rest.openapi.api.TransferProtocol;
  * Parse the REST Mappers contents and generate an Open API object of it.
  */
 public class OpenAPI extends OpenAPIObject {
-	static Logger					log		= LoggerFactory
-			.getLogger(OpenAPI.class);
+	static Logger					log		= LoggerFactory.getLogger(OpenAPI.class);
 
 	private static final String[]	DEFLT	= new String[0];
 
@@ -80,8 +79,7 @@ public class OpenAPI extends OpenAPIObject {
 
 		MultiMap<String, Function> allOperations = getInverted(restMapper);
 
-		for (Map.Entry<String, List<Function>> entry : allOperations
-				.entrySet()) {
+		for (Map.Entry<String, List<Function>> entry : allOperations.entrySet()) {
 			String path = entry.getKey();
 			List<Function> functions = entry.getValue();
 
@@ -97,28 +95,24 @@ public class OpenAPI extends OpenAPIObject {
 	private InfoObject doInfo(RestMapper restMapper) throws URISyntaxException {
 		InfoObject info = new InfoObject();
 		for (REST r : restMapper.endpoints) {
-			Info annotation = r.getClass().getAnnotation(Info.class);
+			Info annotation = r.getClass()
+				.getAnnotation(Info.class);
 			if (annotation != null) {
 				info.title = annotation.title();
 				info.description = annotation.description();
 				if (info.description.isEmpty())
 					info.description = getDescription(r.getClass());
-				info.termsOfService = careful(null, annotation.termsOfService(),
-						"");
+				info.termsOfService = careful(null, annotation.termsOfService(), "");
 				info.version = careful(null, annotation.version(), "");
 				if (isSet(annotation.licenseName(), annotation.licenseUrl())) {
 					info.license = new LicenseObject();
-					info.license.name = careful(null, annotation.licenseName(),
-							"");
+					info.license.name = careful(null, annotation.licenseName(), "");
 					info.license.url = toUri(annotation.licenseUrl());
 				}
-				if (isSet(annotation.contactName(), annotation.contactEmail(),
-						annotation.contactUrl())) {
+				if (isSet(annotation.contactName(), annotation.contactEmail(), annotation.contactUrl())) {
 					info.contact = new ContactObject();
-					info.contact.email = careful(null,
-							annotation.contactEmail(), "");
-					info.contact.name = careful(null, annotation.contactName(),
-							"");
+					info.contact.email = careful(null, annotation.contactEmail(), "");
+					info.contact.name = careful(null, annotation.contactName(), "");
 					info.contact.url = toUri(annotation.contactUrl());
 				}
 				return info;
@@ -128,9 +122,11 @@ public class OpenAPI extends OpenAPIObject {
 			info.description = "No endpoints found";
 			info.title = "<>";
 		} else {
-			REST rest = restMapper.endpoints.iterator().next();
+			REST rest = restMapper.endpoints.iterator()
+				.next();
 			info.title = rest.toString();
-			info.description = rest.getClass().getName();
+			info.description = rest.getClass()
+				.getName();
 		}
 		return info;
 	}
@@ -147,19 +143,19 @@ public class OpenAPI extends OpenAPIObject {
 	 * Set the host information
 	 */
 	private HostObject doHost(RestMapper restMapper, URI requestURL)
-			throws MalformedURLException, UnknownHostException {
+		throws MalformedURLException, UnknownHostException {
 		HostObject ho = new HostObject();
-		ho.basePath = restMapper.namespace.substring(0,
-				restMapper.namespace.length());
+		ho.basePath = restMapper.namespace.substring(0, restMapper.namespace.length());
 		ho.scheme = getTransferProtocol(requestURL.getScheme());
 		ho.host = requestURL.getHost();
 
-		if (requestURL.getPort() != -1
-				&& requestURL.getPort() != requestURL.toURL().getDefaultPort())
+		if (requestURL.getPort() != -1 && requestURL.getPort() != requestURL.toURL()
+			.getDefaultPort())
 			ho.host += ":" + requestURL.getPort();
 
 		if (ho.host == null)
-			ho.host = InetAddress.getLocalHost().getHostName();
+			ho.host = InetAddress.getLocalHost()
+				.getHostName();
 
 		return ho;
 	}
@@ -167,29 +163,28 @@ public class OpenAPI extends OpenAPIObject {
 	/*
 	 * Create a path item object
 	 */
-	private PathItemObject toPathItemObject(Collection<Function> functions)
-			throws Exception {
+	private PathItemObject toPathItemObject(Collection<Function> functions) throws Exception {
 		PathItemObject pathItemObject = new PathItemObject();
 		for (Function f : functions) {
 			OperationObject operationObject = getOperationObject(f);
 			switch (f.getVerb()) {
-			case delete:
-				pathItemObject.delete = operationObject;
-				break;
-			case get:
-				pathItemObject.get = operationObject;
-				break;
-			case head:
-				pathItemObject.head = operationObject;
-				break;
-			case option:
-				break;
-			case post:
-				pathItemObject.post = operationObject;
-				break;
-			case put:
-				pathItemObject.put = operationObject;
-				break;
+				case delete :
+					pathItemObject.delete = operationObject;
+					break;
+				case get :
+					pathItemObject.get = operationObject;
+					break;
+				case head :
+					pathItemObject.head = operationObject;
+					break;
+				case option :
+					break;
+				case post :
+					pathItemObject.post = operationObject;
+					break;
+				case put :
+					pathItemObject.put = operationObject;
+					break;
 			}
 		}
 		return pathItemObject;
@@ -198,8 +193,7 @@ public class OpenAPI extends OpenAPIObject {
 	/*
 	 * Convert a function to an operation object
 	 */
-	private OperationObject getOperationObject(Function function)
-			throws Exception {
+	private OperationObject getOperationObject(Function function) throws Exception {
 		OperationObject operationObject = new OperationObject();
 		Method method = function.method;
 
@@ -225,8 +219,7 @@ public class OpenAPI extends OpenAPIObject {
 	private MultiMap<String, Function> getInverted(RestMapper restMapper) {
 		MultiMap<String, Function> inverted = new MultiMap<>();
 
-		for (Map.Entry<String, List<Function>> entry : restMapper.functions
-				.entrySet()) {
+		for (Map.Entry<String, List<Function>> entry : restMapper.functions.entrySet()) {
 			for (Function f : entry.getValue()) {
 				String path = calculateTemplatePath(f);
 				inverted.add(path, f);
@@ -238,7 +231,9 @@ public class OpenAPI extends OpenAPIObject {
 	private String calculateTemplatePath(Function f) {
 		StringBuilder path = new StringBuilder(f.getPath());
 		for (Parameter parameter : f.getParameters()) {
-			path.append("/{").append(parameter.getName()).append("}");
+			path.append("/{")
+				.append(parameter.getName())
+				.append("}");
 		}
 		return path.toString();
 	}
@@ -295,13 +290,10 @@ public class OpenAPI extends OpenAPIObject {
 	/*
 	 * There is a response for each method based on its return variable and a
 	 * response for each exception.
-	 * 
 	 */
-	private void doResponses(OperationObject operationObject, Function function)
-			throws Exception {
+	private void doResponses(OperationObject operationObject, Function function) throws Exception {
 		doResponse(operationObject, function.method.getAnnotatedReturnType());
-		for (AnnotatedType annotatedException : function.method
-				.getAnnotatedExceptionTypes()) {
+		for (AnnotatedType annotatedException : function.method.getAnnotatedExceptionTypes()) {
 			doResponse(operationObject, annotatedException, annotatedException);
 		}
 	}
@@ -311,8 +303,8 @@ public class OpenAPI extends OpenAPIObject {
 	 * declared exception
 	 */
 	@SuppressWarnings("unchecked")
-	private void doResponse(OperationObject operationObject, AnnotatedType at,
-			AnnotatedElement... elements) throws Exception {
+	private void doResponse(OperationObject operationObject, AnnotatedType at, AnnotatedElement... elements)
+		throws Exception {
 
 		ResponseObject responseObject = new ResponseObject();
 
@@ -327,8 +319,7 @@ public class OpenAPI extends OpenAPIObject {
 			Class<?> type = (Class<?>) at.getType();
 			if (RESTResponse.class.isAssignableFrom((Class<?>) at.getType())) {
 
-				Class<RESTResponse> responseType = (Class<RESTResponse>) at
-						.getType();
+				Class<RESTResponse> responseType = (Class<RESTResponse>) at.getType();
 				RESTResponse restResponse = responseType.newInstance();
 
 				if (restResponse.getStatusCode() != 0)
@@ -338,27 +329,23 @@ public class OpenAPI extends OpenAPIObject {
 					operationObject.produces.add(restResponse.getContentType());
 
 				RestMapper.getPublicFields(responseType, RESTResponse.class)
-						.forEach(f -> {
-							try {
-								String name = RestMapper.decode(f.getName());
-								HeaderObject headerObject = new HeaderObject();
-								headerObject.collectionFormat = null;
-								headerObject.description = getDescription(f);
-								doSchema(headerObject, f.getAnnotatedType());
-								responseObject.headers.put(name, headerObject);
-							} catch (Exception e) {
-								log.error(
-										"Failed to create response object for "
-												+ operationObject.operationId
-												+ ":" + type.getName(),
-										e);
-							}
-						});
+					.forEach(f -> {
+						try {
+							String name = RestMapper.decode(f.getName());
+							HeaderObject headerObject = new HeaderObject();
+							headerObject.collectionFormat = null;
+							headerObject.description = getDescription(f);
+							doSchema(headerObject, f.getAnnotatedType());
+							responseObject.headers.put(name, headerObject);
+						} catch (Exception e) {
+							log.error("Failed to create response object for " + operationObject.operationId + ":"
+								+ type.getName(), e);
+						}
+					});
 
 			} else {
 				if (Throwable.class.isAssignableFrom(type))
-					code = Integer.toString(ResponseException
-							.getStatusCode((Class<? extends Throwable>) type));
+					code = Integer.toString(ResponseException.getStatusCode((Class<? extends Throwable>) type));
 			}
 		}
 
@@ -368,19 +355,20 @@ public class OpenAPI extends OpenAPIObject {
 		operationObject.responses.put("" + code, responseObject);
 	}
 
-	private void doSchema(PrimitiveSchema schema, AnnotatedType at,
-			AnnotatedElement... elements) throws Exception {
+	private void doSchema(PrimitiveSchema schema, AnnotatedType at, AnnotatedElement... elements) throws Exception {
 		SchemaObject schemaObject = toSchemaObject(at, elements);
 		copy(schemaObject, schema);
 	}
 
 	private void copy(DTO src, DTO dest) {
-		for (Field field : src.getClass().getFields()) {
+		for (Field field : src.getClass()
+			.getFields()) {
 			if (Modifier.isStatic(field.getModifiers()))
 				continue;
 
 			try {
-				Field other = dest.getClass().getField(field.getName());
+				Field other = dest.getClass()
+					.getField(field.getName());
 				field.set(dest, other.get(src));
 			} catch (Exception e) {
 
@@ -389,58 +377,48 @@ public class OpenAPI extends OpenAPIObject {
 
 	}
 
-	private void doQueryParameters(Function f, OperationObject operationObject)
-			throws URISyntaxException {
+	private void doQueryParameters(Function f, OperationObject operationObject) throws URISyntaxException {
 		if (f.hasRequestParameter) {
 
 			AnnotatedType request = f.method.getAnnotatedParameterTypes()[0];
 			@SuppressWarnings("unchecked")
-			Class<? extends RESTRequest> requestClass = (Class<? extends RESTRequest>) request
-					.getType();
+			Class<? extends RESTRequest> requestClass = (Class<? extends RESTRequest>) request.getType();
 
 			RestMapper.getPublicMethod(requestClass, RESTRequest.class)//
-					.filter(m -> !m.getName().startsWith("_"))//
-					.forEach(method -> {
-						try {
-							ParameterObject parameterObject = new ParameterObject();
-							parameterObject.name = RestMapper
-									.decode(method.getName());
-							if ( Character
-									.isUpperCase(method.getName().charAt(0))) {
-								parameterObject.in = In.header;
-								parameterObject.name = parameterObject.name.toUpperCase();
-							} else {
-								parameterObject.in = In.query;
-							}
-							
-							parameterObject.description = getDescription(
-									method);
-							parameterObject.deprecated = getDeprecated(method);
-							parameterObject.required = getRequired(method);
-							doSchema(parameterObject.schema,
-									method.getAnnotatedReturnType());
-							operationObject.parameters.add(parameterObject);
-						} catch (Exception e) {
-							log.error(
-									"Failed to create query parameter object for "
-											+ operationObject.operationId + ":"
-											+ method.getName(),
-									e);
+				.filter(m -> !m.getName()
+					.startsWith("_"))//
+				.forEach(method -> {
+					try {
+						ParameterObject parameterObject = new ParameterObject();
+						parameterObject.name = RestMapper.decode(method.getName());
+						if (Character.isUpperCase(method.getName()
+							.charAt(0))) {
+							parameterObject.in = In.header;
+							parameterObject.name = parameterObject.name.toUpperCase();
+						} else {
+							parameterObject.in = In.query;
 						}
-					});
+
+						parameterObject.description = getDescription(method);
+						parameterObject.deprecated = getDeprecated(method);
+						parameterObject.required = getRequired(method);
+						doSchema(parameterObject.schema, method.getAnnotatedReturnType());
+						operationObject.parameters.add(parameterObject);
+					} catch (Exception e) {
+						log.error("Failed to create query parameter object for " + operationObject.operationId + ":"
+							+ method.getName(), e);
+					}
+				});
 		}
 	}
 
-	private void doPathParameters(Function f, OperationObject operationObject)
-			throws Exception {
+	private void doPathParameters(Function f, OperationObject operationObject) throws Exception {
 		for (Parameter parameter : f.getParameters()) {
 			ParameterObject parameterObject = new ParameterObject();
 			parameterObject.name = parameter.getName();
 			parameterObject.in = In.path;
-			parameterObject.deprecated = getDeprecated(
-					parameter.getAnnotatedType());
-			parameterObject.description = getDescription(
-					parameter.getAnnotatedType());
+			parameterObject.deprecated = getDeprecated(parameter.getAnnotatedType());
+			parameterObject.description = getDescription(parameter.getAnnotatedType());
 			parameterObject.required = true;
 			operationObject.parameters.add(parameterObject);
 			parameterObject.schema = toSchemaObject(parameter.getAnnotatedType(), parameter);
@@ -457,8 +435,7 @@ public class OpenAPI extends OpenAPIObject {
 		return newer;
 	}
 
-	private void doRequestBody(Function function,
-			OperationObject operationObject) throws Exception {
+	private void doRequestBody(Function function, OperationObject operationObject) throws Exception {
 		if (function.hasPayloadAsParameter) {
 
 			//
@@ -466,91 +443,71 @@ public class OpenAPI extends OpenAPIObject {
 			//
 
 			RequestBodyObject requestBodyObject = new RequestBodyObject();
-			Parameter bodyParameter = function.method
-					.getParameters()[function.hasRequestParameter ? 1 : 0];
+			Parameter bodyParameter = function.method.getParameters()[function.hasRequestParameter ? 1 : 0];
 			requestBodyObject.required = getRequired(bodyParameter);
-			doSchema(requestBodyObject.schema,
-					bodyParameter.getAnnotatedType());
+			doSchema(requestBodyObject.schema, bodyParameter.getAnnotatedType());
 			operationObject.requestBody = requestBodyObject;
 		} else if (function.post != null) {
 			assert function.hasRequestParameter;
 			assert function.bodyMethod != null;
 
 			RequestBodyObject requestBodyObject = new RequestBodyObject();
-			requestBodyObject.schema = toSchemaObject(
-					function.bodyMethod.getAnnotatedReturnType(),
-					function.bodyMethod);
+			requestBodyObject.schema = toSchemaObject(function.bodyMethod.getAnnotatedReturnType(),
+				function.bodyMethod);
 			operationObject.requestBody = requestBodyObject;
 		}
 	}
 
-	private boolean doValidators(SchemaObject schema,
-			AnnotatedElement... elements) throws Exception {
+	private boolean doValidators(SchemaObject schema, AnnotatedElement... elements) throws Exception {
 		for (int i = elements.length - 1; i >= 0; i--) {
 			AnnotatedElement element = elements[i];
 
 			switch (schema.type) {
-			case ARRAY: {
-				ValidatorArray validator = element
-						.getAnnotation(ValidatorArray.class);
-				if (validator != null) {
-					schema.maxItems = careful(schema.maxItems,
-							validator.maxItems(), Integer.MAX_VALUE);
-					schema.minItems = careful(schema.minItems,
-							validator.minItems(), 0);
-					schema.uniqueItems = careful(schema.uniqueItems,
-							validator.uniqueItems(), false);
+				case ARRAY : {
+					ValidatorArray validator = element.getAnnotation(ValidatorArray.class);
+					if (validator != null) {
+						schema.maxItems = careful(schema.maxItems, validator.maxItems(), Integer.MAX_VALUE);
+						schema.minItems = careful(schema.minItems, validator.minItems(), 0);
+						schema.uniqueItems = careful(schema.uniqueItems, validator.uniqueItems(), false);
+					}
 				}
-			}
-				break;
-			case BOOLEAN:
-				break;
-			case NUMBER:
-			case INTEGER: {
-				ValidatorNumber validator = element
-						.getAnnotation(ValidatorNumber.class);
-				if (validator != null) {
-					schema.exclusiveMaximum = careful(schema.exclusiveMaximum,
-							validator.exclusiveMaximum(), false);
-					schema.exclusiveMinimum = careful(schema.exclusiveMinimum,
-							validator.exclusiveMinimum(), false);
-					schema.maximum = careful(schema.maximum,
-							validator.maximum(), Double.MAX_VALUE);
-					schema.minimum = careful(schema.minimum,
-							validator.minimum(), Double.MIN_VALUE);
-					schema.multipleOf = careful(schema.multipleOf,
-							validator.multipleOf(), 1.0D);
+					break;
+				case BOOLEAN :
+					break;
+				case NUMBER :
+				case INTEGER : {
+					ValidatorNumber validator = element.getAnnotation(ValidatorNumber.class);
+					if (validator != null) {
+						schema.exclusiveMaximum = careful(schema.exclusiveMaximum, validator.exclusiveMaximum(), false);
+						schema.exclusiveMinimum = careful(schema.exclusiveMinimum, validator.exclusiveMinimum(), false);
+						schema.maximum = careful(schema.maximum, validator.maximum(), Double.MAX_VALUE);
+						schema.minimum = careful(schema.minimum, validator.minimum(), Double.MIN_VALUE);
+						schema.multipleOf = careful(schema.multipleOf, validator.multipleOf(), 1.0D);
+					}
 				}
-			}
-				break;
-			case OBJECT: {
-				ValidatorObject validator = element
-						.getAnnotation(ValidatorObject.class);
-				if (validator != null) {
-					schema.maxProperties = careful(schema.maxProperties,
-							validator.maxProperties(), Integer.MAX_VALUE);
-					schema.minProperties = careful(schema.minProperties,
-							validator.minProperties(), 0);
+					break;
+				case OBJECT : {
+					ValidatorObject validator = element.getAnnotation(ValidatorObject.class);
+					if (validator != null) {
+						schema.maxProperties = careful(schema.maxProperties, validator.maxProperties(),
+							Integer.MAX_VALUE);
+						schema.minProperties = careful(schema.minProperties, validator.minProperties(), 0);
+					}
 				}
-			}
-				break;
-			case STRING: {
-				ValidatorString validator = element
-						.getAnnotation(ValidatorString.class);
-				if (validator != null) {
-					schema.enum_ = getEnum(validator.enum_());
-					schema.maxLength = careful(schema.maxLength,
-							validator.maxLength(), Integer.MAX_VALUE);
-					schema.minLength = careful(schema.minLength,
-							validator.minLength(), 0);
-					schema.pattern = careful(schema.pattern,
-							validator.pattern(), "");
+					break;
+				case STRING : {
+					ValidatorString validator = element.getAnnotation(ValidatorString.class);
+					if (validator != null) {
+						schema.enum_ = getEnum(validator.enum_());
+						schema.maxLength = careful(schema.maxLength, validator.maxLength(), Integer.MAX_VALUE);
+						schema.minLength = careful(schema.minLength, validator.minLength(), 0);
+						schema.pattern = careful(schema.pattern, validator.pattern(), "");
+					}
 				}
-			}
-				break;
-			case NONE:
-			default:
-				break;
+					break;
+				case NONE :
+				default :
+					break;
 			}
 		}
 		return false;
@@ -571,8 +528,7 @@ public class OpenAPI extends OpenAPIObject {
 	// schema.title = careful(schema.title, schemaAnn.title());
 	// }
 
-	private SchemaObject toSchemaObject(AnnotatedType annotatedType,
-			AnnotatedElement... elements) throws Exception {
+	private SchemaObject toSchemaObject(AnnotatedType annotatedType, AnnotatedElement... elements) throws Exception {
 		Type type = annotatedType.getType();
 		SchemaObject schema;
 
@@ -582,8 +538,7 @@ public class OpenAPI extends OpenAPIObject {
 		} else if (annotatedType instanceof AnnotatedParameterizedType) {
 
 			AnnotatedParameterizedType annotatedPtype = (AnnotatedParameterizedType) annotatedType;
-			ParameterizedType ptype = (ParameterizedType) annotatedPtype
-					.getType();
+			ParameterizedType ptype = (ParameterizedType) annotatedPtype.getType();
 
 			Type sub = ptype.getRawType();
 
@@ -595,12 +550,10 @@ public class OpenAPI extends OpenAPIObject {
 				if (Collection.class.isAssignableFrom(clazz)) {
 					schema.type = PrimitiveType.ARRAY;
 
-					schema.items.add(toSchemaObject(annotatedPtype
-							.getAnnotatedActualTypeArguments()[0]));
+					schema.items.add(toSchemaObject(annotatedPtype.getAnnotatedActualTypeArguments()[0]));
 				} else if (clazz.isArray()) {
 					schema.type = PrimitiveType.ARRAY;
-					schema.items.add(toSchemaObject(annotatedPtype
-							.getAnnotatedActualTypeArguments()[0]));
+					schema.items.add(toSchemaObject(annotatedPtype.getAnnotatedActualTypeArguments()[0]));
 				} else if (Map.class.isAssignableFrom(clazz)) {
 					schema.type = PrimitiveType.OBJECT;
 				}
@@ -628,36 +581,34 @@ public class OpenAPI extends OpenAPIObject {
 
 		if (clazz == Boolean.class) {
 			schema.type = PrimitiveType.BOOLEAN;
-		} else if (Number.class.isAssignableFrom(clazz)
-				|| clazz == Character.class) {
+		} else if (Number.class.isAssignableFrom(clazz) || clazz == Character.class) {
 			schema.type = PrimitiveType.NUMBER;
 
 			if (clazz == Byte.class) {
 				schema.type = PrimitiveType.INTEGER;
 				schema.format = "byte";
-//				schema.minimum = Byte.MIN_VALUE;
-//				schema.maximum = Byte.MAX_VALUE;
-			} else if (clazz == Short.class || clazz == Integer.class
-					|| clazz == Character.class) {
+				// schema.minimum = Byte.MIN_VALUE;
+				// schema.maximum = Byte.MAX_VALUE;
+			} else if (clazz == Short.class || clazz == Integer.class || clazz == Character.class) {
 				schema.type = PrimitiveType.INTEGER;
 				schema.format = "int32";
-//				schema.minimum = Integer.MIN_VALUE;
-//				schema.maximum = Integer.MAX_VALUE;
+				// schema.minimum = Integer.MIN_VALUE;
+				// schema.maximum = Integer.MAX_VALUE;
 			} else if (clazz == Long.class) {
 				schema.type = PrimitiveType.INTEGER;
 				schema.format = "int64";
-//				schema.minimum = Long.MIN_VALUE;
-//				schema.maximum = Long.MAX_VALUE;
+				// schema.minimum = Long.MIN_VALUE;
+				// schema.maximum = Long.MAX_VALUE;
 			} else if (clazz == Float.class) {
 				schema.type = PrimitiveType.NUMBER;
 				schema.format = "float";
-//				schema.minimum = Float.MIN_VALUE;
-//				schema.maximum = Float.MAX_VALUE;
+				// schema.minimum = Float.MIN_VALUE;
+				// schema.maximum = Float.MAX_VALUE;
 			} else if (clazz == Double.class) {
 				schema.type = PrimitiveType.NUMBER;
 				schema.format = "double";
-//				schema.minimum = Double.MIN_VALUE;
-//				schema.maximum = Double.MAX_VALUE;
+				// schema.minimum = Double.MIN_VALUE;
+				// schema.maximum = Double.MAX_VALUE;
 			}
 		} else if (clazz.isArray()) {
 			schema.type = PrimitiveType.ARRAY;
@@ -690,8 +641,7 @@ public class OpenAPI extends OpenAPIObject {
 				if (f.getDeclaringClass() == Object.class)
 					continue;
 
-				schema.properties.put(f.getName(),
-						toSchemaObject(f.getAnnotatedType(), f));
+				schema.properties.put(f.getName(), toSchemaObject(f.getAnnotatedType(), f));
 				if (f.getAnnotation(Required.class) != null)
 					required.add(f.getName());
 			}

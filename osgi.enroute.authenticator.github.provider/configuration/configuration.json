@@ -1,8 +1,6 @@
-[
-   { 
+{
+   "osgi.enroute.oauth2.basic~twitter" : { 
    	  "comment":							"Twitter Self Authorization",
-      "service.factoryPid":					"osgi.enroute.oauth2.basic",
-      "service.pid":						"twitter",
       "domain":								"twitter",
 	  "authorization.endpoint":				"https://api.twitter.com/oauth2/token",
 	  "token.endpoint":						"https://api.twitter.com/oauth2/token",
@@ -10,4 +8,4 @@
       "client.secret":						"@{env;twitter.client.secret}",
       "self.authorize":						true
    }
-]
+}

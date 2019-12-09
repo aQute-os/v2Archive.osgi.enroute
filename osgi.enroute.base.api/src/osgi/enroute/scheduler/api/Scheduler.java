@@ -27,9 +27,8 @@ public interface Scheduler {
 	/**
 	 * Return a promise that will resolve after the given number of
 	 * milliseconds. This promise can be canceled.
-	 * 
-	 * @param ms
-	 *            Number of milliseconds to delay
+	 *
+	 * @param ms Number of milliseconds to delay
 	 * @return A cancellable Promise
 	 */
 	CancellablePromise<Instant> after(long ms);
@@ -37,20 +36,17 @@ public interface Scheduler {
 	/**
 	 * Return a promise that resolves after delaying ms with the result of the
 	 * call that is executed after the delay.
-	 * 
-	 * @param call
-	 *            provides the result
-	 * @param ms
-	 *            Number of ms to delay
+	 *
+	 * @param call provides the result
+	 * @param ms Number of ms to delay
 	 * @return A cancellable Promise
 	 */
 	<T> CancellablePromise<T> after(Callable<T> call, long ms);
 
 	/**
 	 * Return a promise that resolves at the given epochTime
-	 * 
-	 * @param epochTime
-	 *            The Java (System.currentMillis) time
+	 *
+	 * @param epochTime The Java (System.currentMillis) time
 	 * @return A cancellable Promise
 	 */
 	CancellablePromise<Instant> at(long epochTime);
@@ -58,11 +54,9 @@ public interface Scheduler {
 	/**
 	 * Return a promise that resolves at the given epochTime with the result of
 	 * the call.
-	 * 
-	 * @param callable
-	 *            provides the result
-	 * @param epochTime
-	 *            The Java (System.currentMillis) time
+	 *
+	 * @param callable provides the result
+	 * @param epochTime The Java (System.currentMillis) time
 	 * @return A cancellable Promise
 	 */
 	<T> CancellablePromise<T> at(Callable<T> callable, long epochTime);
@@ -73,11 +67,9 @@ public interface Scheduler {
 	 * time, the runnable will be run. The method returns a closeable that can
 	 * be used to stop scheduling. This variation does not take an environment
 	 * object.
-	 * 
-	 * @param r
-	 *            The Runnable to run
-	 * @param cronExpression
-	 *            A Cron Expression
+	 *
+	 * @param r The Runnable to run
+	 * @param cronExpression A Cron Expression
 	 * @return A closeable to terminate the schedule
 	 * @throws Exception
 	 */
@@ -90,18 +82,15 @@ public interface Scheduler {
 	 * be used to stop scheduling. The run metjod of r takes an environment
 	 * object. An environment object is a custom interface where the names of
 	 * the methods are the keys in the properties (see {@link DTOs}).
-	 * 
-	 * @param type
-	 *            The data type of the parameter for the cron job
-	 * @param r
-	 *            The Runnable to run
-	 * @param cronExpression
-	 *            A Cron Expression
+	 *
+	 * @param type The data type of the parameter for the cron job
+	 * @param r The Runnable to run
+	 * @param cronExpression A Cron Expression
 	 * @return A closeable to terminate the schedule
 	 * @throws Exception
 	 */
 	<T> Closeable schedule(Class<T> type, CronJob<T> r, String cronExpression) throws Exception;
-	
+
 	/**
 	 * Schedule a runnable to be executed in a loop. The first time the first is
 	 * as delay, later the values in ms are used sequentially. If no more values
@@ -109,13 +98,10 @@ public interface Scheduler {
 	 * that can be used to stop scheduling. This is a fixed rate scheduler. That
 	 * is, a base time is established when this method is called and subsequent
 	 * firings are always calculated relative to this start time.
-	 * 
-	 * @param r
-	 *            The Runnable to run
-	 * @param first
-	 *            The first time to use
-	 * @param ms
-	 *            The subsequent times to use.
+	 *
+	 * @param r The Runnable to run
+	 * @param first The first time to use
+	 * @param ms The subsequent times to use.
 	 * @return A closeable to terminate the schedule
 	 * @throws Exception
 	 */
@@ -131,20 +117,17 @@ public interface Scheduler {
 	 * <p>
 	 * If the timeout is in the past then the promised will be resolved
 	 * immediately
-	 * 
-	 * @param promise
-	 *            The promise to base the returned promise on
-	 * @param timeout
-	 *            The number of milliseconds to wait.
+	 *
+	 * @param promise The promise to base the returned promise on
+	 * @param timeout The number of milliseconds to wait.
 	 * @return A cancellable Promise
 	 */
 	<T> CancellablePromise<T> before(Promise<T> promise, long timeout);
 
 	/**
 	 * Convenience method to use an Instant. See {@link #at(long)}
-	 * 
-	 * @param instant
-	 *            The instant for the time
+	 *
+	 * @param instant The instant for the time
 	 * @return a cancellable promise that is resolved when the instant has been
 	 *         reached
 	 */
@@ -155,9 +138,8 @@ public interface Scheduler {
 	/**
 	 * Convenience method to use an instant and a Callable. See
 	 * {@link #at(Callable, long)}.
-	 * 
-	 * @param callable
-	 *            will be called when instant is reached
+	 *
+	 * @param callable will be called when instant is reached
 	 * @param instant
 	 * @return a cancellable promise that is resolved when the instant has been
 	 *         reached and the callable has been called
@@ -169,12 +151,10 @@ public interface Scheduler {
 	/**
 	 * Convenience method to use an instant and a RunnableWithException. See
 	 * {@link #at(RunnableWithException, long)}.
-	 * 
-	 * @param r
-	 *            the runnable with exception to call when instant has been
+	 *
+	 * @param r the runnable with exception to call when instant has been
 	 *            reached
-	 * @param instant
-	 *            the time to run r
+	 * @param instant the time to run r
 	 * @return A cancellable promise
 	 */
 	default CancellablePromise<Void> at(RunnableWithException r, Instant instant) {
@@ -184,12 +164,10 @@ public interface Scheduler {
 	/**
 	 * Convenience method to use an instant and a RunnableWithException. See
 	 * {@link #at(RunnableWithException, long)}.
-	 * 
-	 * @param r
-	 *            the runnable with exception to call when instant has been
+	 *
+	 * @param r the runnable with exception to call when instant has been
 	 *            reached
-	 * @param epochMilli
-	 *            the time at which to run in epoch time
+	 * @param epochMilli the time at which to run in epoch time
 	 * @return A cancellable promise
 	 */
 	default CancellablePromise<Void> at(RunnableWithException r, long epochMilli) {
@@ -202,9 +180,8 @@ public interface Scheduler {
 	/**
 	 * Convenience method to use a Duration instead of a millisecond delay. See
 	 * {@link #after(long)}.
-	 * 
-	 * @param d
-	 *            the duration to wait
+	 *
+	 * @param d the duration to wait
 	 * @return A cancellable promise
 	 */
 	default CancellablePromise<Instant> after(Duration d) {
@@ -214,11 +191,9 @@ public interface Scheduler {
 	/**
 	 * Convenience method to to a duration and a callable. See
 	 * {@link #after(Callable, long)}.
-	 * 
-	 * @param call
-	 *            the callable to call
-	 * @param d
-	 *            the duration to wait
+	 *
+	 * @param call the callable to call
+	 * @param d the duration to wait
 	 * @return A cancellable promise
 	 */
 	default <T> CancellablePromise<T> after(Callable<T> call, Duration d) {
@@ -228,12 +203,10 @@ public interface Scheduler {
 	/**
 	 * Convenience method to to a duration and a RunnableWithException. See
 	 * {@link #after(Callable, long)}.
-	 * 
-	 * @param r
-	 *            the runnable with exception to call when instant has been
+	 *
+	 * @param r the runnable with exception to call when instant has been
 	 *            reached
-	 * @param ms
-	 *            the time to wait in milliseconds
+	 * @param ms the time to wait in milliseconds
 	 * @return A cancellable promise
 	 */
 	default <T> CancellablePromise<T> after(RunnableWithException r, long ms) {
@@ -246,13 +219,10 @@ public interface Scheduler {
 	/**
 	 * Convenience method to use durations instead of milliseconds. See
 	 * {@link #schedule(RunnableWithException, long, long...)}
-	 * 
-	 * @param r
-	 *            the runnable to run after each duration
-	 * @param first
-	 *            the first duration
-	 * @param duration
-	 *            subsequent durations
+	 *
+	 * @param r the runnable to run after each duration
+	 * @param first the first duration
+	 * @param duration subsequent durations
 	 * @return A cancellable promise
 	 * @throws Exception
 	 */
