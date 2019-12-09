@@ -12,7 +12,7 @@ bnd-version				4.0.0
 # To release, remove the -SNAPSHOT
 
 enroute-version			${base.version}-SNAPSHOT
--groupid:               org.osgi
+-groupid:               biz.aQute
 -pom:                   version=${enroute-version}
 
 Bundle-Version:         ${base.version}.${tstamp}
@@ -52,7 +52,7 @@ usr = ${env;REPOSITORY_USERNAME;}
 
 -plugin.osgi.sonatype: \
     aQute.bnd.repository.maven.provider.MavenBndRepository; \
-        snapshotUrl="https://oss.sonatype.org/content/repositories/osgi-snapshots/,https://bndtools.jfrog.io/bndtools/update/"; \
+        snapshotUrl="https://oss.sonatype.org/content/repositories/snapshots/,https://bndtools.jfrog.io/bndtools/update/"; \
         releaseUrl= 'https://oss.sonatype.org/service/local/staging/deploy/maven2/,http://repo1.maven.org/maven2/'; \
         index=${.}/release.mvn; \
         name="Release";\
