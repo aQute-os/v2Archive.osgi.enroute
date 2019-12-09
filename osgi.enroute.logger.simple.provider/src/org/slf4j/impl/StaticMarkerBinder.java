@@ -25,17 +25,45 @@
 package org.slf4j.impl;
 
 import org.slf4j.IMarkerFactory;
+import org.slf4j.helpers.BasicMarkerFactory;
 import org.slf4j.spi.MarkerFactoryBinder;
 
 public class StaticMarkerBinder implements MarkerFactoryBinder {
-	public static final StaticMarkerBinder	SINGLETON	= new StaticMarkerBinder();
-
-	public IMarkerFactory getMarkerFactory() {
-		return StaticLoggerBinder.getSingleton().factory.getMarkerFactory();
+	public static final StaticMarkerBinder SINGLETON;
+	static {
+		SINGLETON = new StaticMarkerBinder();
 	}
 
+	final IMarkerFactory markerFactory = new BasicMarkerFactory();
+
+	private StaticMarkerBinder() {}
+
+	/**
+	 * Return the singleton of this class.
+	 * 
+	 * @return the StaticMarkerBinder singleton
+	 * @since 1.7.14
+	 */
+	public static StaticMarkerBinder getSingleton() {
+		return SINGLETON;
+	}
+
+	/**
+	 * Currently this method always returns an instance of
+	 * {@link BasicMarkerFactory}.
+	 */
+	@Override
+	public IMarkerFactory getMarkerFactory() {
+		return markerFactory;
+	}
+
+	/**
+	 * Currently, this method returns the class name of
+	 * {@link BasicMarkerFactory}.
+	 */
+	@Override
 	public String getMarkerFactoryClassStr() {
-		return getMarkerFactory().getClass().getName();
+		return BasicMarkerFactory.class.getName();
 	}
 
 }

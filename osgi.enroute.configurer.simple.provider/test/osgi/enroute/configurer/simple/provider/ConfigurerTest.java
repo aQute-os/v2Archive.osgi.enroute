@@ -2,7 +2,9 @@ package osgi.enroute.configurer.simple.provider;
 
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.startsWith;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.nio.charset.StandardCharsets;
@@ -27,15 +29,16 @@ import aQute.bnd.osgi.Resource;
 import aQute.lib.io.IO;
 
 /*
- * 
- * 
- * 
+ *
+ *
+ *
  */
 
+@SuppressWarnings("deprecation")
 public class ConfigurerTest {
 
-	private static final long DELAY = 1000;
-	static JUnitFramework juf;
+	private static final long	DELAY	= 1000;
+	static JUnitFramework		juf;
 
 	@BeforeClass
 	public static void beforClasse() throws Exception {
@@ -54,17 +57,14 @@ public class ConfigurerTest {
 
 	@Before
 	public void before() throws Exception {
-		System.setProperty("enRoute.configurer.extra", "[\n" +
-				"   { \n" +
-				"      \"service.pid\":							\"system\",\n" +
-				"      \"data\":								\"data\"\n" +
-				"   }\n" +
-				"]\n" +
-				"");
+		System.setProperty("enRoute.configurer.extra",
+			"[\n" + "   { \n" + "      \"service.pid\":							\"system\",\n"
+				+ "      \"data\":								\"data\"\n" + "   }\n" + "]\n" + "");
 		cfg = new Configurer();
 		cm = juf.getService(ConfigurationAdmin.class);
 		cfg.setCM(cm);
-		cfg.setLogService(juf.getServices(LogService.class).get(0));
+		cfg.setLogService(juf.getServices(LogService.class)
+			.get(0));
 		cfg.activate(juf.context);
 	}
 
@@ -76,15 +76,16 @@ public class ConfigurerTest {
 	@Test
 	public void testBasic() throws Exception {
 		Bundle bundle = juf.bundle()
-				.addResource("configuration/configuration.json",
-						Resource.fromURL(getClass().getResource("data/basic.json")))
-				.install();
+			.addResource("configuration/configuration.json",
+				Resource.fromURL(getClass().getResource("data/basic.json")))
+			.install();
 
 		bundle.start();
 
 		Thread.sleep(DELAY);
 		Configuration configuration = cm.getConfiguration("basic");
-		assertThat(configuration.getProperties().get("data"), is("data"));
+		assertThat(configuration.getProperties()
+			.get("data"), is("data"));
 		bundle.uninstall();
 	}
 
@@ -96,15 +97,16 @@ public class ConfigurerTest {
 		override.update(dict);
 
 		Bundle bundle = juf.bundle()
-				.addResource("configuration/configuration.json",
-						Resource.fromURL(getClass().getResource("data/override.json")))
-				.install();
+			.addResource("configuration/configuration.json",
+				Resource.fromURL(getClass().getResource("data/override.json")))
+			.install();
 
 		bundle.start();
 
 		Thread.sleep(DELAY);
 		Configuration configuration = cm.getConfiguration("override");
-		assertThat(configuration.getProperties().get("data"), is("data"));
+		assertThat(configuration.getProperties()
+			.get("data"), is("data"));
 		bundle.uninstall();
 	}
 
@@ -117,16 +119,18 @@ public class ConfigurerTest {
 		override.update(dict);
 
 		Bundle bundle = juf.bundle()
-				.addResource("configuration/configuration.json",
-						Resource.fromURL(getClass().getResource("data/precious.json")))
-				.install();
+			.addResource("configuration/configuration.json",
+				Resource.fromURL(getClass().getResource("data/precious.json")))
+			.install();
 
 		bundle.start();
 
 		Thread.sleep(DELAY);
 		Configuration configuration = cm.getConfiguration("precious");
-		assertThat(configuration.getProperties().get("a"), is("original"));
-		assertThat(configuration.getProperties().get("b"), is("B"));
+		assertThat(configuration.getProperties()
+			.get("a"), is("original"));
+		assertThat(configuration.getProperties()
+			.get("b"), is("B"));
 
 		bundle.uninstall();
 	}
@@ -139,15 +143,16 @@ public class ConfigurerTest {
 		override.update(dict);
 
 		Bundle bundle = juf.bundle()
-				.addResource("configuration/configuration.json",
-						Resource.fromURL(getClass().getResource("data/nooverride.json")))
-				.install();
+			.addResource("configuration/configuration.json",
+				Resource.fromURL(getClass().getResource("data/nooverride.json")))
+			.install();
 
 		bundle.start();
 
 		Thread.sleep(DELAY);
 		Configuration configuration = cm.getConfiguration("nooverride");
-		assertThat(configuration.getProperties().get("data"), is("original"));
+		assertThat(configuration.getProperties()
+			.get("data"), is("original"));
 		bundle.uninstall();
 	}
 
@@ -155,18 +160,20 @@ public class ConfigurerTest {
 	public void testSystemPropertyExtra() throws Exception {
 		Thread.sleep(DELAY);
 		Configuration configuration = cm.getConfiguration("system");
-		assertThat(configuration.getProperties().get("data"), is("data"));
+		assertThat(configuration.getProperties()
+			.get("data"), is("data"));
 	}
 
 	@Test
 	public void testMacros() throws Exception {
 		Bundle bundle = juf.bundle()
-				.addResource("configuration/configuration.json",
-						Resource.fromURL(getClass().getResource("data/macro.json")))
-				.install();
+			.addResource("configuration/configuration.json",
+				Resource.fromURL(getClass().getResource("data/macro.json")))
+			.install();
 		bundle.start();
 		Thread.sleep(DELAY);
-		Dictionary<String, Object> configuration = cm.getConfiguration("macro", "?").getProperties();
+		Dictionary<String, Object> configuration = cm.getConfiguration("macro", "?")
+			.getProperties();
 		assertThat(configuration.get("bundleid"), is(bundle.getBundleId() + ""));
 		assertThat(configuration.get("def"), is("--"));
 		assertThat((String) configuration.get("location"), startsWith("generated test-"));
@@ -177,19 +184,19 @@ public class ConfigurerTest {
 	@Test
 	public void testResource() throws Exception {
 		Bundle bundle = juf.bundle()
-				.addResource("configuration/configuration.json",
-						Resource.fromURL(getClass().getResource("data/resource.json")))
-				.addResource("foo.bar",
-						new EmbeddedResource("FOO".getBytes(StandardCharsets.UTF_8), 0))
-				.install();
+			.addResource("configuration/configuration.json",
+				Resource.fromURL(getClass().getResource("data/resource.json")))
+			.addResource("foo.bar", new EmbeddedResource("FOO".getBytes(StandardCharsets.UTF_8), 0))
+			.install();
 		bundle.start();
 		Thread.sleep(DELAY);
 
-		Dictionary<String, Object> configuration = cm.getConfiguration("resource", "?").getProperties();
-		assertNotNull(  "Configuration must exist", configuration);
+		Dictionary<String, Object> configuration = cm.getConfiguration("resource", "?")
+			.getProperties();
+		assertNotNull("Configuration must exist", configuration);
 		String path = (String) configuration.get("resource");
 		File file = new File(path);
-		assertTrue( "file must exist", file.isFile());
+		assertTrue("file must exist", file.isFile());
 		String content = IO.collect(file);
 
 		assertThat(content, is("FOO"));
@@ -200,11 +207,10 @@ public class ConfigurerTest {
 	@Test
 	public void testProfile() throws Exception {
 		Bundle bundle = juf.bundle()
-				.addResource("configuration/configuration.json",
-						Resource.fromURL(getClass().getResource("data/profile.json")))
-				.addResource("foo.bar",
-						new EmbeddedResource("FOO".getBytes(StandardCharsets.UTF_8), 0))
-				.install();
+			.addResource("configuration/configuration.json",
+				Resource.fromURL(getClass().getResource("data/profile.json")))
+			.addResource("foo.bar", new EmbeddedResource("FOO".getBytes(StandardCharsets.UTF_8), 0))
+			.install();
 		bundle.start();
 		Thread.sleep(DELAY);
 
@@ -213,17 +219,19 @@ public class ConfigurerTest {
 		assertThat(dict.get("foo"), is("FOO"));
 
 		bundle.stop();
-		
+
 		Map<String, Object> properties = new HashMap<>();
-		properties.put("launcher.arguments", new String[] {"--profile", "bar"});
+		properties.put("launcher.arguments", new String[] {
+			"--profile", "bar"
+		});
 		cfg.setLauncher(null, properties);
 
 		configuration.update(new Hashtable<>());
-		
+
 		Thread.sleep(DELAY);
 		bundle.start();
 		Thread.sleep(DELAY);
-		
+
 		configuration = cm.getConfiguration("profile", "?");
 		dict = configuration.getProperties();
 		assertThat(dict.get("foo"), is("BAR"));

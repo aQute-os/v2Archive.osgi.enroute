@@ -20,6 +20,7 @@ Export-Package: \
 -workingset bundles,provider
 -buildpath:  \
     org.osgi.service.component.annotations, \
+    biz.aQute.launchpad;packages=*, \
 	biz.aQute.bndlib;packages=*, \
 	osgi.enroute.base.api;version=latest
 

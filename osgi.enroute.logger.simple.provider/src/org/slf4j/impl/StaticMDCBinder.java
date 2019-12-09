@@ -24,16 +24,23 @@
  */
 package org.slf4j.impl;
 
+import org.slf4j.helpers.BasicMDCAdapter;
 import org.slf4j.spi.MDCAdapter;
 
 public class StaticMDCBinder {
-	public static final StaticMDCBinder	SINGLETON	= new StaticMDCBinder();
+	public static final StaticMDCBinder SINGLETON;
+	static {
+		SINGLETON = new StaticMDCBinder();
+	}
+
+	// "Mapped Diagnostic Contexts" adapter
+	final MDCAdapter mappedDiagnosticContextsAdapterFactory = new BasicMDCAdapter();
 
 	public MDCAdapter getMDCA() {
-		return StaticLoggerBinder.getSingleton().factory.getMDCA();
+		return mappedDiagnosticContextsAdapterFactory;
 	}
 
 	public String getMDCAdapterClassStr() {
-		return StaticLoggerBinder.getSingleton().factory.getClass().getName();
+		return BasicMDCAdapter.class.getName();
 	}
 }

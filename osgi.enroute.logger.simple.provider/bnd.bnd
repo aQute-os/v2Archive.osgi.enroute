@@ -5,15 +5,14 @@
 
 Bundle-Description: 				\
 	Provides a simple implementation of the OSGi SLF4J bridge, includes shell command
+	
 Export-Package:  \
 	osgi.enroute.logger.api;provide:=true,\
-    org.slf4j.helpers,\
-    org.slf4j.event,\
-	org.slf4j;provide:=true;-split-package:=merge-last;version=1.7.25
+    org.slf4j.*
 
 Private-Package: \
 	osgi.enroute.logger.simple.provider,\
-	org.slf4j.impl;-split-package:=first,\
+	org.slf4j.impl,\
 	org.slf4j.spi
 
 Bundle-License:			http://opensource.org/licenses/BSD-2-Clause
@@ -29,7 +28,9 @@ Conditional-Package: 	aQute.lib*
 	org.apache.felix.gogo.runtime
 
 -testpath: \
-	osgi.enroute.junit.wrapper
+	osgi.enroute.junit.wrapper,\
+    osgi.enroute.hamcrest.wrapper,\
+    org.assertj.core
 
 -includeresource: \
 	{readme.md}, \

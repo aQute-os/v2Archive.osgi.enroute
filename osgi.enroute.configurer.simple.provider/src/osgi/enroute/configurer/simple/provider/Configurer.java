@@ -69,7 +69,7 @@ import osgi.enroute.configurer.api.ConfigurerConstants;
 
 @Capability(namespace = ExtenderNamespace.EXTENDER_NAMESPACE, name = ConfigurerConstants.CONFIGURER_EXTENDER_NAME, version = ConfigurerConstants.CONFIGURER_EXTENDER_VERSION)
 @Component(service = {
-		ConfigurationDone.class, Object.class
+	ConfigurationDone.class, Object.class
 }, immediate = true)
 public class Configurer implements ConfigurationDone {
 	private static final String					FORCE				= "force";
@@ -107,14 +107,13 @@ public class Configurer implements ConfigurationDone {
 
 		Map<String, String> map = new HashMap<>();
 		map.putAll(settings);
-		map.putAll(converter.convert(new TypeReference<Map<String, String>>() {
-		}, System.getProperties()));
+		map.putAll(converter.convert(new TypeReference<Map<String, String>>() {}, System.getProperties()));
 		this.base = Collections.unmodifiableMap(map);
 
 		Coordinator coordinator = coordinatorRef.get();
 		Coordination coordination = coordinator != null
-				? coordinator.begin("enRoute.configurer", TimeUnit.SECONDS.toMillis(20))
-				: null;
+			? coordinator.begin("enRoute.configurer", TimeUnit.SECONDS.toMillis(20))
+			: null;
 		try {
 			tracker = new BundleTracker<Object>(context, Bundle.ACTIVE | Bundle.STARTING, null) {
 
@@ -123,7 +122,8 @@ public class Configurer implements ConfigurationDone {
 					try {
 
 						boolean defined = true;
-						String h = bundle.getHeaders().get(ConfigurationDone.BUNDLE_CONFIGURATION);
+						String h = bundle.getHeaders()
+							.get(ConfigurationDone.BUNDLE_CONFIGURATION);
 						if (h == null) {
 							//
 							// We use a default configuration if the header is
@@ -142,11 +142,11 @@ public class Configurer implements ConfigurationDone {
 							return null;
 
 						log.log(LogService.LOG_INFO, "Reading configurations for bundle " + bundle.getSymbolicName()
-								+ " " + bundle.getVersion() + " in " + h);
+							+ " " + bundle.getVersion() + " in " + h);
 						for (String entry : h.split(",")) {
 							URL url = bundle.getEntry(entry);
 							log.log(LogService.LOG_INFO, "Reading configuration for bundle " + bundle.getSymbolicName()
-									+ " " + bundle.getVersion() + " in " + entry + " " + url);
+								+ " " + bundle.getVersion() + " in " + entry + " " + url);
 
 							if (url == null) {
 								return null;
@@ -156,8 +156,8 @@ public class Configurer implements ConfigurationDone {
 							if (s == null) {
 								if (defined)
 									log.log(LogService.LOG_INFO,
-											"Cannot find configuration for bundle " + bundle.getSymbolicName() + " "
-													+ bundle.getVersion() + " in " + h + " " + url);
+										"Cannot find configuration for bundle " + bundle.getSymbolicName() + " "
+											+ bundle.getVersion() + " in " + h + " " + url);
 								return null;
 							}
 
@@ -237,9 +237,9 @@ public class Configurer implements ConfigurationDone {
 			// Dictionary).
 			//
 
-			final List<Hashtable<String, Object>> list = codec.dec().from(data)
-					.get(new TypeReference<List<Hashtable<String, Object>>>() {
-					});
+			final List<Hashtable<String, Object>> list = codec.dec()
+				.from(data)
+				.get(new TypeReference<List<Hashtable<String, Object>>>() {});
 
 			//
 			// Process each dictionary
@@ -288,8 +288,8 @@ public class Configurer implements ConfigurationDone {
 					// if it does not exist, we create a new one.
 					//
 
-					Configuration instances[] = cm.listConfigurations("(&(" + LOGICAL_PID_KEY + "=" + pid
-							+ ")(service.factoryPid=" + factory + "))");
+					Configuration instances[] = cm.listConfigurations(
+						"(&(" + LOGICAL_PID_KEY + "=" + pid + ")(service.factoryPid=" + factory + "))");
 					if (instances == null || instances.length == 0) {
 						configuration = cm.createFactoryConfiguration(factory, "?");
 					} else {
@@ -324,7 +324,7 @@ public class Configurer implements ConfigurationDone {
 			}
 		} catch (Exception e) {
 			log.log(LogService.LOG_ERROR, "While configuring " + bundle.getBundleId() + ", configuration is " + data,
-					e);
+				e);
 		}
 	}
 
@@ -339,12 +339,12 @@ public class Configurer implements ConfigurationDone {
 					}
 				} else {
 					log.log(LogService.LOG_INFO, CONFIGURER_PRECIOUS + " field names must be a string, found: "
-							+ field.getClass() + " in bundle " + bundle);
+						+ field.getClass() + " in bundle " + bundle);
 				}
 			}
 		} else if (precious != null) {
-			log.log(LogService.LOG_INFO, CONFIGURER_PRECIOUS + " must be a collection, it is a " + precious.getClass()
-					+ " in bundle " + bundle);
+			log.log(LogService.LOG_INFO,
+				CONFIGURER_PRECIOUS + " must be a collection, it is a " + precious.getClass() + " in bundle " + bundle);
 		}
 	}
 
@@ -379,14 +379,16 @@ public class Configurer implements ConfigurationDone {
 				key = m.group(2);
 				prfile = true;
 
-			} else if (e.getKey().equals(".log")) {
+			} else if (e.getKey()
+				.equals(".log")) {
 				//
 				// .log entries are ignored but send to the logger
 				//
 				log.log(LogService.LOG_INFO, converter.convert(String.class, d.get(".log")));
 				continue;
 
-			} else if (e.getKey().startsWith(".comment"))
+			} else if (e.getKey()
+				.startsWith(".comment"))
 				//
 				// Keys tha start with .comment are ignored
 				//
@@ -398,8 +400,8 @@ public class Configurer implements ConfigurationDone {
 			if (value != null && value instanceof String) {
 				Matcher matcher = MACRO_P.matcher((String) value);
 				if (matcher.find()) {
-					log.log(LogService.LOG_ERROR, "Configuration has detected macros that are not resolved: " + key
-							+ "=" + value);
+					log.log(LogService.LOG_ERROR,
+						"Configuration has detected macros that are not resolved: " + key + "=" + value);
 				}
 			}
 
@@ -421,7 +423,8 @@ public class Configurer implements ConfigurationDone {
 	private boolean isEqual(Hashtable<String, Object> a, Dictionary<?, ?> b) {
 
 		for (Entry<String, Object> e : a.entrySet()) {
-			if (e.getKey().equals("service.pid"))
+			if (e.getKey()
+				.equals("service.pid"))
 				continue;
 
 			Object value = b.get(e.getKey());
@@ -437,12 +440,13 @@ public class Configurer implements ConfigurationDone {
 			if (value.equals(e.getValue()))
 				continue;
 
-			if (value.getClass().isArray()) {
+			if (value.getClass()
+				.isArray()) {
 				Object[] aa = {
-						value
+					value
 				};
 				Object[] bb = {
-						e.getValue()
+					e.getValue()
 				};
 				if (!Arrays.deepEquals(aa, bb))
 					return false;
@@ -453,8 +457,8 @@ public class Configurer implements ConfigurationDone {
 					return false;
 			} else {
 				log.log(LogService.LOG_INFO,
-						"Updating config because " + a.get("service.pid") + " has a different value for " + e.getKey()
-								+ ". Old value " + value + ", new value: " + e.getValue());
+					"Updating config because " + a.get("service.pid") + " has a different value for " + e.getKey()
+						+ ". Old value " + value + ", new value: " + e.getValue());
 				return false;
 			}
 		}
@@ -492,24 +496,26 @@ public class Configurer implements ConfigurationDone {
 		File dir = currentBundle.getDataFile("");
 		File out = IO.getFile(dir, safe);
 
-		out.getParentFile().mkdirs();
-		if (!out.getParentFile().isDirectory()) {
-			log.log(LogService.LOG_ERROR, "Cannot create configuration directory " + dir + " in bundle "
-					+ currentBundle);
+		out.getParentFile()
+			.mkdirs();
+		if (!out.getParentFile()
+			.isDirectory()) {
+			log.log(LogService.LOG_ERROR,
+				"Cannot create configuration directory " + dir + " in bundle " + currentBundle);
 		}
 
 		try {
 			IO.copy(url.openStream(), out);
 		} catch (Exception e) {
-			log.log(LogService.LOG_ERROR, "Cannot copy a resource " + out + " from bundle " + currentBundle
-					+ " resource " + url);
+			log.log(LogService.LOG_ERROR,
+				"Cannot copy a resource " + out + " from bundle " + currentBundle + " resource " + url);
 		}
 
-		String s= out.getAbsolutePath();
-		
+		String s = out.getAbsolutePath();
+
 		// since the value is used in a JSON file
 		// we must escape it
-		
+
 		return escapeToJsonString(s);
 	}
 
@@ -584,7 +590,7 @@ public class Configurer implements ConfigurationDone {
 					}
 			}
 		}
-		if ( app.length() == s.length())
+		if (app.length() == s.length())
 			return s;
 		else
 			return app.toString();
@@ -617,7 +623,7 @@ public class Configurer implements ConfigurationDone {
 		String[] args = (String[]) props.get("launcher.arguments");
 		for (int i = 0; i < args.length - 1; i++) {
 			if (args[i].equals("--profile")) {
-				this.profile = args[i+1];
+				this.profile = args[i + 1];
 				return;
 			}
 		}
