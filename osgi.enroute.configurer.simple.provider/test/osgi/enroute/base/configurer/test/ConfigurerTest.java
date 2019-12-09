@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
+import org.junit.Ignore;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.InvalidSyntaxException;
@@ -22,6 +23,7 @@ import junit.framework.TestCase;
 import osgi.enroute.configurer.api.ConfigurationDone;
 
 @SuppressWarnings("resource")
+@Ignore
 public class ConfigurerTest extends TestCase {
 
 	static LaunchpadBuilder	builder;

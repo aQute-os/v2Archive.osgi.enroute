@@ -1,11 +1,15 @@
 package osgi.enroute.rest.simple.provider;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.junit.Test;
+
 import aQute.lib.collections.ExtList;
-import junit.framework.TestCase;
 import osgi.enroute.rest.api.REST;
 import osgi.enroute.rest.api.RESTRequest;
 
@@ -15,7 +19,7 @@ import osgi.enroute.rest.api.RESTRequest;
  *
  */
 
-public class MapperTest extends TestCase {
+public class MapperTest {
 
 	static class WithoutRequest___ implements REST {
 		public String getFoo() {
@@ -179,6 +183,7 @@ public class MapperTest extends TestCase {
 		}
 	}
 
+	@Test
 	public void testMapper() throws Exception {
 
 		assertMapper(Varargs.class, "getfoo", null, "foo-varargs/0");

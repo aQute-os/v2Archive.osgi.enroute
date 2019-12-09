@@ -47,8 +47,6 @@ usr = ${env;REPOSITORY_USERNAME;}
 
 -runfw: org.apache.felix.framework
 -runee: JavaSE-1.8
-
-
 #
 # Configure Repositories
 
@@ -64,6 +62,10 @@ usr = ${env;REPOSITORY_USERNAME;}
     org.osgi.service.async; \
         requirement:='osgi.identity;filter:="(osgi.identity=org.apache.aries.async)"'
 
+-augment.kn_ua: \
+    org.knopflerfish.bundle.useradmin; \
+        capability:="osgi.service;objectClass:List<String>=org.osgi.service.useradmin.UserAdmin;effective:=active, \
+                     osgi.implementation;osgi.implementation=osgi.useradmin"
 
 -resolve.effective: resolve,active
        

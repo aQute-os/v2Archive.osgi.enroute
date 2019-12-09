@@ -10,6 +10,7 @@ import java.util.Hashtable;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
@@ -26,6 +27,7 @@ import osgi.enroute.rest.api.RequireRestImplementation;
 
 @RequireConfigurator
 @RequireRestImplementation
+@Ignore
 public class RestNamespaceTest {
 
 	final static LaunchpadBuilder	builder	= new LaunchpadBuilder().bndrun("bnd.bnd")

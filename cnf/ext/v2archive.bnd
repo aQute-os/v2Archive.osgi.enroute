@@ -6,13 +6,13 @@
         readOnly=true; \
         name="Build"
 
--plugin.20.distro: \
+-plugin.20.runtime: \
     aQute.bnd.repository.maven.provider.MavenBndRepository; \
         snapshotUrl="https://bndtools.jfrog.io/bndtools/update/"; \
-        releaseUrl=https://repo.maven.apache.org/maven2/; \
+        releaseUrl="https://repo.maven.apache.org/maven2/,https://repo.everit.biz/artifactory/public-release/"; \
         index=${.}/runtime.mvn; \
         readOnly=true; \
-        name="Distro"
+        name="Runtime"
 
  -runblacklist.enroute: \
     osgi.identity;filter:='(osgi.identity=osgi.enroute.base.api)', \

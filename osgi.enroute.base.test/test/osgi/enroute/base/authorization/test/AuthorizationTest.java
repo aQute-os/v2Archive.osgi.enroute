@@ -1,9 +1,16 @@
 package osgi.enroute.base.authorization.test;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Callable;
 
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.osgi.service.useradmin.Authorization;
 import org.osgi.service.useradmin.Group;
 import org.osgi.service.useradmin.Role;
@@ -13,24 +20,16 @@ import org.osgi.service.useradmin.UserAdmin;
 import aQute.launchpad.Launchpad;
 import aQute.launchpad.LaunchpadBuilder;
 import aQute.launchpad.Service;
-import junit.framework.TestCase;
+import aQute.launchpad.junit.LaunchpadRunner;
 import osgi.enroute.authorization.api.Authority;
 import osgi.enroute.authorization.api.AuthorityAdmin;
 import osgi.enroute.authorization.api.SecurityVerifier;
 
 @SuppressWarnings("resource")
-public class AuthorizationTest extends TestCase {
+@RunWith(LaunchpadRunner.class)
+public class AuthorizationTest {
 
-	static LaunchpadBuilder builder;
-
-	static {
-		try {
-			builder = new LaunchpadBuilder().bndrun("bnd.bnd");
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
+	static LaunchpadBuilder	builder	= new LaunchpadBuilder().bndrun("test.bndrun");
 
 	@Service
 	Authority		authority;
@@ -39,13 +38,8 @@ public class AuthorizationTest extends TestCase {
 	@Service
 	UserAdmin		userAdmin;
 
+	@Service
 	Launchpad		lp;
-
-	@Override
-	public void setUp() throws Exception {
-		lp = builder.create()
-			.inject(this);
-	}
 
 	/**
 	 * Very little we can actually test since this depends on external state and
@@ -57,8 +51,9 @@ public class AuthorizationTest extends TestCase {
 		boolean admin(String arg);
 
 		boolean nothing(String arg);
-	};
+	}
 
+	@Test
 	public void testAuthorization() throws Exception {
 		assertNotNull(admin);
 		assertNotNull(authority);

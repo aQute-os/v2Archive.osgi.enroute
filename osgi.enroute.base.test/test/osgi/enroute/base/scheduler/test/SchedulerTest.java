@@ -1,10 +1,18 @@
 package osgi.enroute.base.scheduler.test;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import java.time.Instant;
 import java.util.Hashtable;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
@@ -18,29 +26,23 @@ import aQute.bnd.osgi.JarResource;
 import aQute.launchpad.Launchpad;
 import aQute.launchpad.LaunchpadBuilder;
 import aQute.launchpad.Service;
-import junit.framework.TestCase;
+import aQute.launchpad.junit.LaunchpadRunner;
 import osgi.enroute.scheduler.api.CronJob;
 import osgi.enroute.scheduler.api.Scheduler;
 
 @SuppressWarnings({
 	"rawtypes", "resource"
 })
-public class SchedulerTest extends TestCase {
-	static LaunchpadBuilder	builder;
-	Launchpad				lp;
-
-	static {
-		try {
-			builder = new LaunchpadBuilder().bndrun("bnd.bnd");
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
+@RunWith(LaunchpadRunner.class)
+public class SchedulerTest {
+	static LaunchpadBuilder	builder	= new LaunchpadBuilder().bndrun("test.bndrun");
 
 	@Service
-	private Scheduler scheduler;
+	private Scheduler		scheduler;
+	@Service
+	Launchpad				lp;
 
+	@Test
 	public void testBundleCleanup() throws Exception {
 		try (Builder b = new Builder()) {
 			b.setBundleSymbolicName("test.1");
@@ -103,8 +105,9 @@ public class SchedulerTest extends TestCase {
 
 		}
 
-	};
+	}
 
+	@Test
 	public void testTimer() throws Exception {
 		Chk c = new Chk();
 		scheduler.after(100)
@@ -127,6 +130,7 @@ public class SchedulerTest extends TestCase {
 		}
 	}
 
+	@Test
 	public void testReboot() throws Exception {
 		Job job = new Job();
 
@@ -144,6 +148,7 @@ public class SchedulerTest extends TestCase {
 		reg.unregister();
 	}
 
+	@Test
 	public void testEveryOtherSecond() throws Exception {
 		Job job = new Job();
 

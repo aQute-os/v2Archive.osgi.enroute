@@ -1,5 +1,9 @@
 package osgi.enroute.base.dtos.test;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumSet;
@@ -8,51 +12,41 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.osgi.dto.DTO;
 
 import aQute.launchpad.Launchpad;
 import aQute.launchpad.LaunchpadBuilder;
 import aQute.launchpad.Service;
-import junit.framework.TestCase;
+import aQute.launchpad.junit.LaunchpadRunner;
 import osgi.enroute.dto.api.DTOs;
 import osgi.enroute.dto.api.DTOs.Difference;
 import osgi.enroute.dto.api.TypeReference;
 
 @SuppressWarnings("resource")
-public class DTOsTest extends TestCase {
-	static LaunchpadBuilder	builder;
-	Launchpad				lp;
-
-	static {
-		try {
-			builder = new LaunchpadBuilder().bndrun("bnd.bnd");
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-
-	@Override
-	public void setUp() throws Exception {
-		lp = builder.create()
-			.inject(this);
-	}
+@RunWith(LaunchpadRunner.class)
+public class DTOsTest {
+	static LaunchpadBuilder	builder	= new LaunchpadBuilder().bndrun("test.bndrun");
 
 	@Service
 	private DTOs dtos;
+	@Service
+	Launchpad				lp;
 
 	/*
 	 * Simple conversion
 	 */
 
+	@Test
 	public void testSimple() throws Exception {
 
 		assertEquals(100D, dtos.convert("100")
-			.to(double.class));
+			.to(double.class), 0.1D);
 		assertEquals(10D, dtos.convert(10f)
-			.to(double.class));
+			.to(double.class), 0.1D);
 		assertEquals(100D, dtos.convert(100L)
-			.to(double.class));
+			.to(double.class), 0.1D);
 
 		assertEquals(Arrays.asList(100F), dtos.convert(100L)
 			.to(new TypeReference<List<Float>>() {}));
@@ -74,7 +68,7 @@ public class DTOsTest extends TestCase {
 		bar,
 		don,
 		zun
-	};
+	}
 
 	interface FooMap {
 		short port();
@@ -84,6 +78,7 @@ public class DTOsTest extends TestCase {
 		Set<Option> options();
 	}
 
+	@Test
 	public void testInterfaceAsMap() throws Exception {
 		Map<String, Object> map = new HashMap<String, Object>();
 
@@ -109,6 +104,7 @@ public class DTOsTest extends TestCase {
 		public Option[]	options;
 	}
 
+	@Test
 	public void testDtoAsMap() throws Exception {
 		MyData m = new MyData();
 		m.port = 20;
@@ -128,6 +124,7 @@ public class DTOsTest extends TestCase {
 	 * Show JSON
 	 */
 
+	@Test
 	public void testJSON() throws Exception {
 		MyData m = new MyData();
 		m.port = 20;
@@ -141,6 +138,7 @@ public class DTOsTest extends TestCase {
 		assertEquals("{\"host\":\"example.com\",\"options\":[\"bar\",\"don\",\"zun\"],\"port\":20}", json);
 	}
 
+	@Test
 	public void testDiff() throws Exception {
 		MyData source = new MyData();
 		source.port = 20;

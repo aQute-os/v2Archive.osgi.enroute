@@ -1,7 +1,12 @@
 package osgi.enroute.base.webserver.test;
 
+import static org.junit.Assert.assertEquals;
+
 import java.io.File;
 
+import org.junit.Ignore;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleException;
 import org.osgi.service.http.HttpService;
@@ -18,31 +23,30 @@ import aQute.bnd.osgi.JarResource;
 import aQute.launchpad.Launchpad;
 import aQute.launchpad.LaunchpadBuilder;
 import aQute.launchpad.Service;
-import junit.framework.TestCase;
+import aQute.launchpad.junit.LaunchpadRunner;
 import osgi.enroute.webserver.capabilities.RequireWebServerExtender;
 
 @SuppressWarnings("resource")
 @RequireWebServerExtender
-public class WebServerTest extends TestCase {
+@RunWith(LaunchpadRunner.class)
+@Ignore
+public class WebServerTest {
 	private static final String	HTML_BODY_TEST_BODY_HTML	= "<html><body>test</body></html>";
 
-	static LaunchpadBuilder		builder;
-	Launchpad					lp;
-
-	static {
-		try {
-			builder = new LaunchpadBuilder().bndrun("bnd.bnd");
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
+	static LaunchpadBuilder		builder						= new LaunchpadBuilder().bndrun("test.bndrun")
+		.snapshot()
+		.debug()
+		.export("com.gargoylesoftware*")
+		.export("org.apache.*");
 
 	@Service
 	HttpService s;
+	@Service
+	Launchpad	lp;
 
+	@Test
 	public void testWebResource() throws Exception {
-		try (Builder b = new Builder();) {
+		try (Builder b = new Builder()) {
 			b.setProperties(new File("resources/webresources.bnd"));
 			Jar jar = b.build();
 			jar.getManifest()
@@ -72,6 +76,7 @@ public class WebServerTest extends TestCase {
 		}
 	}
 
+	@Test
 	public void testSimple() throws BundleException, Exception {
 		Jar jar = new Jar("test");
 		jar.putResource("static/test.html", new EmbeddedResource(HTML_BODY_TEST_BODY_HTML.getBytes(), 0));

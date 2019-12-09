@@ -1,5 +1,6 @@
 package osgi.enroute.rest.simple.provider;
 
+import org.junit.Ignore;
 import org.osgi.service.configurator.annotations.RequireConfigurator;
 
 import junit.framework.TestCase;
@@ -7,6 +8,7 @@ import osgi.enroute.rest.api.RequireRestImplementation;
 
 @RequireConfigurator
 @RequireRestImplementation
+@Ignore
 public class RestDefaultTest extends TestCase {
 	//
 	// BundleContext context = FrameworkUtil.getBundle(RestDefaultTest.class)

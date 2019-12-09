@@ -7,6 +7,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicReference;
 
+import org.junit.Ignore;
 import org.osgi.util.promise.Deferred;
 
 import junit.framework.TestCase;
@@ -15,6 +16,7 @@ import osgi.enroute.scheduler.api.CancellablePromise;
 import osgi.enroute.scheduler.api.CronJob;
 import osgi.enroute.scheduler.api.TimeoutException;
 
+@Ignore
 public class SchedulerTest extends TestCase {
 	InternalSchedulerImpl si = new InternalSchedulerImpl();
 
