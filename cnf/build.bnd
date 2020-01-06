@@ -16,8 +16,6 @@ enroute-version			${base.version}-SNAPSHOT
 -pom:                   version=${enroute-version}
 
 Bundle-Version:         ${base.version}.${tstamp}
-
-
 Bundle-Copyright: 		${copyright}
 Bundle-Vendor:    		OSGi Alliance http://www.osgi.org/
 Bundle-License: 			http://opensource.org/licenses/apache2.0.php; \
