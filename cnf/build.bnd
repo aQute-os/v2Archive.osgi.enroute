@@ -43,6 +43,7 @@ usr = ${env;REPOSITORY_USERNAME;}
 
 -releaserepo: Release
 -baselinerepo: Distro
+-buildrepo: M2
 
 -runfw: org.apache.felix.framework
 -runee: JavaSE-1.8
@@ -55,7 +56,11 @@ usr = ${env;REPOSITORY_USERNAME;}
         releaseUrl= 'https://oss.sonatype.org/service/local/staging/deploy/maven2/,http://repo1.maven.org/maven2/'; \
         index=${.}/release.mvn; \
         name="Release";\
-        noupdateOnRelease=false
+        noupdateOnRelease=false,
+    aQute.bnd.repository.maven.provider.MavenBndRepository;\
+        name                =M2; \
+        redeploy            =true; \
+        noupdateOnRelease   =true,\
 
 -augment.async \
     org.osgi.service.async; \
