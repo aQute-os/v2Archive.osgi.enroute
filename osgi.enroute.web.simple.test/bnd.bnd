@@ -13,7 +13,7 @@
 	osgi.enroute.web.simple.provider;version=latest,\
 	biz.aQute.bndlib;packages=*, \
 	osgi.enroute.junit.wrapper;version=4.12,\
-	net.sourceforge.htmlunit:htmlunit-osgi, \
+    ../osgi.enroute.base.test/jars/htmlunit-osgi-2.35.0.jar;version=file, \
 	biz.aQute.launchpad
 
 -runrequires: \

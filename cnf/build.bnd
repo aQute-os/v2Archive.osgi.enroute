@@ -56,7 +56,7 @@ usr = ${env;REPOSITORY_USERNAME;}
         releaseUrl= 'https://oss.sonatype.org/service/local/staging/deploy/maven2/,http://repo1.maven.org/maven2/'; \
         index=${.}/release.mvn; \
         name="Release";\
-        noupdateOnRelease=false,
+        noupdateOnRelease=false, \
     aQute.bnd.repository.maven.provider.MavenBndRepository;\
         name                =M2; \
         redeploy            =true; \

@@ -25,4 +25,4 @@
     biz.aQute.launchpad, \
 	osgi.enroute.junit.wrapper,\
     osgi.enroute.hamcrest.wrapper,\
-	net.sourceforge.htmlunit:htmlunit-osgi;version=2.35.0
+	jars/htmlunit-osgi-2.35.0.jar;version=file
