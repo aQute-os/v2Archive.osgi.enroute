@@ -2,6 +2,9 @@
 
 -remoteworkspace        true
 
+javac.source            1.8
+javac.target            1.8
+
 copyright.year = ${tstamp;yyyy}
 copyright = Copyright (c) OSGi Alliance (2014, ${copyright.year}). All Rights Reserved.
 
