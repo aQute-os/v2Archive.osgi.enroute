@@ -126,19 +126,6 @@ More information is available [here](https://github.com/osgi/design/blob/master/
 
 ## Features
 
-### Application indexing
-
-Resources in web applications are generally accessed from hard-to-remember paths, since they are based
-on the BSN. To solve this problem, the WebServer provides an application indexer. The indexer is available
-from the root path, and lists all applications that have been declared as being "enRoute Applications".
-
-To tag an application, put an "EnRoute-Application" header entry in your bundle's manifest file, with a
-comma-separated list corresponding to the name(s) of your application(s).
-
-```
-EnRoute-Application: com.acme.foo, com.acme.bar
-```
-
 ### File caching
 
 Web servers are in an excellent position to optimize the traffic. They have access to the static resources
