@@ -1,12 +1,14 @@
-<h1><img src="http://enroute.osgi.org/img/enroute-logo-64.png" witdh=40px style="float:left;margin: 0 1em 1em 0;width:40px">
-OSGi enRoute</h1>
 
-The [OSGi enRoute][enroute] project provides a programming model of OSGi applications. The OSGi specifications provide a powerful and solid platform for component oriented programming but by their nature lack ease of use, especially for newcomers to get started.
+## Introduction
 
-This repository contains bundles providing the API for the OSGi enRoute base profile
-the bundles that had to be developed for OSGi enRoute because such bundles did not exist in any open source project.
-The base profile establishes a runtime that contains a minimal set of services that can be used as a base for applications.
-These bundles implement services defined in the [OSGi enRoute APIs] and/or provide common functions. 
+This is a clone of the v2Archive.osgi.enroute repository. It has been moved to the biz.aQute group
+to prevent clashes, however, the packages and project names are not changed.
+
+This repository will be maintained to fix bugs and update versions. However, the intention is to
+move to all the interesting projects to [biz.aQute.osgi.util] in the bizQute namespace. Several
+projects in the v2Archive enRoute have now become OSGi specs so they are more or less abandoned.
+
+
 
 ## Contributing
 
