@@ -27,23 +27,23 @@ import osgi.enroute.web.server.exceptions.Redirect302Exception;
 	"service.ranking:Integer=1000", "name=" + RedirectServlet.NAME,
 }, name = RedirectServlet.NAME, configurationPolicy = ConfigurationPolicy.OPTIONAL)
 public class RedirectServlet implements ConditionalServlet {
-	final static Logger			logger			= LoggerFactory.getLogger(RedirectServlet.class);
-	static final String			NAME			= "osgi.enroute.simple.redirect";
+	final static Logger	logger			= LoggerFactory.getLogger(RedirectServlet.class);
+	static final String	NAME			= "osgi.enroute.simple.redirect";
 
 	/**
 	 * Must start with a "/".
 	 */
-	private String				redirect		= "/index.html";
+	private String		redirect		= "/index.html";
 
-	final BundleTracker<URL>	bundles;
-	boolean						neverReported	= true;
+	BundleTracker<URL>	bundles;
+	boolean				neverReported	= true;
 
 	@interface Config {
 		String redirect();
 	}
 
 	@Activate
-	public RedirectServlet(Config config, BundleContext context) throws Exception {
+	void activate(Config config, BundleContext context) throws Exception {
 		bundles = new BundleTracker<URL>(context, Bundle.ACTIVE + Bundle.STARTING, null) {
 			@Override
 			public URL addingBundle(Bundle bundle, BundleEvent event) {
@@ -72,7 +72,6 @@ public class RedirectServlet implements ConditionalServlet {
 	@Override
 	public boolean doConditionalService(HttpServletRequest rq, HttpServletResponse rsp) throws Exception {
 		String path = rq.getRequestURI();
-
 		Collection<URL> tracked = bundles.getTracked()
 			.values();
 		if (path != null && path.equals("/") && !tracked.isEmpty()) {
