@@ -52,6 +52,8 @@ public class RedirectServlet implements ConditionalServlet {
 				if (root == null)
 					return null;
 
+				logger.info("Found a web root {} in bundle {}", root, bundle);
+
 				return bundle.getResource(root);
 			}
 		};
@@ -74,40 +76,42 @@ public class RedirectServlet implements ConditionalServlet {
 		String path = rq.getRequestURI();
 		Collection<URL> tracked = bundles.getTracked()
 			.values();
-		if (path != null && path.equals("/") && !tracked.isEmpty()) {
-
-			if (tracked.size() > 1 && neverReported) {
-				logger.warn("There are multiple web roots defined {}", tracked);
-				neverReported = false;
-			}
-
-			URL first = tracked.iterator()
-				.next();
-
-			IO.copy(first.openStream(), rsp.getOutputStream());
-			rsp.setStatus(200);
-			return true;
-		}
-
-		// Redirect is disabled by configuring with an empty string.
-		// Since the value will be prepended with "/", it means that when the
-		// value is "/", no action is taken.
-		if ("/".equals(redirect))
-			return false;
 
 		try {
+			if ((path == null || path.equals("/")) || path.isEmpty()) {
+				if (!tracked.isEmpty()) {
+					if (tracked.size() > 1 && neverReported) {
+						logger.warn("There are multiple web roots defined {}", tracked);
+						neverReported = false;
+					}
 
-			if (path == null || path.isEmpty() || path.equals("/")) {
-				throw new Redirect302Exception(redirect);
-			} else if (path.startsWith("/"))
-				path = path.substring(1);
+					URL first = tracked.iterator()
+						.next();
 
-			if (path.endsWith("/")) {
-				path = path.substring(0, path.length() - 1);
-				throw new Redirect302Exception("/" + path + redirect);
+					IO.copy(first.openStream(), rsp.getOutputStream());
+					rsp.setStatus(200);
+					return true;
+				} else {
+					// Redirect is disabled by configuring with an empty string.
+					// Since the value will be prepended with "/", it means that
+					// when the
+					// value is "/", no action is taken.
+					if ("/".equals(redirect))
+						return false;
+
+					throw new Redirect302Exception(redirect);
+				}
+			} else {
+
+				if (path.startsWith("/"))
+					path = path.substring(1);
+
+				if (path.endsWith("/")) {
+					path = path.substring(0, path.length() - 1);
+					throw new Redirect302Exception("/" + path + redirect);
+				}
+				return false;
 			}
-
-			return false;
 		} catch (Redirect302Exception e) {
 			rsp.setHeader("Location", e.getPath());
 			rsp.sendRedirect(e.getPath());
