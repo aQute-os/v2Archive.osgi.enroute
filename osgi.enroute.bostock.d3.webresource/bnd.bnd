@@ -36,5 +36,3 @@ Provide-Capability:	\
 	{readme.md}, \
 	${path}=${base.version}, \
 	{LICENSE.txt}
-
--releaserepo:

@@ -37,5 +37,3 @@ Provide-Capability: \
 -includeresource: ${path}=${base.version}, {readme.md}, LICENSE.txt
 -buildpath: \
 	osgi.enroute.base.api
-
--releaserepo:

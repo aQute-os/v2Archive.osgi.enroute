@@ -37,4 +37,3 @@ Bundle-SCM:				\
 	osgi.identity;filter:='(osgi.identity=osgi.enroute.twitter.bootstrap.webresource)'
 -runbundles:  \
 	osgi.enroute.twitter.bootstrap.webresource;version=latest
--releaserepo:

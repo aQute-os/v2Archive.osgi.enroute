@@ -55,4 +55,3 @@ Provide-Capability: \
 	${path}/enmarkdown.js=enmarkdown.js.concat, \
 	${base.version}/LICENSE.txt, \
 	{readme.md}
--releaserepo:

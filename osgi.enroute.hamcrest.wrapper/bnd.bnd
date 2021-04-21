@@ -9,4 +9,3 @@ Bundle-Copyright: 	Copyright 2012- hamcrest.org
 	org.hamcrest:hamcrest-all
 
 -includeresource: LICENSE.txt, OSGI-OPT/src=@${repo;org.hamcrest:hamcrest-all:jar:sources}
--releaserepo:
