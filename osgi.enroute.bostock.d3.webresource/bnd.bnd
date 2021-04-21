@@ -37,3 +37,4 @@ Provide-Capability:	\
 	${path}=${base.version}, \
 	{LICENSE.txt}
 
+-releaserepo:

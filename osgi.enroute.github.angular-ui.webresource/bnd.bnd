@@ -38,3 +38,4 @@ Provide-Capability: \
 -buildpath: \
 	osgi.enroute.base.api
 
+-releaserepo:

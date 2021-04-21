@@ -42,3 +42,5 @@ Provide-Capability: \
 	osgi.identity;filter:='(osgi.identity=osgi.enroute.google.angular.webresource)'
 -runbundles:  \
 	osgi.enroute.google.angular.webresource;version=latest
+
+-releaserepo:
