@@ -16,7 +16,7 @@ bnd-version		5.2.0
 
 enroute-version			${base.version}
 -groupid:               biz.aQute
--pom:                   version=${enroute-version}
+-pom:                   version=${enroute-version}-SNAPSHOT
 
 Bundle-Version:         ${base.version}.${tstamp}
 Bundle-Copyright: 		${copyright}
