@@ -2,7 +2,7 @@ name: build
 
 on:
   push:
-    branches-ignore: ["master"]
+    branches-ignore: ["master","release"]
   pull_request:
 
 env:
@@ -22,3 +22,9 @@ jobs:
       - name: Build
         shell: bash
         run: ./gradlew --parallel build
+      - name: save-tests
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v2
+        with:
+          name: test-reports
+          path: '*/target/*reports/tests/'

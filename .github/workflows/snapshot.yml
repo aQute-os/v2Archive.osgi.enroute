@@ -2,8 +2,8 @@ name: release
 
 on:
   push:
-    branches: [release"]
-    tags: [ 'v*' ]
+    branches: ["master"]
+
 env:
   LC_ALL: en_US.UTF-8
   REPOSITORY_USERNAME: ${{ secrets.REPOSITORY_USERNAME }}
@@ -29,14 +29,17 @@ jobs:
           name: test-reports
           path: |
             */target/reports/
-      - name: Release
-        uses: softprops/action-gh-release@v1
-        if: startsWith(github.ref, 'refs/tags/')
+      - name: SNAPSHOT Release
+        uses: sondreb/action-release@0.0.1
         with:
-          prerelease: false
-          draft: false
-          files: |
-            biz.aQute.api/target/*.jar
+          prerelease:   true
+          draft:        true
+          token:        ${{ secrets.GITHUB_TOKEN }}
+          files:        "README.md"
+          folder:       "${{github.workspace}}/osgi.enroute.base.api///"
+          body:         'SNAPSHOT'
+          name:         "SNAPSHOT Release"
+          tag:          SNAPSHOT
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
